@@ -96,7 +96,7 @@ nooutlier <- function(x){
 
 
 ```{r}
-c1 <- read.delim("data/Abby.txt",header = T,sep = "\t")
+c1 <- read.delim("data/c1.txt",header = T,sep = "\t")
 c1 <- clean(c1)
 write.table
 ```
