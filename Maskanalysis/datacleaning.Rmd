@@ -1,0 +1,24 @@
+---
+title: "timep1+p2"
+author: "Katrina Li"
+date: "14/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+stimulim <- read.csv("datafile/stimulim.csv",header = T)
+```
+
+```{r}
+c12timep1 <- read.delim("datafile/210719_c12timep1.txt",header = T,sep = "\t")
+
+```
+
