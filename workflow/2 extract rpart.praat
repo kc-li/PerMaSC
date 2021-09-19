@@ -23,24 +23,37 @@ num_interval = Get number of intervals... annotier
 n=0
 for i from 1 to num_interval
 	select 'textgrid'
+	finalend = Get end time
 	label$ = Get label of interval: annotier, i
 	if label$ == "r"
 		n = n+1
 		start = Get start time of interval: annotier, i
 		end = Get end time of interval: annotier, i
 		# special settings if r too short
-		end = end + 0.5
-		start = start - 0.5
-		name = Get interval at time: infortier, start
+		new_end = end + 0.5
+		new_start = start - 0.5
+		name = Get interval at time: infortier, new_start
 		name$ = Get label of interval: infortier, name
 		select 'sound'
-		sound[n] = Extract part: start, end, "rectangular", 1, 0
+
+		# if exceeds the final end, then we'll need to add
+		if end < finalend
+			sound[n] = Extract part: new_start, new_end, "rectangular", 1, 0
+		else
+			soudn[n] = Extract part: new_start, end, "rectangular", 1, 0
+		endif
 		Rename: name$
+
 		filename$ = outdir$ + name$ + ".wav"
 		Save as WAV file: filename$
 		select 'textgrid'
-		textgrid[n] = Extract part: start, end, 0
+		if end < finalend
+			textgrid[n] = Extract part: new_start, new_end, 0
+		else
+			textgrid[n] = Extract part: new_start, end, 0
+		endif
 		Rename: name$
+
 	endif
 endfor
 

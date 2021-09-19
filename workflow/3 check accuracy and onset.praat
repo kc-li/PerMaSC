@@ -8,7 +8,7 @@
 # By Katrina Li (12/9/2021)
 
 form Specify participant name
-  word parid 210719_a25
+  word parid 210723_a76
 endform
 
 ans$ = "correctans.csv"
@@ -145,7 +145,9 @@ for interval to num_of_interval
   inten_point = number(inten_point$)
 
   editor TextGrid 'newname$'
-    Zoom... start end
+	new_start = start + 0.5
+	new_end = end - 0.5
+    Zoom... new_start new_end
     #default cursor position: determined by chronset
     Move cursor to... chron_point
   endeditor
@@ -159,18 +161,25 @@ for interval to num_of_interval
     # IF THEY CLICKED "PLAY"
     if clicked = 1
       editor TextGrid 'newname$'
-        Play... start end
+		Zoom... new_start new_end
+        Play... new_start new_end
       endeditor
 
     # IF THEY CLICKED "ChronP"
     elif clicked = 2
       editor TextGrid 'newname$'
+		chronP_start = chron_point - 0.03
+		chronP_end = chron_point + 0.03
+		Zoom... chronP_start chronP_end
         Move cursor to... chron_point
       endeditor
 
     #IF THEY CLICKED "IntenP"
     elif clicked = 3
       editor TextGrid 'newname$'
+		intenP_start = inten_point - 0.03
+		intenP_end = inten_point + 0.03
+		Zoom... intenP_start intenP_end
         Move cursor to... inten_point
       endeditor
 
@@ -178,7 +187,7 @@ for interval to num_of_interval
     elif clicked = 4
       editor TextGrid 'newname$'
         confirmed_point = Get cursor
-      endeditor
+      endeditor 
       nocheck Insert point... 3 confirmed_point check
       correct$ = string$(correct)
       content$ = correct$+"_"+note$
