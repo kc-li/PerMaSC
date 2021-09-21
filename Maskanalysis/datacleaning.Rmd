@@ -57,6 +57,7 @@ c12combine %>%
   geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
   geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
 ```
+
 ```{r a25 demo}
 a25timep1 <- read.delim("datafile/210719_a25timep1.txt",header = T,sep = "\t")
 a25timep2 <- read.delim("datafile/210719_a25timep2.txt",header = T,sep = "\t")
@@ -92,6 +93,171 @@ a25combine <- a25timep1 %>%
   select(scheduleID, number, audio, video, sentence_label, context,type, duration1, duration2,accuracy, note, beep_response, react1, react2, react3) 
 
 a25combine %>%
+  filter(accuracy != 0) %>%
+  ggplot(aes(x=type, y=react3)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
+```
+
+
+```{r a76}
+a76timep1 <- read.delim("datafile/210723_a76timep1.txt",header = T,sep = "\t")
+a76timep2 <- read.delim("datafile/210723_a76timep2.txt",header = T,sep = "\t")
+a76combine <- a76timep1 %>%
+  pivot_wider(
+    id_cols = label, 
+    names_from = timetype,
+    values_from = timepoint
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) %>%
+  full_join(a76timep2, by = "label") %>%
+  mutate(
+    beep_response = duration1 + duration2
+  ) %>%
+  separate(note, into=c("accuracy", "note"), sep="_") %>%
+  separate(label, into=c("scheduleID", "sentence"), sep = "_") %>%
+  separate(sentence, into = c('number','audio','video'), sep = "(a|v)(?=M|NM)") %>%
+  mutate(
+    audio = paste0("a",audio),
+    video = paste0("v",video),
+    sentence_label = paste(number, audio, sep="_")
+  ) %>%
+  left_join(stimulim, by = "sentence_label") %>%
+  mutate(
+    react1 = beep_response - length1,
+    react2 = beep_response - length2,
+    react3 = beep_response - length3,
+    type = paste0(audio,video),
+    context = str_sub(number,-1,-1)
+  )  %>%
+  select(scheduleID, number, audio, video, sentence_label, context,type, duration1, duration2,accuracy, note, beep_response, react1, react2, react3) 
+
+a76combine %>%
+  filter(accuracy != 0) %>%
+  ggplot(aes(x=type, y=react3)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
+
+```
+```{r a41}
+a41timep1 <- read.delim("datafile/210719_a41timep1.txt",header = T,sep = "\t")
+a41timep2 <- read.delim("datafile/210719_a41timep2.txt",header = T,sep = "\t")
+a41combine <- a41timep1 %>%
+  pivot_wider(
+    id_cols = label, 
+    names_from = timetype,
+    values_from = timepoint
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) %>%
+  full_join(a41timep2, by = "label") %>%
+  mutate(
+    beep_response = duration1 + duration2
+  ) %>%
+  separate(note, into=c("accuracy", "note"), sep="_") %>%
+  separate(label, into=c("scheduleID", "sentence"), sep = "_") %>%
+  separate(sentence, into = c('number','audio','video'), sep = "(a|v)(?=M|NM)") %>%
+  mutate(
+    audio = paste0("a",audio),
+    video = paste0("v",video),
+    sentence_label = paste(number, audio, sep="_")
+  ) %>%
+  left_join(stimulim, by = "sentence_label") %>%
+  mutate(
+    react1 = beep_response - length1,
+    react2 = beep_response - length2,
+    react3 = beep_response - length3,
+    type = paste0(audio,video),
+    context = str_sub(number,-1,-1)
+  )  %>%
+  select(scheduleID, number, audio, video, sentence_label, context,type, duration1, duration2,accuracy, note, beep_response, react1, react2, react3) 
+
+a41combine %>%
+  filter(accuracy != 0) %>%
+  ggplot(aes(x=type, y=react3)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
+```
+
+```{r a78}
+a78timep1 <- read.delim("datafile/210723_a78timep1.txt",header = T,sep = "\t")
+a78timep2 <- read.delim("datafile/210723_a78timep2.txt",header = T,sep = "\t")
+a78combine <- a78timep1 %>%
+  pivot_wider(
+    id_cols = label, 
+    names_from = timetype,
+    values_from = timepoint
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) %>%
+  full_join(a78timep2, by = "label") %>%
+  mutate(
+    beep_response = duration1 + duration2
+  ) %>%
+  separate(note, into=c("accuracy", "note"), sep="_") %>%
+  separate(label, into=c("scheduleID", "sentence"), sep = "_") %>%
+  separate(sentence, into = c('number','audio','video'), sep = "(a|v)(?=M|NM)") %>%
+  mutate(
+    audio = paste0("a",audio),
+    video = paste0("v",video),
+    sentence_label = paste(number, audio, sep="_")
+  ) %>%
+  left_join(stimulim, by = "sentence_label") %>%
+  mutate(
+    react1 = beep_response - length1,
+    react2 = beep_response - length2,
+    react3 = beep_response - length3,
+    type = paste0(audio,video),
+    context = str_sub(number,-1,-1)
+  )  %>%
+  select(scheduleID, number, audio, video, sentence_label, context,type, duration1, duration2,accuracy, note, beep_response, react1, react2, react3) 
+
+a78combine %>%
+  filter(accuracy != 0) %>%
+  ggplot(aes(x=type, y=react3)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
+```
+
+```{r a79}
+a79timep1 <- read.delim("datafile/210723_a79timep1.txt",header = T,sep = "\t")
+a79timep2 <- read.delim("datafile/210723_a79timep2.txt",header = T,sep = "\t")
+a79combine <- a79timep1 %>%
+  pivot_wider(
+    id_cols = label, 
+    names_from = timetype,
+    values_from = timepoint
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) %>%
+  full_join(a79timep2, by = "label") %>%
+  mutate(
+    beep_response = duration1 + duration2
+  ) %>%
+  separate(note, into=c("accuracy", "note"), sep="_") %>%
+  separate(label, into=c("scheduleID", "sentence"), sep = "_") %>%
+  separate(sentence, into = c('number','audio','video'), sep = "(a|v)(?=M|NM)") %>%
+  mutate(
+    audio = paste0("a",audio),
+    video = paste0("v",video),
+    sentence_label = paste(number, audio, sep="_")
+  ) %>%
+  left_join(stimulim, by = "sentence_label") %>%
+  mutate(
+    react1 = beep_response - length1,
+    react2 = beep_response - length2,
+    react3 = beep_response - length3,
+    type = paste0(audio,video),
+    context = str_sub(number,-1,-1)
+  )  %>%
+  select(scheduleID, number, audio, video, sentence_label, context,type, duration1, duration2,accuracy, note, beep_response, react1, react2, react3) 
+
+a79combine %>%
   filter(accuracy != 0) %>%
   ggplot(aes(x=type, y=react3)) +
   geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+

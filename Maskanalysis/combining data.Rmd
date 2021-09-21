@@ -1,0 +1,17 @@
+---
+title: "Combining data"
+author: "Katrina Li"
+date: "21/09/2021"
+output: html_document
+---
+
+```{r combining data}
+all <- rbind(a25combine, a41combine, a76combine, a78combine, a79combine, a83combine)
+
+all %>%
+  filter(accuracy != 0) %>%
+  ggplot(aes(x=type, y=react3)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5)
+```
+
