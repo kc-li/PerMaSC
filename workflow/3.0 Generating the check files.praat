@@ -1,3 +1,7 @@
+# 3.0 Generate the check files (only for Katrina's use)
+# Script 3.0 is essentially the complete version of script 3. Since I will be the only person generating the checking files, I won't include 'generating files' in script 3.
+# By Katrina Li (2021.9.29)
+
 # The file will facilitate the checking process
 # Make sure you have put a 'correctans.csv' in your folder.
 # It will also asks you to select the chronset result.
@@ -14,6 +18,13 @@ form Specify participant name
   comment Katrina will specify the parameter in the "work assignment" spreadsheet if needed.
 endform
 
+#Change this parameter to be in coordinate with step 2 script
+
+ans$ = "correctans.csv"
+Read Table from comma-separated file... 'ans$'
+tableid = selected("Table")
+soundfile_directory$ = "./Chronset/" + parid$
+
 newname$ = parid$ + "check"
 newsoundfile$ = newname$ + ".wav"
 newtextgridfile$ = newname$ + ".TextGrid"
@@ -25,8 +36,93 @@ if fileReadable(newsoundfile$)
   Read from file... 'newtextgridfile$'
   newtextgrid = selected("TextGrid")
 else
-  exitScript: "There's no checking files for the participant."
+  strings = Create Strings as file list: "list", soundfile_directory$ + "/*.wav"
+  numberOfFiles = Get number of strings
+
+  # Read the website-generated chronset file
+  fileName$ = chooseReadFile$: "Open the Chronset file"
+  if fileName$ <> ""
+    chronset_list = Read Strings from raw text file: fileName$
+  else ; if no directory was chosen -> exit
+    exit
+  endif
+
+  m=0
+  for ifile to numberOfFiles
+    selectObject: strings
+    fileName$ = Get string... ifile
+    Read from file: soundfile_directory$ + "/" + fileName$
+    object_name$ = selected$("Sound")
+    if !endsWith(object_name$, "audioFile")
+      m = m+1
+      sound[m] = selected("Sound")
+
+      chronset$ = extractLine$(object$[chronset_list, ifile], tab$)
+      condition = extractNumber(object$[chronset_list, ifile], "_")
+      condition$ = string$(condition)
+
+      if chronset$ = "NaN"
+        point = 0
+      else
+        point = number(chronset$)/1000
+      endif
+
+      select 'tableid'
+      line = Search column... no. 'condition$'
+      correct$ = Get value... line correct
+      selectObject: sound[m]
+      To TextGrid... "sentence correct"
+      textgrid[m] = selected("TextGrid")
+      Set interval text... 1 1 'object_name$'
+      Set interval text... 2 1 'correct$'
+      Insert point tier... 3 Chronset
+      Insert point... 3 point
+    endif
+  endfor
+
+
+  nocheck selectObject: undefined
+  for ifile to m
+    plusObject: sound[ifile]
+  endfor
+  Concatenate
+  newsound = Convert to mono
+  Rename... 'newname$'
+
+  nocheck selectObject: undefined
+  for ifile to m
+    plusObject: textgrid[ifile]
+  endfor
+  newtextgrid = Concatenate
+  Rename... 'newname$'
+
+  # Now we can remove individual files
+  nocheck selectObject: undefined
+  for ifile to m
+    plusObject: sound[ifile]
+    plusObject: textgrid[ifile]
+  endfor
+  Remove
+
+  selectObject: "Strings list"
+  plusObject: "Sound chain"
+  Remove
+
+  select 'newtextgrid'
+  num_of_points = Get number of points... 3
+  dataname2$ = parid$ + "chronset.txt"
+  writeFileLine: dataname2$, "label", tab$, "time"
+  for i from 1 to num_of_points
+    pointtime_c = Get time of point... 3 i
+    name = Get interval at time: 1, pointtime_c
+    name$ = Get label of interval: 1, name
+    appendFileLine: dataname2$, name$, tab$, pointtime_c
+  endfor
+  Remove tier... 3
+  Insert point tier... 3 confirmed
+  Duplicate tier... 2 4 notes
 endif
+# This is the end of generating textgrid & sound files
 
 # Export new Chronset time
 
@@ -40,6 +136,7 @@ Remove string... 1
 # Start manual check process
 select 'newtextgrid'
 num_of_interval = Get number of intervals... 1
+
 
 select 'newsound'
 plus 'newtextgrid'
