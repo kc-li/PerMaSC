@@ -164,8 +164,12 @@ for interval to num_of_interval
   repeat
     beginPause("Check onset & accuracy")
     boolean: "Correct", 1
+	optionMenu: "Codeword", 1
+		option: ""
+		option: "unsure"
+		option: "discard"
     comment: "If wrong, what is the participant's response?"
-    sentence: "Note", ""
+    text: "Note", ""
     clicked = endPause("Play", "ChronP","IntenP","Out","Add","Next",5)
     # IF THEY CLICKED "PLAY"
     if clicked = 1
@@ -181,6 +185,7 @@ for interval to num_of_interval
 		    chronP_end = chron_point + 0.03
 		    Zoom... chronP_start chronP_end
         Move cursor to... chron_point
+		Move cursor to nearest zero crossing
       endeditor
 
     #IF THEY CLICKED "IntenP"
@@ -190,6 +195,7 @@ for interval to num_of_interval
 		    intenP_end = inten_point + 0.03
 		    Zoom... intenP_start intenP_end
         Move cursor to... inten_point
+		Move cursor to nearest zero crossing
       endeditor
 
     elif clicked = 4
@@ -200,6 +206,7 @@ for interval to num_of_interval
     #IF THEY CLICKED "Add"
     elif clicked = 5
       editor TextGrid 'newname$'
+		Move cursor to nearest zero crossing
         confirmed_point = Get cursor
       endeditor
       nocheck Insert point... 3 confirmed_point check

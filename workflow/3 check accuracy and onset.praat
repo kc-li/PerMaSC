@@ -1,11 +1,11 @@
 # The file will facilitate the checking process
-# Make sure you have put a 'correctans.csv' in your folder.
-# It will also asks you to select the chronset result.
-# It puts the 'correct answer' in the tier 2
-# It reads into the results returned from chronset, and save the data file
+# It runs on the pre-generated 'check' files.
+# It will puts the 'correct answer' in the tier 2
+# You will be able to specify accuracy, determine the speech onset, as well as adding notes.
 # When checking speech onset, it reads into previously saved two data files (based on intensity and chronset respectively), as well as allowing you to manually set up a time point
-# When you work on a file, please work to the end, otherwise the data files may not be correctly generated
-# By Katrina Li (12/9/2021)
+# Zoom in function added to facilitate spotting.
+# Move cursor to zero crossing added.
+# Updated by Katrina Li (7/10/2021): codeword added; the boudary will always choose the zero crossing
 
 form Specify participant name
   word parid 210723_a76
@@ -67,8 +67,12 @@ for interval to num_of_interval
   repeat
     beginPause("Check onset & accuracy")
     boolean: "Correct", 1
+	optionMenu: "Codeword", 1
+		option: ""
+		option: "unsure"
+		option: "discard"
     comment: "If wrong, what is the participant's response?"
-    sentence: "Note", ""
+    text: "Note", ""
     clicked = endPause("Play", "ChronP","IntenP","Out","Add","Next",5)
     # IF THEY CLICKED "PLAY"
     if clicked = 1
@@ -84,6 +88,7 @@ for interval to num_of_interval
 		    chronP_end = chron_point + 0.03
 		    Zoom... chronP_start chronP_end
         Move cursor to... chron_point
+		Move cursor to nearest zero crossing
       endeditor
 
     #IF THEY CLICKED "IntenP"
@@ -93,6 +98,7 @@ for interval to num_of_interval
 		    intenP_end = inten_point + 0.03
 		    Zoom... intenP_start intenP_end
         Move cursor to... inten_point
+		Move cursor to nearest zero crossing
       endeditor
 
     elif clicked = 4
@@ -103,11 +109,12 @@ for interval to num_of_interval
     #IF THEY CLICKED "Add"
     elif clicked = 5
       editor TextGrid 'newname$'
+		Move cursor to nearest zero crossing
         confirmed_point = Get cursor
       endeditor
       nocheck Insert point... 3 confirmed_point check
       correct$ = string$(correct)
-      content$ = correct$+"_"+note$
+      content$ = correct$+"_" + codeword$ + "_" +note$
       select 'newtextgrid'
       Set interval text... 4 interval 'content$'
     endif

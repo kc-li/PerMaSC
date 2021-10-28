@@ -1,4 +1,5 @@
 # Regenerate intensity file and find maximum
+# Based on original files are fine
 # Export timep1.txt only
 # You don't need to save the sound&textgrid files
 

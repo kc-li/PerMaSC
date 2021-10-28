@@ -1,0 +1,57 @@
+---
+title: "dataanalysis(firstbatch)"
+author: "Katrina Li"
+date: "28/10/2021"
+output: html_document
+---
+
+```{r cars}
+library(readr)
+library(dplyr)
+firstbatch <- read_csv("firstbatch.csv",col_names = TRUE)
+firstbatch <- firstbatch %>%
+  mutate(
+    number = as.factor(number),
+    audio = as.factor(audio),
+    video = as.factor(video),
+    context = as.factor(context),
+    group = as.factor(group),
+  )
+```
+
+**Note: we first use react2 (stimuli end = absolute end), and react1 as an alternative (stimuli end = nucleus end)
+
+```{r plotting}
+firstbatch %>%
+  filter(accuracy != 0) %>% # Only including correct response
+  filter(react2 < 5000) %>% # If the reaction time is too long
+  ggplot(aes(x=type, y=react2)) +
+  geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
+  geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5) +
+  facet_grid(.~group)
+ggsave("firstbatch.png",width = 8, height = 6)
+```
+
+```{r summary table}
+firstbatch %>%
+  filter(accuracy != 0) %>% # Only including correct response
+  filter(react2 < 5000) %>% # If the reaction time is too long
+  group_by(context, audio, video) %>%
+  summarise(mean = mean(react2, na.rm = TRUE),quantile50 = quantile(react2,0.5,na.rm = TRUE), count = n())
+```
+
+```{r model}
+firstbatch.clean <- firstbatch %>%
+  filter(accuracy != 0) %>% # Only including correct response
+  filter(react2 < 5000) # If the reaction time is too long
+  
+model <- lm(react2 ~ audio+video+context+group,data = firstbatch.clean)
+summary(model)
+
+model.adult <- lm(react2 ~ audio+video+context,data = filter(firstbatch.clean,group == "adult"))
+summary(model.adult)
+
+model.child <- lm(react2 ~ audio+video+context,data = filter(firstbatch.clean,group == "child"))
+summary(model.child)
+```
+
