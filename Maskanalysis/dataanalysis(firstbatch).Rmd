@@ -6,9 +6,12 @@ output: html_document
 ---
 
 ```{r cars}
+library(ggplot2)
 library(readr)
 library(dplyr)
-firstbatch <- read_csv("firstbatch.csv",col_names = TRUE)
+#firstbatch <- read_csv("firstbatch.csv",col_names = TRUE)
+firstbatch <- read_csv("secondbatch.csv",col_names = TRUE)
+
 firstbatch <- firstbatch %>%
   mutate(
     number = as.factor(number),
@@ -29,7 +32,7 @@ firstbatch %>%
   geom_boxplot(aes(colour = context), outlier.colour = "black", outlier.shape = 1, position = position_dodge(width=0.9))+
   geom_point(aes(colour = context),position = position_jitterdodge(dodge.width = 0.9),alpha = 0.5) +
   facet_grid(.~group)
-ggsave("firstbatch.png",width = 8, height = 6)
+#ggsave("firstbatch.png",width = 8, height = 6)
 ```
 
 ```{r summary table}
