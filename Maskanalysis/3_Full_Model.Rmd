@@ -33,6 +33,9 @@ library(moments)
 library(Hmisc)
 library(dplyr)
 library(emmeans)
+library(performance)
+library(effects)
+library(stargazer)
 ```
 
 
@@ -75,10 +78,10 @@ data$CONDITION <- as.factor(data$CONDITION)
 #data$LIST <- as.factor(data$Experiment_version)
 
 # Sum Contrast Coding
-contrasts(data$GROUP) <- c(-0.5,+0.5)
-contrasts(data$AUDIO) <- c(-0.5,+0.5)
-contrasts(data$VISUAL) <- c(-0.5,+0.5)
-contrasts(data$PREDICT) <- c(-0.5,+0.5)
+# contrasts(data$GROUP) <- c(-0.5,+0.5)
+# contrasts(data$AUDIO) <- c(-0.5,+0.5)
+# contrasts(data$VISUAL) <- c(-0.5,+0.5)
+# contrasts(data$PREDICT) <- c(-0.5,+0.5)
 
 ```
 
@@ -169,7 +172,28 @@ lmm.all <- lmerTest::lmer(RT ~
                            REML=F, na.action=na.omit)
 summary(lmm.all)
 ```
-
+```{r, full start model - age}
+lmm.all.age <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:AGE +
+                            VISUAL:AGE +
+                            AUDIO:PREDICT +
+                            VISUAL:PREDICT +
+                            AGE:PREDICT +
+                            
+                            AGE +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.all.age)
+```
 ```{r manual effect testing, include=FALSE}
 # remove  AUDIO:GROUP +
 lmm.all1 <- lmerTest::lmer(RT ~ 
@@ -324,6 +348,16 @@ stepmodel<-get_model(step_object)
 summary(stepmodel)
 ```
 
+```{r step - age}
+step_object_age<-step(lmm.all.age, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel.age<-get_model(step_object_age)
+summary(stepmodel.age)
+```
 
 ### Optimized Model Summary (all data):
 
@@ -348,6 +382,33 @@ lmm.all.optimized <- lmerTest::lmer(RT ~
                            REML=T, na.action=na.omit)
 
 tab_model(lmm.all.optimized)
+```
+```{r random slope, echo=FALSE}
+# only converges without AUDIO as slope
+# PREDICT*GROUP not significant
+lmm.all.optimized.slope <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT +
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 + PREDICT + VISUAL | SUBJECT) + 
+                            (AUDIO||SUBJECT) +
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=T, na.action=na.omit)
+
+allFit(lmm.all.optimized.slope)
+tab_model(lmm.all.optimized.slope)
+```
+```{r}
+check_model(lmm.all.optimized)
 ```
 
 

@@ -54,3 +54,12 @@ write.csv(child, "Qchild.csv", row.names = FALSE)
 ```
 
 
+```{r}
+colnames(adult)
+adult %>%
+  filter('date of birth-year' != 0)
+
+child %>%
+  filter("date of birth-year" == 0)
+```
+

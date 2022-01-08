@@ -4,10 +4,6 @@ author: "Katrina Li"
 date: "28/10/2021"
 output: html_document
 ---
-```{r}
-try <- read.delim("datafile_first_batch/210725_a120timep2.txt",sep="\t",check.names = F)
-```
-
 ```{r first batch, include=FALSE}
 library(dplyr)
 library(tidyr)
@@ -77,6 +73,9 @@ combine <- p1files %>%
 
 write.csv(combine,"firstbatch.csv",row.names = FALSE)
 
+combine[!duplicated(combine$parid),] %>%
+  group_by(group) %>%
+  summarize(n = n())
 ```
 
 ```{r second batch}
@@ -144,6 +143,10 @@ combine <- p1files %>%
   select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2) 
 
 write.csv(combine,"secondbatch.csv",row.names = FALSE)
+
+combine[!duplicated(combine$parid),] %>%
+  group_by(group) %>%
+  summarize(n = n())
 ```
 
 
