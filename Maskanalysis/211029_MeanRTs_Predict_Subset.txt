@@ -1,0 +1,17 @@
+"GROUP"	"AUDIO"	"VISUAL"	"PREDICT"	"n"	"Mean"	"Conf.level"	"Trad.lower"	"Trad.upper"
+"Adults"	"Mask"	"Mask"	"High"	421	435	0.95	403	468
+"Adults"	"Mask"	"Mask"	"Low"	387	567	0.95	531	604
+"Adults"	"Mask"	"No Mask"	"High"	430	407	0.95	372	441
+"Adults"	"Mask"	"No Mask"	"Low"	403	521	0.95	484	557
+"Adults"	"No Mask"	"Mask"	"High"	427	422	0.95	388	456
+"Adults"	"No Mask"	"Mask"	"Low"	423	495	0.95	463	526
+"Adults"	"No Mask"	"No Mask"	"High"	426	428	0.95	394	462
+"Adults"	"No Mask"	"No Mask"	"Low"	414	482	0.95	452	513
+"Children"	"Mask"	"Mask"	"High"	388	575	0.95	529	620
+"Children"	"Mask"	"Mask"	"Low"	349	664	0.95	616	711
+"Children"	"Mask"	"No Mask"	"High"	391	553	0.95	510	596
+"Children"	"Mask"	"No Mask"	"Low"	366	635	0.95	589	680
+"Children"	"No Mask"	"Mask"	"High"	392	557	0.95	513	600
+"Children"	"No Mask"	"Mask"	"Low"	394	597	0.95	554	639
+"Children"	"No Mask"	"No Mask"	"High"	389	545	0.95	501	589
+"Children"	"No Mask"	"No Mask"	"Low"	385	609	0.95	565	653

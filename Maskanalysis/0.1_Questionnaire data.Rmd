@@ -1,0 +1,56 @@
+---
+title: "questionnaire data"
+author: "Katrina Li"
+date: "05/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(data.table)
+```
+
+# Extract age information & mask problem
+From pre-experiment questionnaire: age, languages, mask problems
+From post-experiment questionnaire: diffulctuly, distraction, whether experiment goes well
+
+```{r cars}
+path <- "questionnaire"
+adultpath <- "questionnaire/adult questionnaire"
+childpath <- "questionnaire/child questionnaire"
+spreadsheetpath <- "questionnaire/experiment spreadsheet"
+adultprefiles <- list.files(adultpath,pattern = "hykl.csv",full.names = T)
+childprefiles <- list.files(childpath,pattern = "fsom.csv",full.names = T)
+adultpostfiles <- list.files(adultpath,pattern = "tizj.csv",full.names = T)
+childpostfiles <- list.files(childpath,pattern = "22wz.csv",full.names = T)
+
+# A new method for reading all files at once: fread, the fatest options
+# Single-line footer automatically disgarded
+adultpre = do.call(rbind, lapply(adultprefiles, fread))
+childpre = do.call(rbind, lapply(childprefiles, fread))
+adultpost = do.call(rbind, lapply(adultpostfiles, fread))
+childpost = do.call(rbind, lapply(childpostfiles, fread))
+
+```
+
+```{r clean data}
+adultpost <- adultpost %>%
+  select("Participant Public ID","Experiment Version","Difficulty","Distraction","response-4-1","response-4-2","response-4-3","response-4-4","response-4-text","response-5","Comments")
+
+childpost <- childpost %>%
+  select("Participant Public ID","Experiment Version","Difficulty","Distraction","response-4-1","response-4-2","response-4-3","response-4-4","response-4-text","response-5","Comments")
+
+adult <- adultpre %>%
+  select("Participant Public ID","Experiment Version","Participant OS","Participant Browser", "randomiser-t27m","date of birth-year","date of birth-month","sex","languages","response-6","response-6-text","mask problems","Difficulty","Tiring","more info on masks") %>%
+  inner_join(adultpost, by = c("Participant Public ID","Experiment Version"))
+
+child <- childpre %>%
+  select("Participant Public ID","Experiment Version","Participant OS","Participant Browser", "randomiser-t27m","date of birth-year","date of birth-month","sex","languages","response-6","response-6-text","mask problems","Difficulty","Tiring","more info on masks") %>%
+  inner_join(childpost, by = c("Participant Public ID","Experiment Version"))
+
+write.csv(adult, "Qadult.csv", row.names = FALSE)
+write.csv(child, "Qchild.csv", row.names = FALSE)
+```
+
+

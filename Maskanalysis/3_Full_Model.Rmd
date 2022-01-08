@@ -1,0 +1,502 @@
+---
+title: "Full Model"
+author: "Julia Schwarz"
+date: "28/10/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Packages
+
+```{r packages, include=FALSE}
+library(LMERConvenienceFunctions)
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(rcompanion)
+library(MuMIn)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(moments)
+library(Hmisc)
+library(dplyr)
+library(emmeans)
+```
+
+
+
+## Data File
+
+Pre-processed data file (critical items only), outliers and practice trials removed. 3560 observations. 
+
+```{r load data, echo=FALSE}
+data<-read.delim("220107_full_data_cleaned.txt", header=T)
+```
+
+
+
+## Variable Prep
+
+```{r variables, echo=FALSE}
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# zscoring/scaling
+data$RT_z <- scale(data$RT, center = TRUE, scale = TRUE)
+
+# Fixed
+data$GROUP <- as.factor(data$GROUP) #adults vs children
+data$AUDIO <- as.factor(data$AUDIO) 
+data$VISUAL <- as.factor(data$VISUAL)
+data$PREDICT <- as.factor(data$PREDICT)
+#data$TRIALORDER <- as.numeric(data$TRIALORDER)
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION <- as.factor(data$CONDITION)
+#data$BLOCK <- as.factor(data$BLOCK)
+#data$LIST <- as.factor(data$Experiment_version)
+
+# Sum Contrast Coding
+contrasts(data$GROUP) <- c(-0.5,+0.5)
+contrasts(data$AUDIO) <- c(-0.5,+0.5)
+contrasts(data$VISUAL) <- c(-0.5,+0.5)
+contrasts(data$PREDICT) <- c(-0.5,+0.5)
+
+```
+
+
+## Subsets
+
+```{r subsets, include=FALSE}
+
+adults <- subset(data, data$GROUP == 'a') #1808
+children <- subset(data, data$GROUP == 'c') #1752
+
+```
+
+
+
+
+## Full Data Model
+
+### Maximal Model
+
+We first fitted a model to the complete data set.
+
+NOTE: For the full model it might be better to replace group with actual ages (continuous predictor) since there seems to be a lot of variation in the GROUP predictor. 
+
+
+### Testing Random Structure
+
+First, the random effects SUBJECT and ITEM were tested. To avoid overfitting our sub-sample data set, only random intercepts were included. Both SUBJECT and ITEM contributed significantly to the model fit and were retained in all subsequent models. 
+
+```{r, random intercept, include=FALSE}
+# ramdom slopse as well
+lmm.random1 <- lmerTest::lmer(RT ~ 
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+lmm.random2 <- lmerTest::lmer(RT ~ 
+                               
+                            (1 | SUBJECT),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+lmm.random3 <- lmerTest::lmer(RT ~ 
+                               
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.random1, lmm.random2) #sig.
+anova(lmm.random1, lmm.random3) #sig.
+
+```
+
+
+
+### Testing Fixed Structure
+
+6 interactions and 4 main effects (sum contrast coded) were included in the maximal model structure (see below).
+The model was then optimized with the step function (checked against manual reduction). 
+
+```{r, full start model}
+lmm.all <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:GROUP +
+                            VISUAL:GROUP +
+                            AUDIO:PREDICT +
+                            VISUAL:PREDICT +
+                            GROUP:PREDICT +
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.all)
+```
+
+```{r manual effect testing, include=FALSE}
+# remove  AUDIO:GROUP +
+lmm.all1 <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL + 
+                           
+                            VISUAL:GROUP +
+                            AUDIO:PREDICT + 
+                            VISUAL:PREDICT +
+                            GROUP:PREDICT + 
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all, lmm.all1) #not sig
+
+# remove VISUAL:GROUP +
+lmm.all2 <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL + 
+                           
+
+                            AUDIO:PREDICT + 
+                            VISUAL:PREDICT +
+                            GROUP:PREDICT + 
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all1, lmm.all2) #not sig
+
+# remove VISUAL:PREDICT +
+lmm.all3 <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL + 
+                           
+
+                            AUDIO:PREDICT + 
+
+                            GROUP:PREDICT + 
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all2, lmm.all3) #not sig
+
+# remove AUDIO:PREDICT 
+lmm.all4 <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL + 
+                           
+
+                            
+
+                            GROUP:PREDICT + 
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all3, lmm.all4) #sig
+
+# remove GROUP:PREDICT + 
+lmm.all5 <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL + 
+                           
+
+                            AUDIO:PREDICT + 
+
+
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all3, lmm.all5) #sig
+
+# remove AUDIO:VISUAL + 
+lmm.all6 <- lmerTest::lmer(RT ~ 
+                            
+                           
+
+                            AUDIO:PREDICT + 
+
+                            GROUP:PREDICT + 
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+
+anova(lmm.all3, lmm.all6) #sig
+
+```
+
+```{r optimize, include=FALSE}
+# optimize model w step function: results the same as tested manually (see above)
+
+step_object<-step(lmm.all, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel<-get_model(step_object)
+summary(stepmodel)
+```
+
+
+### Optimized Model Summary (all data):
+
+The optimized full data model included three significant interactions between (1) acoustic mask effect and visual mask effect, (2) acoustic mask effect and predictability effect, and (3) group (adults vs. children) and predictability effect. Predictability, visual mask effect, and acoustic mask effect were main effects. 
+
+```{r, echo=FALSE}
+lmm.all.optimized <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT +
+                            
+                            GROUP +
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=T, na.action=na.omit)
+
+tab_model(lmm.all.optimized)
+```
+
+
+### Optimized Model plotted (all data)
+
+```{r, echo=FALSE}
+plot_model(lmm.all.optimized, type = "std", show.values = TRUE, value.offset = .3, sort.est = TRUE, title = "Fixed Factor Estimates of Optimized Full Data Model")
+```
+
+
+
+
+
+## Adults
+
+### Adults Start Model
+
+Adult and Child data models followed the same analysis pipeline, starting with the same maximal model (minus factor group).
+
+```{r, full adult start model}
+lmm.adults <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            VISUAL:PREDICT +
+                            
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           adults, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.adults)
+```
+
+### Optimizing
+
+```{r adults optimize, include=FALSE}
+step_object_a<-step(lmm.adults, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel.a<-get_model(step_object_a)
+summary(stepmodel.a)
+```
+
+### Summary Optimized Adult Model
+
+The optimized adult model included a significant interaction between acoustic mask effect and target predictability effect, and a marginal interaction between acoustic and visual mask effect (NOTE: probably due to power), as well as the main effects predictability, visual mask effect, and acoustic mask effect.
+
+```{r, summary adults, echo=FALSE}
+lmm.adults.optimized <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           adults, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+tab_model(lmm.adults.optimized)
+```
+
+### Adult Model Fixed Effects Plotted
+
+```{r, adults fixed effect, echo=FALSE}
+plot_model(lmm.adults.optimized, type = "std", show.values = TRUE, value.offset = .3, sort.est = TRUE, title = "Fixed Factor Estimates of Optimized Adult Data Model")
+```
+
+
+
+
+
+## Children
+
+### Children Start Model
+
+```{r, full children start model}
+lmm.children <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            VISUAL:PREDICT +
+                            
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           children, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.children)
+```
+
+### Optimizing
+
+The child model optimized through the step function only included the main effects predictability and visual mask effect. For comparison reasons, however, the summarized model below includes the same predictors as the adult model.
+
+```{r children optimize, include=FALSE}
+step_object_c<-step(lmm.children, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel.c<-get_model(step_object_c)
+summary(stepmodel.c)
+```
+
+### Summary Optimized Child Model
+
+For comparison, the child model is mirrored with the adult model. The main effect predictability and visual mask effect were significant, the acoustic mask effect marginal (p=0.056). 
+
+NOTE: Once power increases the audio effect and the audio:visual interaction are likely to show p<0.05. 
+
+```{r, summary children, echo=FALSE}
+lmm.children.optimized <- lmerTest::lmer(RT ~ 
+                            AUDIO:VISUAL +
+                            AUDIO:PREDICT +
+                            
+                            PREDICT +
+                            VISUAL +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           children, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+tab_model(lmm.children.optimized)
+```
+
+### Child Model Fixed Effects Plotted
+
+```{r, children fixed effect, echo=FALSE}
+plot_model(lmm.children.optimized, type = "std", show.values = TRUE, value.offset = .3, sort.est = TRUE, title = "Fixed Factor Estimates of Optimized Child Data Model")
+```
+
+
