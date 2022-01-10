@@ -73,9 +73,10 @@ combine <- p1files %>%
 
 write.csv(combine,"firstbatch.csv",row.names = FALSE)
 
+# check group balanece
 combine[!duplicated(combine$parid),] %>%
   group_by(group) %>%
-  summarize(n = n())
+  summarise(n = n())
 ```
 
 ```{r second batch}
@@ -144,6 +145,7 @@ combine <- p1files %>%
 
 write.csv(combine,"secondbatch.csv",row.names = FALSE)
 
+# check group balanece
 combine[!duplicated(combine$parid),] %>%
   group_by(group) %>%
   summarize(n = n())
@@ -166,6 +168,33 @@ fulldata <- fulldata %>%
 trial_adult <- read.csv("questionnaire/adult_trial.csv", header = T)
 trial_child <- read.csv("questionnaire/child_trial.csv", header = T)
 trial <- rbind(trial_adult, trial_child)
+trial <- trial %>%
+  group_by(Participant.Public.ID,display,randomise_blocks) %>%
+  mutate(
+    rowmean = round(mean(row_number)),
+  ) %>%
+  ungroup %>%
+  group_by(Participant.Public.ID) %>%
+  mutate(
+    block = case_when(
+      rowmean == nth(unique(rowmean),1) ~ 0,
+      rowmean == nth(unique(rowmean),2) ~1,
+      rowmean == nth(unique(rowmean),3) ~2,
+      rowmean == nth(unique(rowmean),4) ~3,
+      rowmean == nth(unique(rowmean),5) ~4
+    )
+  )
+
+#trial$block <- match(trial$rowmean, unique(trial$rowmean)) -1
+
+# check if block number is correct
+trial %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(min = min(block), max = max(block), mean = mean(block), n = n())
+# check if there is NA in trial (because of the way we name the variables)
+trial %>%
+  filter(is.na(block))
+range(trial$block)
 
 Qadult <- read.csv("Qadult.csv", header = T)
 Qchild <- read.csv("Qchild.csv", header = T)
@@ -173,13 +202,7 @@ Qall <- rbind(Qadult, Qchild)
 
 mergedata <- fulldata %>%
   left_join(trial, by = c("parid" = "Participant.Public.ID","videoname" = "videoname")) %>%
-  left_join(Qall, by = c("parid"="Participant.Public.ID")) %>%
-  mutate(
-      block = case_when(row_number <=30 ~ 1,
-                      row_number >30 & row_number <=60 ~ 2,
-                      row_number >60 & row_number <=90 ~ 3,
-                      row_number >90 ~4)
-  )
+  left_join(Qall, by = c("parid"="Participant.Public.ID"))
 ```
 
 # Basic Examination
@@ -214,13 +237,24 @@ trial %>%
 
 #210725_a120 has 93LaMvNM as 121th -129 rows! two 25L!!!
 #full data has alright
-#it's trial's data fault - jsut two links - remove duplicates in python
+#it's trial's data fault - just two links - remove duplicates in python
 
 trial %>%
   filter(Participant.Public.ID == "210725_a120") %>%
   filter(videoname == "25L_aM_vM.mp4") %>%
   select(filename)
 
+mergedata %>%
+  filter(date.of.birth_year == 0)
+
+child %>%
+  filter(date.of.birth_year == 0)
+
+mergedata %>%
+  group_by(parid) %>%
+  summarise(min = min(block), max = max(block), mean = mean(block), n = n())
+range(trial$block)
+# 210725_a156 9 blocks?
 
 ```
 

@@ -65,7 +65,12 @@ data$PREDICT <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Lo
 # Other
 data$ACC <- as.factor(data$ACC) #1==correct
 data$CONDITION <- as.factor(data$CONDITION)
-#data$BLOCK <- as.factor(data$BLOCK)
+data$TRIAL <- as.numeric(data$row_number) 
+data$BLOCK <- as.numeric(data$block)
+
+# Only 2 people's age information is not finished yet!
+data$AGE <- as.numeric(data$date.of.birth_year + data$date.of.birth_month/12)
+data$SEX <- as.factor(data$sex)
 #data$LIST <- as.factor(data$Experiment_version)
 
 ```
@@ -353,4 +358,16 @@ ggplot(data, aes(CONDITION, RT, colour=PREDICT)) +
 ```
 
 
-
+## RT w block number
+```{r}
+# The overall time decreases
+ggplot(data, aes(BLOCK,RT, color = type)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1) ) +
+  stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6,aes(group = type), position = position_dodge(0.1)) +
+  theme_classic() +
+  facet_grid(~ GROUP )
+```

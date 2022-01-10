@@ -13,8 +13,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
 ## Packages
 
 ```{r packages, include=FALSE}
@@ -31,28 +29,32 @@ library(dplyr)
 library(stargazer)
 ```
 
-## Some updates compared to the previous version (to be discussed):
-- I reincluded c135, as there were probably worse ones than that.
-- Reaction time lower than 0 ms: I dont' think we should exclude trials lower than 0 ms - because it is very likely to happen if a participants just predict and respond. For log transformation, we can add a small value to it and make all data positive. 
-- We probably need more detailed inspection over individual data.
+## Updates compared to the previous version (to be discussed):
+- c135 is re-introuded and re-evaluated, as there are worse dataset than that.
+- New variables introduced: age, sex, trial, block
+- Reaction time lower than 0 ms is not excluded, since this time we have much more data below 0ms. However, for log transformation, adding a small value to it and make all data positive might give better distribution.
+- We also inspect annotation notes.
+- Transfomation not decided yet.
 
 ## Data File
 
-From first batch of files: 17 adults and 17 children
-From second batch of files: 
+Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7870** observations. 
 
-16 children and 14 adults
+From first batch of files: 17 adults and 17 children.
 
-Raw data file with all 1-17 adults + 1-17 children, no data removed except empty responses. **7870** observations. 
+From second batch of files: 16 adults and 14 children.
 
 ```{r load data, echo=FALSE}
 data<-read.csv("fulldata.csv", header=T) 
-print("Total data:")
-nrow(data)
+print(paste("Total data: ", nrow(data)))
+
+data[!duplicated(data$parid),] %>%
+  group_by(group) %>%
+  summarise(n = n())
 ```
 
 ## Variable Prep
-New variables here: *TRIAL*
+New variables here: *TRIAL*, *BLOCK*, *AGE*, *SEX*
 
 ```{r variables, echo=FALSE}
 
@@ -74,16 +76,13 @@ data$PREDICT <- as.factor(data$context)
 data$ACC <- as.factor(data$accuracy) #1==correct
 data$CONDITION <- as.factor(data$type)
 data$TRIAL <- as.numeric(data$row_number) 
-data$BLOCK <- as.factor(data$block)
-#### Age not finished!
-data$AGE <- as.numeric(data$date.of.birth.year + data$date.of.birth.month/12)
+data$BLOCK <- as.numeric(data$block)
+
+# Only 2 people's age information is not finished yet!
+data$AGE <- as.numeric(data$date.of.birth_year + data$date.of.birth_month/12)
 data$SEX <- as.factor(data$sex)
 
 #data$LIST <- as.factor(data$Experiment_version)
-
-data[!duplicated(data$parid),] %>%
-  group_by(GROUP) %>%
-  summarize(n = n())
 ```
 
 ## Exclude training trials
@@ -101,23 +100,21 @@ data <- subset(data, data$ITEM != '13H')
 data <- subset(data, data$ITEM != '102L')
 data <- subset(data, data$ITEM != '55H')
 data <- subset(data, data$ITEM != '52H')
-print("Remaining data: ")
-nrow(data)
+print(paste("Remaining data: ", nrow(data)))
 ```
 
 ## Participant screening
-Based on the quality of recording, we excluded participants reporting low commitment to the task (irrelevant speaking, background noise), any major misunderstandings of the instructions, or significant technical problems (e.g. with the experiment display)
+Based on the examination of recordings, we excluded participants reporting low commitment to the task (irrelevant speaking, background noise), any major misunderstandings of the instructions, or significant technical problems (e.g. with the experiment display). Relative information are noted down in the Google sheet 'Missing Trials or Answers'.
 
-Based on the post-experiment questionnaire, we excluded participants who do not match our recruitment criterial despite pre-screening (e.g. dyslexia, cf. Data collection procedures). 
-**Exclude a180 - dyalexia; 210725_a113 - effot doubtful; 210719_a59**
+Besieds, based on the post-experiment questionnaire, we excluded participants who do not match our recruitment criterial despite pre-screening (e.g. dyslexia, cf. Data collection procedures). 
+
+**Exclude a180 - dyalexia; 210725_a113 - effot doubtful; 210719_a59 - poor recording quality.**
 
 ```{r participants, echo=FALSE}
 data <- subset(data, data$SUBJECT != '210725_a180')
 data <- subset(data, data$SUBJECT != '210725_a113')
 data <- subset(data, data$SUBJECT != '210719_a59')
-print("Remaining data: ")
-nrow(data)
-
+print(paste("Remaining data: ", nrow(data)))
 ```
 
 The rest filtering are based on data patterns.
@@ -129,10 +126,13 @@ There are four children whose usable datapoints are less than 100, indicating th
 210725_c96:75
 210725_c98:72
 
-**c43, c45, c96, c98 not enough data**
+**c43, c45, c96, c98 not enough data.**
+
 **Exclude c96: Age 13 (75 reponses)**
 
 Remaining data: **6961**
+
+Now we have 30 adults and 30 children.
 ```{r}
 data %>%
   group_by(GROUP, parid) %>%
@@ -140,31 +140,29 @@ data %>%
   filter(count<100)
 
 data <- subset(data, data$SUBJECT != '210725_c96')
-print("Remaining data: ")
-nrow(data)
-data[!duplicated(data$parid),] %>%
-  group_by(GROUP) %>%
-  summarize(n = n())
+
+print(paste("Remaining data: ", nrow(data)))
 ```
 ```{r}
 # Check if adult & children match
 data[!duplicated(data$parid),] %>%
   group_by(GROUP) %>%
-  summarize(n = n())
+  summarise(n = n())
 # Check if sex match
 data[!duplicated(data$parid),] %>%
   group_by(GROUP,SEX) %>%
-  summarize(n = n())
+  summarise(n = n())
 ```
 
 
-### Based on the accuracy
+### Based on accuracy
 We will exclude participants with an error rate above 20% . 
 
 Participants with error rate above 20%: NONE
-Participants with error rate above 10%: c29,c135
+Participants with error rate above 10%: c29, c135
 
-**c29 and c135 needs inspection**
+**c29 and c135 needs inspection.**
+
 **No exclusion**
 
 
@@ -186,7 +184,9 @@ Items w higher than 20% error rate:
 86L: 20.6%
 
 **No targets removed based on error rate. **
+
 **We excluded three ambiguous target words: knob, meal, net.**
+
 Remaining trials: **6785**
 ```{r}
 data %>%
@@ -196,51 +196,54 @@ data %>%
 data <- subset(data, data$correctans != 'knob')
 data <- subset(data, data$correctans != 'meal')
 data <- subset(data, data$correctans != 'net')
-data %>%
-  filter(correctans == "knob")
 
-print("Remaining trials:")
-nrow(data)
+print(paste("Remaining trials: ", nrow(data)))
 ```
 
 
-## Exclude incorrect trials
+### Exclude trials with notes of 'discard'
+In the correct responses (ACC ==1), we delete the ones with 'discard' marking (7 removed), because it's not possible to mark the speech onset accurately, but we keep the ones with 'unsure' marking (including participants sounding unsure; and coder unsure because of overlapping sound.)
 
-Incorrect and problematic trials were removed (N=164, 4.3%). Remaining data = **6758**.
-We will analyse wrong trials separately.
+Remaining data = **6778**.
 
-In the correct responses (ACC ==1), we delete the ones with 'discard' marking, because it's not possible to mark the speech onset accurately, but we keep the ones with 'unsure' marking (including participants sounding unsure; and coder unsure because of overlapping sound.)
-```{r}
-#7 discard in ACC==1 -> accurate
+```{r inspect data, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#7 noted as 'discard' in ACC==1 -> accurate
 ## Take out
 data %>%
   filter(ACC ==1) %>%
   filter(grepl('discard',note))
 
-# Keep them all
+# Noted with unsure: Keep them all
 data %>%
   filter(ACC ==1) %>%
   filter(grepl('unsure',note))
-
-data <- subset(data, data$ACC !=1 | !grepl('discard',note))
-print("Remaining trials:")
-nrow(data)
-x = nrow(data)
-
 ```
-```{r error data}
+
+```{r}
+# The negation of (data$ACC = 1 & grepl('discard',note))
+data <- subset(data, data$ACC !=1 | !grepl('discard',note))
+print(paste("Remaining trials: ", nrow(data)))
+# store the number at the current stage
+x = nrow(data)
+```
+
+
+
+### Exclude incorrect trials
+Incorrect and problematic trials were removed (N=272, 4.01%). 
+We will analyse wrong trials separately.
+
+Remaining trials: **6506**
+
+```{r export error data}
 error <- subset(data, data$ACC!=1)
 write.csv(error,"220107_unfiltered_error.csv")
 ```
 
-```{r incorrect}
+```{r exclude error data}
 data <- subset(data, data$ACC != 0)
-print("wrong trials:")
-x-nrow(data)
-print("error rate")
-100*(x-nrow(data))/x
-print("Remaining trials")
-nrow(data)
+print(paste("Wrong trials: ", x-nrow(data), "(error rate: ", 100*(x-nrow(data))/x, ")"))
+print(paste("Remaining trials: ", nrow(data)))
 ```
 
 
@@ -260,9 +263,6 @@ itemnumbers <- groupwiseMean(RT ~ ITEM,
 range(data$RT)
 data$RTcut = cut(data$RT,breaks = c(-500,-50,0,1000,3000,20000))
 table(data$RTcut)
-
-data %>%
-  filter(RT<0)
 ```
 
 Unnatural reaction times below 0ms and above 3000ms were removed since they indicate insufficient attention (N=22; Fairs & Strijkers allow 2000ms for picture naming; Vogt, Hauber, Kuhlen & Rahman allowed 3000ms for picture naming from onset; Kessler, Treiman & Mullennix allowed 2000ms for word reading). 
@@ -272,8 +272,7 @@ Data remaining: **6477**.
 
 ```{r outliers, echo=FALSE}
 data <- subset(data, data$RT < 3000) #29 trials removed
-print("Remaining trials:")
-nrow(data)
+print(paste("Remaining trials: ", nrow(data)))
 
 hist(data$RT, breaks = 30)
 boxplot(data$RT)
@@ -285,34 +284,48 @@ qqmath(~RT|SUBJECT, data=data, main="Responses by Subject")
 
 ### Distraction and Difficulty (commitment to the experiment)
 Difficulty.y >3: **210723_a78** (Difficulty 5, Distraction 3)
+
 Distraction >3: **210725_c133** (Difficulty 2, Disctraction 4)
 
 **Nothing excluded**
-#Check adding CI
-https://stackoverflow.com/questions/35953394/calculating-length-of-95-ci-using-dplyr
-```{r}
-# remove duplicated, only consider one line per participant
-# CI interval
-diffi_distr <- data[!duplicated(data$parid),] %>%
-  summarise(difficulty.mean = mean(Difficulty.y), diffculty.min = min(Difficulty.y), diffculty.max = max(Difficulty.y), distraction.mean = mean(Distraction),distraction.min = min(Distraction), distraction.max = max(Distraction))
 
-
-Qpart <- data[!duplicated(data$parid),]
-
-# difficultymean <- groupwiseMean(Difficulty.y,
-#                            data   = Qpart,
-#                            conf   = 0.95,
-#                            digits = 3)
-  
+```{r filtering, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 data[!duplicated(data$parid),] %>%
   filter(Difficulty.y > 3)
 
 data[!duplicated(data$parid),] %>%
   filter(Distraction > 3)
+```
 
-#hist(data[data$parid == "210725_c133","RT"], breaks = 30)
-#hist(data[data$parid == "210719_c08","RT"], breaks = 30)
-#hist(data[data$parid == "210725_c81","RT"], breaks = 30)
+
+```{r}
+# remove duplicated, only consider one line per participant
+# CI interval
+diffi_distr <- data[!duplicated(data$parid),] %>%
+  summarise(difficulty.mean = mean(Difficulty.y), 
+            difficulty.sd = sd(Difficulty.y),
+            n = n(),
+            diffculty.min = min(Difficulty.y), 
+            diffculty.max = max(Difficulty.y), 
+            distraction.mean = mean(Distraction),
+            distraction.sd = sd(Distraction),
+            distraction.min = min(Distraction), 
+            distraction.max = max(Distraction),
+            )%>%
+  mutate(difficulty.se = difficulty.sd/sqrt(n),
+         distraction.se = distraction.sd/sqrt(n),
+         difficulty.lower.ci = difficulty.mean - qt(1-(0.05/2), n -1) * difficulty.se,
+         difficulty.upper.ci = difficulty.mean + qt(1-(0.05/2), n -1) * difficulty.se,
+         distraction.lower.ci = distraction.mean - qt(1-(0.05/2), n -1) * distraction.se,
+         distraction.upper.ci = distraction.mean + qt(1-(0.05/2), n -1) * distraction.se
+  ) %>%
+  select(difficulty.mean, difficulty.sd, difficulty.lower.ci, difficulty.upper.ci, distraction.mean, distraction.sd, distraction.lower.ci, distraction.upper.ci)
+diffi_distr
+# difficultymean <- groupwiseMean(Difficulty.y,
+#                            data   = Qpart,
+#                            conf   = 0.95,
+#                            digits = 3)
+
 ```
 
 

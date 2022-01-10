@@ -1,0 +1,325 @@
+---
+title: "Descriptive Statistics and Plots"
+author: "Julia Schwarz_Katrina"
+date: "05/11/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Packages
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(ggh4x)
+#library(lattice)
+#library(car)
+#library(lmerTest)
+#library(moments)
+#library(rcompanion)
+#library(MuMIn)
+#library(Hmisc)
+library(dplyr)
+#library(stargazer)
+#library(see) 
+#remotes::install_github("teunbrand/ggh4x@4e242295da442e0e412c7c3e713a383f603ceda0")
+library(gridExtra)
+library(patchwork)
+library(ggpubr)
+```
+
+
+
+## Data File
+
+Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 3560 observations. 
+
+```{r load data, echo=FALSE}
+data<-read.delim("220107_full_data_cleaned.txt", header=T)
+```
+
+
+
+## Variable Prep
+
+```{r variables, echo=FALSE}
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$Acoustic <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
+data$Acoustic <- data$Acoustic
+data$VISUAL <- factor(data$VISUAL, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High Predictability", "Low Predictability"))
+#data$TRIALORDER <- as.numeric(data$TRIALORDER)
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION_old <- as.factor(data$CONDITION)
+data$CONDITION <- factor(data$CONDITION, levels = c("aNMvNM","aNMvM","aMvNM","aMvM"), labels = c("1","2","3","4"))
+
+data$TRIAL <- as.numeric(data$row_number) 
+data$BLOCK <- as.numeric(data$block)
+
+# Only 2 people's age information is not finished yet!
+data$AGE <- as.numeric(data$date.of.birth_year + data$date.of.birth_month/12)
+data$SEX <- as.factor(data$sex)
+
+data$TARGET <- as.factor(data$ITEM)
+data$TARGET <- gsub('.{1}$', '', data$TARGET)
+
+```
+
+
+## Subsets
+
+```{r subsets, include=FALSE}
+adults <- subset(data, data$GROUP == 'Adults') #1808
+children <- subset(data, data$GROUP == 'Children') #1752
+```
+
+
+## Visual Effect
+
+```{r vis ef}
+
+p1_visual <- ggplot(data, aes(VISUAL, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1), colour=('#666666')) +
+  stat_summary(fun = mean, geom="line", size = 3,aes(group = 1), colour=('#666666')) +
+  labs(x = "Visual Mask Effect Only", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        ) +
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_colour_manual(values = c("#999999", "#E69F00"))
+p1_visual
+ggsave("figure/p1_visual.png",width = 8, height = 6)
+```
+
+## Acoustic Effect
+
+```{r ac ef}
+p1_acoustic <- ggplot(data, aes(Acoustic, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1),colour=('#666666')) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
+  labs(x = "Acoustic Mask Effect Only", y = "Mean Reaction Times in ms", linetype = "Group") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        ) +
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_colour_manual(values = c("#999999", "#E69F00"))
+p1_acoustic
+ggsave("figure/p1_acoustic.png",width = 8, height = 6)
+
+```
+
+## Predictability Effect
+
+```{r pred ef}
+
+p1_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype=GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               size = 3,
+               width = 0.2,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1),colour=('#666666')) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
+  labs(x = "Predictability Effect Only", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        ) +
+  coord_cartesian(ylim = c(380, 700))
+  #scale_colour_manual(values = c("#999999", "#E69F00"))
+p1_predict
+ggsave("figure/p1_predict.png",width = 8, height = 6)
+```
+
+# Acoustic x Visual Mask Interaction
+
+```{r inter 1}
+
+p1_acoustic_visual <- ggplot(data, aes(VISUAL, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = interaction(GROUP, Acoustic), colour = Acoustic, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = interaction(GROUP,Acoustic), colour = Acoustic),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5,aes(group = interaction(GROUP,Acoustic),colour = Acoustic,linetype = GROUP),position = position_dodge(0.1)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = Acoustic,colour = Acoustic),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = Acoustic,colour = Acoustic),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = Acoustic,colour = Acoustic),position = position_dodge(0.1)) +
+  labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 13), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+                legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15)) + # for legend title
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+p1_acoustic_visual
+ggsave("figure/p1_acoustic_visual.png",width = 9, height = 6)
+```
+
+## Acoustic x Predictability Mask Interaction
+
+```{r inter 2}
+
+p1_acoustic_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = interaction(GROUP, Acoustic), colour = Acoustic, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = interaction(GROUP,Acoustic), colour = Acoustic),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5,aes(group = interaction(GROUP,Acoustic),colour = Acoustic,linetype = GROUP),position = position_dodge(0.1)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = Acoustic,colour = Acoustic),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = Acoustic,colour = Acoustic),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = Acoustic,colour = Acoustic),position = position_dodge(0.1)) +
+  labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 13), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15))+ # for legend title) 
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+p1_acoustic_predict
+ggsave("figure/p1_acoustic_predict.png",width = 9, height = 6)
+
+```
+
+
+# Acoustic x Visual Mask x Predict x Group
+
+```{r overview}
+
+p1_overview <- ggplot(data, aes(VISUAL, RT, colour=Acoustic)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1) ) +
+  stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
+  theme_classic() +
+  #facet_grid(cols = vars(GROUP, PREDICT)) +
+  stat_summary(fun =mean, geom="line", size = 0.6,aes(group = Acoustic), position = position_dodge(0.1)) +
+  labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15), # for y axis title
+        strip.text.x = element_text(size = 20), # for sub-title of the figure
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15), # for legend title
+        )+ # for y-axis title 
+  coord_cartesian(ylim = c(380, 700)) +
+  #theme(aspect.ratio=1.5/1) +
+  scale_color_manual(values=c('#666666', "#CC0066"))+ # color palette
+  facet_nested(~ GROUP + PREDICTABILITY)
+
+
+p1_overview
+ggsave("figure/p1_overview.png",width = 10, height = 5)
+
+```
+
+
+```{r fig.height=15, fig.width=10}
+
+grid.arrange(p1_overview,                             # First row with one plot spaning over 2 columns
+             arrangeGrob(p1_acoustic, p1_visual,p1_predict,ncol = 3), # Second row with 2 plots in 2 different columns
+             arrangeGrob(p1_acoustic_visual, p1_acoustic_predict,ncol = 2),
+             nrow = 3)    
+```
+
+```{r}
+#grid.arrange(p1_acoustic_visual, p1_acoustic_predict, ncol=2)
+
+ggarrange(p1_acoustic_visual + theme(plot.margin = margin(l=2,r=-2)),
+          p1_acoustic_predict + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(l=-1,r=-2)),
+          ncol = 2, common.legend = TRUE, legend = "bottom",
+          align = "hv",
+          widths = c(1, 1))
+ggsave("BAAP_combined inter.png",width = 8, height = 4)
+```
+
+
+

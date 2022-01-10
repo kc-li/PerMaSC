@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(data.table)
+library(stringr)
 ```
 
 # Extract age information & mask problem
@@ -49,17 +50,51 @@ child <- childpre %>%
   select("Participant Public ID","Experiment Version","Participant OS","Participant Browser", "randomiser-t27m","date of birth-year","date of birth-month","sex","languages","response-6","response-6-text","mask problems","Difficulty","Tiring","more info on masks") %>%
   inner_join(childpost, by = c("Participant Public ID","Experiment Version"))
 
-write.csv(adult, "Qadult.csv", row.names = FALSE)
-write.csv(child, "Qchild.csv", row.names = FALSE)
+# Remove the spacing in the variable so that filtering can work
+names(adult)<-str_replace_all(names(adult), c(" " = ".","-"= "_"))
+names(child)<-str_replace_all(names(child), c(" " = ".","-"= "_"))
+
 ```
 
 
-```{r}
+```{r fix age problem}
 colnames(adult)
+
 adult %>%
-  filter('date of birth-year' != 0)
+  filter(date.of.birth_year == 0)
 
 child %>%
-  filter("date of birth-year" == 0)
+  filter(date.of.birth_year == 0)
+
+# 210725_c81 (Jackie) — 11;11
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c81"] <- 11
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c81"] <- 11
+# 210725_c86 — 11;0
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c86"] <- 11
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c86"] <- 0
+# 210725_c105 — 8;2
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c105"] <- 8
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c105"] <- 2
+# 210818_c166 — 8;8
+child$date.of.birth_year[child$Participant.Public.ID == "210818_c166"] <- 8
+child$date.of.birth_month[child$Participant.Public.ID == "210818_c166"] <- 8
+# 210725_c88 — 9;9
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c88"] <- 9
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c88"] <- 9
+# 210725_a86 — 31;4
+adult$date.of.birth_year[adult$Participant.Public.ID == "210725_a86"] <- 31
+adult$date.of.birth_month[adult$Participant.Public.ID == "210725_86"] <- 4
+
+
+adult %>%
+  filter(date.of.birth_year == 0)
+
+child %>%
+  filter(date.of.birth_year == 0)
+```
+
+```{r}
+write.csv(adult, "Qadult.csv", row.names = FALSE)
+write.csv(child, "Qchild.csv", row.names = FALSE)
 ```
 
