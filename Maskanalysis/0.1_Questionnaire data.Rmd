@@ -81,9 +81,15 @@ child$date.of.birth_month[child$Participant.Public.ID == "210818_c166"] <- 8
 # 210725_c88 — 9;9
 child$date.of.birth_year[child$Participant.Public.ID == "210725_c88"] <- 9
 child$date.of.birth_month[child$Participant.Public.ID == "210725_c88"] <- 9
+# 210725_c125 - 10;2
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c125"] <- 10
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c125"] <- 2
+# 210725_c133 - 12;4 (17/4/2009)
+child$date.of.birth_year[child$Participant.Public.ID == "210725_c133"] <- 12
+child$date.of.birth_month[child$Participant.Public.ID == "210725_c133"] <- 4
 # 210725_a86 — 31;4
 adult$date.of.birth_year[adult$Participant.Public.ID == "210725_a86"] <- 31
-adult$date.of.birth_month[adult$Participant.Public.ID == "210725_86"] <- 4
+adult$date.of.birth_month[adult$Participant.Public.ID == "210725_a86"] <- 4
 
 
 adult %>%
@@ -94,7 +100,7 @@ child %>%
 ```
 
 ```{r}
-write.csv(adult, "Qadult.csv", row.names = FALSE)
-write.csv(child, "Qchild.csv", row.names = FALSE)
+write.csv(adult, "questionnaire/Qadult.csv", row.names = FALSE)
+write.csv(child, "questionnaire/Qchild.csv", row.names = FALSE)
 ```
 

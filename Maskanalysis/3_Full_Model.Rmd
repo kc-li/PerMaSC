@@ -65,10 +65,10 @@ data$RT <- as.numeric(data$RT) #RT from the end of the sentence
 data$RT_z <- scale(data$RT, center = TRUE, scale = TRUE)
 
 # Fixed
-data$GROUP <- as.factor(data$GROUP) #adults vs children
-data$AUDIO <- as.factor(data$AUDIO) 
-data$VISUAL <- as.factor(data$VISUAL)
-data$PREDICT <- as.factor(data$PREDICT)
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$AUDIO <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c( "No Mask","Mask")) 
+data$VISUAL <- factor(data$VISUAL, levels = c("vNM","vM"), labels = c( "No Mask","Mask"))
+data$PREDICT <- factor(data$PREDICT, levels = c("H","L"), labels = c("High","Low"))
 #data$TRIALORDER <- as.numeric(data$TRIALORDER)
 
 # Other
@@ -78,10 +78,10 @@ data$CONDITION <- as.factor(data$CONDITION)
 #data$LIST <- as.factor(data$Experiment_version)
 
 # Sum Contrast Coding
-# contrasts(data$GROUP) <- c(-0.5,+0.5)
-# contrasts(data$AUDIO) <- c(-0.5,+0.5)
-# contrasts(data$VISUAL) <- c(-0.5,+0.5)
-# contrasts(data$PREDICT) <- c(-0.5,+0.5)
+contrasts(data$GROUP) <- c(-0.5,+0.5)
+contrasts(data$AUDIO) <- c(-0.5,+0.5)
+contrasts(data$VISUAL) <- c(-0.5,+0.5)
+contrasts(data$PREDICT) <- c(-0.5,+0.5)
 
 ```
 
@@ -90,8 +90,8 @@ data$CONDITION <- as.factor(data$CONDITION)
 
 ```{r subsets, include=FALSE}
 
-adults <- subset(data, data$GROUP == 'a') #1808
-children <- subset(data, data$GROUP == 'c') #1752
+adults <- subset(data, data$GROUP == 'Adults') #3331
+children <- subset(data, data$GROUP == 'Children') #3054
 
 ```
 

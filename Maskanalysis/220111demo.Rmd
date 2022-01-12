@@ -1,0 +1,543 @@
+---
+title: "220111 RT results"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Packages
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(see) 
+library(ggpubr)
+library(LMERConvenienceFunctions)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(moments)
+library(Hmisc)
+library(dplyr)
+library(emmeans)
+library(performance)
+library(effects)
+library(stargazer)
+```
+
+## Data File
+
+Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 6387 observations. 
+
+```{r load data, echo=FALSE}
+data<-read.delim("220112_full_data_cleaned.txt", header=T)
+```
+## Variable Prep
+
+```{r variables, echo=FALSE}
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- factor(data$group, levels = c("a","c"), labels = c("Adults", "Children"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High Predictability", "Low Predictability"))
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION_old <- as.factor(data$CONDITION)
+data$CONDITION <- factor(data$CONDITION, levels = c("aNMvNM","aNMvM","aMvNM","aMvM"), labels = c("1","2","3","4"))
+
+data$TRIAL <- as.numeric(data$row_number) 
+data$BLOCK <- as.numeric(data$block)
+
+# Only 2 people's age information is not finished yet!
+data$AGE <- as.numeric(data$date.of.birth_year + data$date.of.birth_month/12)
+data$SEX <- as.factor(data$sex)
+
+data$TARGET <- as.factor(data$ITEM)
+data$TARGET <- gsub('.{1}$', '', data$TARGET)
+
+contrasts(data$GROUP) <- c(-0.5,+0.5)
+contrasts(data$ACOUSTIC) <- c(-0.5,+0.5)
+contrasts(data$VISUAL) <- c(-0.5,+0.5)
+contrasts(data$PREDICTABILITY) <- c(-0.5,+0.5)
+
+```
+## Subsets
+```{r subsets, include=FALSE}
+adults <- subset(data, data$GROUP == 'Adults') #3331
+children <- subset(data, data$GROUP == 'Children') #3056
+```
+
+## RT - individual effects
+
+The overall mean response time was 527.8 ms. 
+
+Children on average responded slower than Adults (468ms vs. 593ms; diff = 125ms).
+
+Auditorily masked speech was responded to more slowly than unmasked speech (540ms vs. 516ms; diff=24ms).
+
+Visually masked speech was responded to more slowly than no visual obstructions (537ms vs. 519ms; diff=18ms).
+
+Targets with low predictability were responded to more slowly than targets with high predictability (488ms vs. 570ms; diff=82ms).
+
+**Audio diff becomes larger than Visual diff**
+
+```{r lexicality, eval=FALSE, include=FALSE}
+# This is to compare effect for each group
+mean(data$RT)
+
+part.mean <- groupwiseMean(RT ~ SUBJECT,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+group.mean <- groupwiseMean(RT ~ GROUP,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+593-468
+
+audio.mean <- groupwiseMean(RT ~ ACOUSTIC,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+540-516
+
+visual.mean <- groupwiseMean(RT ~ VISUAL,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+537-519
+
+
+predict.mean <- groupwiseMean(RT ~ PREDICTABILITY,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+570-488
+
+audio.visual.effect <- groupwiseMean(RT ~ VISUAL +  ACOUSTIC,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+523-515
+557-517
+visual.audio.effect <- groupwiseMean(RT ~ ACOUSTIC + VISUAL,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+517-515
+557-523
+
+
+combined.predicteffect <- groupwiseMean(RT ~ GROUP + ACOUSTIC + VISUAL + PREDICTABILITY,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+
+combined.visualeffect <- groupwiseMean(RT ~ GROUP + PREDICTABILITY + ACOUSTIC + VISUAL,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+combined.auditoryeffect <- groupwiseMean(RT ~ GROUP + PREDICTABILITY + VISUAL + ACOUSTIC,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+# 
+# as.data.frame(combined.predicteffect)
+# as.data.frame(combined.visualeffect)
+# as.data.frame(combined.auditoryeffect)
+# 
+# write.table(combined.predicteffect, "211029_MeanRTs_Predict_Subset.txt", sep="\t", row.names=FALSE)
+# write.table(combined.visualeffect, "211029_MeanRTs_Visual_Subset.txt", sep="\t", row.names=FALSE)
+# write.table(combined.auditoryeffect, "211029_MeanRTs_Auditory_Subset.txt", sep="\t", row.names=FALSE)
+
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8}
+singletheme <- theme(axis.text.x = element_text(size = 10), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        )
+p1_visual <- ggplot(data, aes(VISUAL, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1), colour=('#666666')) +
+  stat_summary(fun = mean, geom="line", size = 3,aes(group = 1), colour=('#666666')) +
+  labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
+  singletheme +
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_colour_manual(values = c("#999999", "#E69F00"))
+
+p1_acoustic <- ggplot(data, aes(ACOUSTIC, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1),colour=('#666666')) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
+  labs(x = "Acoustic", y = "Mean Reaction Times in ms", linetype = "Group") +
+  singletheme +
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_colour_manual(values = c("#999999", "#E69F00"))
+
+p1_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = GROUP, linetype=GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = GROUP)) +
+  theme_classic() +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5, aes(group =GROUP,linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               size = 3,
+               width = 0.2,
+               aes(group = 1),
+               colour=('#666666')) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = 1),colour=('#666666')) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
+  labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
+  singletheme +
+  coord_cartesian(ylim = c(380, 700))
+
+ggarrange(p1_acoustic + theme(plot.margin = margin(l=2,r=-2)),
+          p1_visual + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(l=-1,r=-2)),
+          p1_predict + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(l=-1,r=-2)),
+          ncol = 3, common.legend = TRUE, legend = "bottom",
+          align = "hv",
+          widths = c(2, 2, 2))
+
+```
+
+## RT - interaction
+
+The individual acoustic or vidual effect is not big. But the interaction is strong.
+
+Acoustic diff is 11ms there is no visual mask -> 40ms when there is visual mask.
+
+Visual diff is 2ms there is no acoustic mask -> 31ms when there is acoustic mask.
+
+```{r echo=FALSE}
+intertheme <- theme(axis.text.x = element_text(size = 13), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+                legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15))
+p1_acoustic_visual <- ggplot(data, aes(VISUAL, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = interaction(GROUP, ACOUSTIC), colour = ACOUSTIC, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = interaction(GROUP,ACOUSTIC), colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5,aes(group = interaction(GROUP,ACOUSTIC),colour = ACOUSTIC,linetype = GROUP),position = position_dodge(0.1)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = ACOUSTIC,colour = ACOUSTIC),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() +
+  intertheme + # for legend title
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+
+p1_acoustic_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = interaction(GROUP, ACOUSTIC), colour = ACOUSTIC, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = interaction(GROUP,ACOUSTIC), colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5,aes(group = interaction(GROUP,ACOUSTIC),colour = ACOUSTIC,linetype = GROUP),position = position_dodge(0.1)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = ACOUSTIC,colour = ACOUSTIC),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() +
+  intertheme+ # for legend title) 
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+
+ggarrange(p1_acoustic_visual + theme(plot.margin = margin(l=2,r=-2)),
+          p1_acoustic_predict + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(l=-1,r=-2)),
+          ncol = 2, common.legend = TRUE, legend = "bottom",
+          align = "hv",
+          widths = c(1, 1))
+```
+
+## Statistic model
+
+6 interactions and 4 main effects (sum contrast coded) were included in the maximal model structure (see below).
+
+The model was then optimized with the step function (checked against manual reduction). 
+
+If we run the same model, we get similar results as last time.
+
+**Going to be change:**
+
+- Replace 'Group' variable by continuous 'Age'
+
+- Built from maximal model?
+
+```{r include=FALSE}
+lmm.all <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:GROUP +
+                            VISUAL:GROUP +
+                            ACOUSTIC:PREDICTABILITY +
+                            VISUAL:PREDICTABILITY +
+                            GROUP:PREDICTABILITY +
+                            
+                            GROUP +
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.all)
+```
+
+```{r optimize, include=FALSE}
+# optimize model w step function: results the same as tested manually (see above)
+
+step_object<-step(lmm.all, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel<-get_model(step_object)
+summary(stepmodel)
+```
+
+```{r, echo=FALSE}
+lmm.all.optimized <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:PREDICTABILITY +
+                            GROUP:PREDICTABILITY +
+                            
+                            GROUP +
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=T, na.action=na.omit)
+
+tab_model(lmm.all.optimized)
+```
+
+## Comparison between Adults and children
+
+```{r include=FALSE}
+lmm.adults <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:PREDICTABILITY +
+                            VISUAL:PREDICTABILITY +
+                            
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           adults, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.adults)
+```
+
+```{r adults optimize, include=FALSE}
+step_object_a<-step(lmm.adults, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel.a<-get_model(step_object_a)
+summary(stepmodel.a)
+```
+
+### Summary Optimized Adult Model
+
+The optimized adult model included a significant interaction between acoustic mask effect and target predictability effect, ~~and a marginal interaction between acoustic and visual mask effect (NOTE: probably due to power)~~, as well as the main effects predictability, visual mask effect, and acoustic mask effect.
+
+```{r, summary adults, echo=FALSE}
+lmm.adults.optimized <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:PREDICTABILITY +
+                            
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           adults, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+tab_model(lmm.adults.optimized)
+```
+
+### Children Start Model
+
+```{r include=FALSE}
+lmm.children <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:PREDICTABILITY +
+                            VISUAL:PREDICTABILITY +
+                            
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           children, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.children)
+```
+
+### Optimizing
+
+The children data are more robust!
+
+The child model optimized through the step function included all three main effects plus acoustic-visual interaction (no acoustic-predictability effct).
+
+```{r children optimize, include=FALSE}
+step_object_c<-step(lmm.children, 
+                  ddf = "Satterthwaite", 
+                  alpha.random = 0.1, 
+                  alpha.fixed = 0.05, 
+                  reduce.fixed = TRUE, 
+                  reduce.random = TRUE)
+stepmodel.c<-get_model(step_object_c)
+summary(stepmodel.c)
+```
+
+```{r, summary children, echo=FALSE}
+lmm.children.optimized <- lmerTest::lmer(RT ~ 
+                            ACOUSTIC:VISUAL +
+                            ACOUSTIC:PREDICTABILITY +
+                            
+                            PREDICTABILITY +
+                            VISUAL +
+                            ACOUSTIC +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           children, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+tab_model(lmm.children.optimized)
+```
+## RT block order
+```{r echo=FALSE}
+# The overall time decreases
+ggplot(data, aes(BLOCK,RT, linetype = GROUP)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1) ) +
+  stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, position = position_dodge(0.1)) +
+  theme_classic()
+
+ggplot(subset(data, CONDITION == 1|CONDITION ==4), aes(BLOCK,RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1),
+               aes(group = interaction(GROUP,type),colour = type, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point",aes(group = interaction(GROUP,type),colour = type), size = 3, position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,type), colour = type, linetype = GROUP), position = position_dodge(0.1)) +
+  theme_classic()+
+  labs(x = "BLOCK", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  theme_classic() +
+  intertheme+ # for legend title) 
+  coord_cartesian(ylim = c(380, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+
+```

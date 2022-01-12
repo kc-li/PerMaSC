@@ -38,7 +38,7 @@ library(stargazer)
 
 ## Data File
 
-Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7870** observations. 
+Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7853** observations. 
 
 From first batch of files: 17 adults and 17 children.
 
@@ -68,9 +68,15 @@ data$RT <- as.numeric(data$react2) #RT from the end of the sentence
 # Fixed
 data$GROUP <- as.factor(data$group) #adults vs children
 data$AUDIO <- as.factor(data$audio) 
-data$VISUAL <- as.factor(data$video)
+data$VIDEO <- as.factor(data$video)
 data$PREDICT <- as.factor(data$context)
 #data$TRIALORDER <- as.numeric(data$TRIALORDER)
+
+# For figures and models
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High Predictability", "Low Predictability"))
 
 # Other
 data$ACC <- as.factor(data$accuracy) #1==correct
@@ -87,7 +93,7 @@ data$SEX <- as.factor(data$sex)
 
 ## Exclude training trials
 
-8 training trials per participant excluded. Remaining data = **7393**.
+8 training trials per participant excluded. Remaining data = **7378**.
 
 ```{r training}
 data <- data %>%
@@ -110,6 +116,8 @@ Besieds, based on the post-experiment questionnaire, we excluded participants wh
 
 **Exclude a180 - dyalexia; 210725_a113 - effot doubtful; 210719_a59 - poor recording quality.**
 
+Remaining data: **7018**
+
 ```{r participants, echo=FALSE}
 data <- subset(data, data$SUBJECT != '210725_a180')
 data <- subset(data, data$SUBJECT != '210725_a113')
@@ -128,7 +136,8 @@ There are four children whose usable datapoints are less than 100, indicating th
 
 **c43, c45, c96, c98 not enough data.**
 
-**Exclude c96: Age 13 (75 reponses)**
+**Exclude c96: Age 13 (72 reponses)**
+**Or should we exclude c98 which has 57 responses?**
 
 Remaining data: **6961**
 
@@ -139,7 +148,7 @@ data %>%
   summarise(count = n()) %>%
   filter(count<100)
 
-data <- subset(data, data$SUBJECT != '210725_c96')
+data <- subset(data, data$SUBJECT != '210725_c98')
 
 print(paste("Remaining data: ", nrow(data)))
 ```
@@ -181,13 +190,12 @@ Items w 40% error rate or higher: NONE
 Items w higher than 20% error rate: 
 64L: 21.4%
 21L: 20.6%
-86L: 20.6%
 
 **No targets removed based on error rate. **
 
 **We excluded three ambiguous target words: knob, meal, net.**
 
-Remaining trials: **6785**
+Remaining trials: **6787**
 ```{r}
 data %>%
   group_by(ITEM) %>%
@@ -204,7 +212,7 @@ print(paste("Remaining trials: ", nrow(data)))
 ### Exclude trials with notes of 'discard'
 In the correct responses (ACC ==1), we delete the ones with 'discard' marking (7 removed), because it's not possible to mark the speech onset accurately, but we keep the ones with 'unsure' marking (including participants sounding unsure; and coder unsure because of overlapping sound.)
 
-Remaining data = **6778**.
+Remaining data = **6779**.
 
 ```{r inspect data, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 #7 noted as 'discard' in ACC==1 -> accurate
@@ -233,11 +241,11 @@ x = nrow(data)
 Incorrect and problematic trials were removed (N=272, 4.01%). 
 We will analyse wrong trials separately.
 
-Remaining trials: **6506**
+Remaining trials: **6507**
 
 ```{r export error data}
 error <- subset(data, data$ACC!=1)
-write.csv(error,"220107_unfiltered_error.csv")
+write.csv(error,"220112_unfiltered_error.csv")
 ```
 
 ```{r exclude error data}
@@ -333,7 +341,7 @@ diffi_distr
 
 The data were found to be positively skewed. Therefore we tested common transformations (actually only tested log so far) and chose the one with the best fit/but found no satisfactory improvement. Outliers three standard deviations from the mean per participant were removed.
 
-Data remaining: 3560.
+Data remaining: 6387.
 
 ```{r transformation, echo=FALSE}
 skewness(data$RT, na.rm = TRUE)
@@ -363,7 +371,7 @@ qqmath(~RT|SUBJECT, data=data, main="Responses by Subject")
 ## Save cleaned data sheet
 
 ```{r save}
-write.table(data, "220107_full_data_cleaned.txt", sep="\t", row.names=FALSE)
+write.table(data, "220112_full_data_cleaned.txt", sep="\t", row.names=FALSE)
 ```
 
 

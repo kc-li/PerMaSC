@@ -40,9 +40,6 @@ library(ggpubr)
 
 
 ## Data File
-
-Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 3560 observations. 
-
 ```{r load data, echo=FALSE}
 data<-read.delim("220107_full_data_cleaned.txt", header=T)
 ```
@@ -321,5 +318,13 @@ ggarrange(p1_acoustic_visual + theme(plot.margin = margin(l=2,r=-2)),
 ggsave("BAAP_combined inter.png",width = 8, height = 4)
 ```
 
+## Statistics
+```{r }
 
+```
+
+## RT block order
+```{r}
+
+```
 

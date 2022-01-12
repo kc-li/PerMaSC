@@ -4,6 +4,7 @@ author: "Katrina Li"
 date: "28/10/2021"
 output: html_document
 ---
+
 ```{r first batch, include=FALSE}
 library(dplyr)
 library(tidyr)
@@ -19,7 +20,8 @@ p1files <-tibble(File = timep1files) %>%
   unnest(Data)%>%
   select(-File)%>%
   mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
-  mutate(label = str_replace_all(label,"\\_$","")) # Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$",""))
 
 p2files <-tibble(File = timep2files) %>%
   extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
@@ -27,7 +29,8 @@ p2files <-tibble(File = timep2files) %>%
   unnest(Data) %>%
   select(-File) %>%
   mutate(label = str_replace_all(label,"\\.",""))%>%
-  mutate(label = str_replace_all(label,"\\_$","")) 
+  mutate(label = str_replace_all(label,"\\_$","")) %>%
+  mutate(label = str_replace_all(label,",$",""))
 
 stimulim <- read.csv("datafile_first_batch/stimulim.csv",header = T)
 
@@ -45,7 +48,8 @@ combine <- p1files %>%
   ) %>%
   inner_join(p2files, by = c("parid","label")) %>% #anti_join could see which files are not matched
   mutate(
-    beep_response = duration1 + duration2
+    beep_response = duration1 + duration2,
+    original_label = label
   ) %>%
   separate(note, into=c("accuracy", "note"), sep="(?<=[0-1])_") %>%
   separate(label, into=c("scheduleID", "sentence"), sep = "_") %>% 
@@ -67,16 +71,35 @@ combine <- p1files %>%
     context = str_sub(number,-1,-1),
     parid = str_sub(parid, 1, nchar(parid)-4),
     group = str_extract(parid,"(?<=_)[a,c]"),
+    batch = 1
     #group = recode(group,a="adult",c="child")
   )  %>%
-  select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2) 
+  select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2,batch,original_label) 
 
-write.csv(combine,"firstbatch.csv",row.names = FALSE)
+write.csv(combine,"datafile/firstbatch.csv",row.names = FALSE)
 
 # check group balanece
 combine[!duplicated(combine$parid),] %>%
   group_by(group) %>%
   summarise(n = n())
+
+# check if there are left-overs in merge
+p1.wide <- p1files %>% 
+  pivot_wider(
+    names_from = timetype,
+    values_from = timepoint,
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) 
+#in timep1 but no match in timep2
+p1.wide %>%
+  anti_join(p2files, by = c("parid","label"))
+#a120 has a wrong symbol added to video condition. saved it!
+
+#in timep2 but no match in timep1
+p2files %>%
+  anti_join(p1.wide, by = c("parid","label"))
 ```
 
 ```{r second batch}
@@ -90,8 +113,9 @@ p1files <-tibble(File = timep1files) %>%
   mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
   unnest(Data)%>%
   select(-File)%>%
-  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
-  mutate(label = str_replace_all(label,"\\_$","")) # Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,"\\.$","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>% # Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$","")) # Replace extra ',' symbol at the end
 
 p2files <-tibble(File = timep2files) %>%
   extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
@@ -99,7 +123,8 @@ p2files <-tibble(File = timep2files) %>%
   unnest(Data) %>%
   select(-File) %>%
   mutate(label = str_replace_all(label,"\\.",""))%>%
-  mutate(label = str_replace_all(label,"\\_$","")) 
+  mutate(label = str_replace_all(label,"\\_$","")) %>%
+  mutate(label = str_replace_all(label,",$",""))
 
 stimulim <- read.csv("datafile_first_batch/stimulim.csv",header = T)
 
@@ -113,11 +138,13 @@ combine <- p1files %>%
     values_from = timepoint,
   ) %>%
   mutate(
-    duration1 = rstart-b
+    duration1 = rstart-b,
+    
   ) %>%
   inner_join(p2files, by = c("parid","label")) %>% #anti_join could see which files are not matched
   mutate(
-    beep_response = duration1 + duration2
+    beep_response = duration1 + duration2,
+    original_label = label
   ) %>%
   separate(note, into=c("accuracy", "note"), sep="(?<=[0-1])_") %>%
   separate(label, into=c("scheduleID", "sentence"), sep = "_") %>% 
@@ -139,24 +166,43 @@ combine <- p1files %>%
     context = str_sub(number,-1,-1),
     parid = str_sub(parid, 1, nchar(parid)-4),
     group = str_extract(parid,"(?<=_)[a,c]"),
+    batch = 2
     #group = recode(group,a="adult",c="child")
   )  %>%
-  select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2) 
+  select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2,batch,original_label) 
 
-write.csv(combine,"secondbatch.csv",row.names = FALSE)
+write.csv(combine,"datafile/secondbatch.csv",row.names = FALSE)
 
 # check group balanece
 combine[!duplicated(combine$parid),] %>%
   group_by(group) %>%
   summarize(n = n())
+
+# check if there are left-overs in merge
+p1.wide <- p1files %>% 
+  pivot_wider(
+    names_from = timetype,
+    values_from = timepoint,
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) 
+
+#in timep1 but no match in timep2
+p1.wide %>%
+  anti_join(p2files, by = c("parid","label"))
+#a10timep1 a '.' replaces the conditions
+
+#in timep2 but no match in timep1
+p2files %>%
+  anti_join(p1.wide, by = c("parid","label"))
 ```
 
-
-# Trial order & Questionnaire file
+r full data inspection}
 
 ```{r}
-data1 <- read.csv("firstbatch.csv",header = T)
-data2 <- read.csv("secondbatch.csv", header = T)
+data1 <- read.csv("datafile/firstbatch.csv",header = T)
+data2 <- read.csv("datafile/secondbatch.csv", header = T)
 fulldata <- rbind(data1,data2)
 
 fulldata <- fulldata %>%
@@ -165,6 +211,36 @@ fulldata <- fulldata %>%
     videoname = paste(videoname,".mp4",sep = "")
   )
 
+# check NA values in the table?
+fulldata[is.na(fulldata$react1),]
+fulldata[is.na(fulldata$react2),]
+fulldata[rowSums(is.na(fulldata)) >0,]
+fulldata[!complete.cases(fulldata),]
+
+# check if the audio/video/context condition matches - here match for sure, more problematic before merging p1 files and p2 files
+table <- table(fulldata$audio, fulldata$video, fulldata$context)
+margin.table(table,3)
+
+# check if some of the missingv trials noted in the spreadsheet are includedinthe dataset
+fulldata %>%
+  filter(parid == "210723_a78" & number =="113L")
+
+```
+
+# Delete trials noted in 'Missing trials'
+```{r}
+mis <- read.csv("datafile/missing_trials.csv", header = T)
+mis <- subset(missing, missing$Missing !="NONE")
+
+fulldata <- fulldata %>%
+  filter(!parid %in% mis$parid | !original_label %in% mis$Missing)
+```
+
+
+
+# Trial order & Questionnaire file
+
+```{r}
 trial_adult <- read.csv("questionnaire/adult_trial.csv", header = T)
 trial_child <- read.csv("questionnaire/child_trial.csv", header = T)
 trial <- rbind(trial_adult, trial_child)
@@ -196,8 +272,8 @@ trial %>%
   filter(is.na(block))
 range(trial$block)
 
-Qadult <- read.csv("Qadult.csv", header = T)
-Qchild <- read.csv("Qchild.csv", header = T)
+Qadult <- read.csv("questionnaire/Qadult.csv", header = T)
+Qchild <- read.csv("questionnaire/Qchild.csv", header = T)
 Qall <- rbind(Qadult, Qchild)
 
 mergedata <- fulldata %>%
@@ -220,6 +296,8 @@ cbind(
      lapply(mergedata, is.na)
      , sum)
    )
+mergedata[!complete.cases(mergedata),]
+
 # Some variables has weird one NA where they shouldn't be
 # Two sources of problem: adult, child questionnaire not exporting correctly; one strange data point in the check file
 #210723_a79 full data has 134H_aNM_vM.mp4 not in the full data file!
@@ -244,10 +322,8 @@ trial %>%
   filter(videoname == "25L_aM_vM.mp4") %>%
   select(filename)
 
+#check ages are there
 mergedata %>%
-  filter(date.of.birth_year == 0)
-
-child %>%
   filter(date.of.birth_year == 0)
 
 mergedata %>%

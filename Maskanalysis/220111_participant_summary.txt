@@ -1,0 +1,61 @@
+"GROUP"	"SUBJECT"	"AGE"	"sex"	"Participant.OS"	"Participant.Browser"	"randomiser_t27m"	"languages"	"response_6"	"mask.problems"	"Difficulty.x"	"Tiring"	"Difficulty.y"	"Distraction"	"n"	"Mean"	"Conf.level"	"Trad.lower"	"Trad.upper"
+"a"	"210719_a25"	26.25	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version8"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	2	1	2	112	339	0.95	317	361
+"a"	"210719_a41"	51.6666666666667	"Male"	"Windows 10"	"Chrome 92.0.4515.107"	"Version1"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	3	2	1	110	356	0.95	331	381
+"c"	"210719_c12"	10.5833333333333	"Female"	"Chromium OS 13904.77.0"	"Chrome 91.0.4472.147"	"Version2"	"English and another language (bilingual)"	"Born and raised in the UK"	"I don't know"	2	1	1	1	115	342	0.95	316	368
+"c"	"210719_c26"	11.3333333333333	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version4"	"English"	"Born and raised in the UK"	"No"	2	2	2	1	110	526	0.95	497	554
+"c"	"210719_c29"	11.5833333333333	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version2"	"English"	"Born and raised in the UK"	"No"	2	1	2	1	99	340	0.95	299	381
+"c"	"210719_c47"	10.5833333333333	"Male"	"Windows 10"	"Chrome 92.0.4515.107"	"Version5"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	1	1	2	114	1250	0.95	1190	1310
+"c"	"210719_c53"	11.0833333333333	"Male"	"Windows 10"	"Edge 92.0.902.67"	"Version4"	"English and another language (bilingual)"	"Born and raised in the UK"	"Yes sometimes"	2	2	2	1	108	966	0.95	894	1040
+"c"	"210719_c66"	10.4166666666667	"Male"	"Windows 10"	"Chrome 92.0.4515.107"	"Version1"	"English"	"Born and raised in the UK"	"Yes sometimes"	4	3	1	1	100	229	0.95	197	261
+"c"	"210719_c71"	11.25	"Female"	"Chromium OS 13904.77.0"	"Chrome 91.0.4472.147"	"Version5"	"English and another language (bilingual)"	"Born and raised in the UK"	"No"	2	3	2	1	110	265	0.95	229	301
+"a"	"210723_a76"	21.6666666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version8"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	1	2	1	108	238	0.95	215	262
+"a"	"210723_a78"	22.25	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version7"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	4	5	3	106	205	0.95	172	237
+"a"	"210723_a79"	21.4166666666667	"Male"	"Windows 10"	"Chrome 91.0.4472.124"	"Version5"	"English"	"Born and raised in the UK"	"Yes sometimes"	4	3	2	2	109	141	0.95	116	165
+"a"	"210725_a118"	50.9166666666667	"Male"	"Mac OS 10.15"	"Firefox 90.0"	"Version3"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	3	2	2	112	662	0.95	630	694
+"a"	"210725_a120"	20.75	"Male"	"Windows 10"	"Chrome 92.0.4515.107"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	3	3	2	105	782	0.95	705	859
+"a"	"210725_a139"	28.9166666666667	"Female"	"Mac OS 10.15.7"	"Chrome 91.0.4472.114"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	1	1	115	777	0.95	733	821
+"a"	"210725_a147"	59.1666666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version5"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	3	1	1	111	354	0.95	322	386
+"a"	"210725_a156"	27.5	"Male"	"Windows 10"	"Chrome 92.0.4515.131"	"Version8"	"English"	"Born and raised in the UK"	"No"	2	1	2	2	100	676	0.95	630	721
+"a"	"210725_a165"	24.4166666666667	"Female"	"Chromium OS 13904.97.0"	"Chrome 91.0.4472.167"	"Version5"	"English"	"Born and raised in the UK"	"No"	2	3	1	1	114	508	0.95	471	545
+"a"	"210725_a176"	20.6666666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.159"	"Version7"	"English"	"Born and raised in the UK"	"No"	2	1	1	1	111	242	0.95	214	270
+"a"	"210725_a185"	26.5833333333333	"Female"	"Mac OS 10.15.6"	"Chrome 91.0.4472.106"	"Version3"	"English and another language (bilingual)"	"Born and raised in the UK"	"Yes sometimes"	3	1	2	2	114	303	0.95	270	335
+"a"	"210725_a83"	23.5833333333333	"Female"	"Windows 10"	"Chrome 91.0.4472.164"	"Version7"	"English and another language (bilingual)"	"Raised in the UK from this age (please specify):"	"Yes sometimes"	2	3	2	3	115	1060	0.95	974	1140
+"a"	"210725_a90"	36	"Male"	"Mac OS 10.15.7"	"Chrome 91.0.4472.114"	"Version3"	"English"	"Born and raised in the UK"	"Yes sometimes"	4	4	1	1	113	515	0.95	477	553
+"a"	"210725_a96"	24.5833333333333	"Male"	"Mac OS 10.15.7"	"Chrome 92.0.4515.107"	"Version8"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	2	2	3	109	215	0.95	189	241
+"c"	"210725_c122"	11	"Female"	"Windows 10"	"Chrome 92.0.4515.131"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	2	3	2	107	518	0.95	464	573
+"c"	"210725_c130"	11.25	"Male"	"Windows 10"	"Chrome 92.0.4515.131"	"Version4"	"English"	"Born and raised in the UK"	"No"	1	1	2	1	107	538	0.95	473	603
+"c"	"210725_c135"	10	"Male"	"Windows 10"	"Chrome 92.0.4515.159"	"Version5"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	4	2	2	93	477	0.95	354	601
+"c"	"210725_c76"	10.4166666666667	"Female"	"Mac OS 10.13.6"	"Chrome 91.0.4472.101"	"Version2"	"English"	"Born and raised in the UK"	"No"	2	2	2	2	106	936	0.95	849	1020
+"c"	"210725_c81"	11.9166666666667	"Male"	"Mac OS 10.13.6"	"Chrome 91.0.4472.101"	"Version8"	"English"	"Born and raised in the UK"	"No"	2	1	2	2	105	1340	0.95	1280	1400
+"c"	"210725_c84"	10.75	"Female"	"Mac OS 10.15.7"	"Chrome 92.0.4515.131"	"Version1"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	2	2	2	108	788	0.95	748	828
+"c"	"210725_c86"	11	"Female"	"Chromium OS 13904.97.0"	"Chrome 91.0.4472.167"	"Version7"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	3	2	3	101	663	0.95	594	733
+"c"	"210725_c94"	8.41666666666667	"Female"	"Mac OS 10.14.6"	"Chrome 92.0.4515.107"	"Version3"	"English"	"Born and raised in the UK"	"No"	2	1	2	2	108	1280	0.95	1220	1330
+"c"	"210823_c177"	11.9166666666667	"Male"	"Windows 10"	"Chrome 92.0.4515.159"	"Version5"	"English and another language (bilingual)"	"Raised in the UK from this age (please specify):"	"Yes sometimes"	2	4	3	1	108	410	0.95	374	447
+"c"	"210823_c179"	11.9166666666667	"Female"	"Mac OS 10.15"	"Firefox 91.0"	"Version1"	"English and another language (bilingual)"	"Raised in the UK from this age (please specify):"	"I don't know"	3	3	3	1	107	168	0.95	143	193
+"a"	"210719_a08"	28.3333333333333	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version1"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	2	1	1	114	333	0.95	309	357
+"a"	"210719_a09"	50.1666666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.131"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	4	2	2	114	378	0.95	355	402
+"a"	"210719_a10"	22.75	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version2"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	2	2	2	113	258	0.95	236	281
+"a"	"210719_a40"	32.5	"Female"	"Mac OS 10.15.7"	"Chrome 91.0.4472.77"	"Version2"	"English and another language (bilingual)"	"Raised in the UK from this age (please specify):"	"Yes sometimes"	3	2	2	1	115	261	0.95	231	292
+"c"	"210719_c08"	10.4166666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.159"	"Version3"	"English"	"Born and raised in the UK"	"No"	3	3	2	1	107	195	0.95	168	222
+"c"	"210719_c27"	10	"Female"	"Windows 10"	"Chrome 92.0.4515.131"	"Version3"	"English"	"Born and raised in the UK"	"I don't know"	4	1	1	1	111	307	0.95	271	343
+"c"	"210719_c43"	11.8333333333333	"Male"	"Mac OS 10.15.6"	"Safari 14.1.1"	"Version6"	"English"	"Born and raised in the UK"	"No"	1	1	2	2	54	377	0.95	334	420
+"c"	"210719_c45"	10.75	"Female"	"Windows 7"	"Chrome 89.0.4389.90"	"Version2"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	1	1	69	644	0.95	579	709
+"c"	"210719_c51"	10.5	"Female"	"Windows 10"	"Chrome 92.0.4515.131"	"Version6"	"English"	"Born and raised in the UK"	"No"	1	1	2	1	101	571	0.95	492	651
+"a"	"210725_a130"	45.8333333333333	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version8"	"English"	"Born and raised in the UK"	"Yes frequently"	3	3	2	1	111	592	0.95	556	627
+"a"	"210725_a132"	23.0833333333333	"Female"	"Windows 10"	"Chrome 91.0.4472.124"	"Version1"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	2	1	1	108	499	0.95	453	544
+"a"	"210725_a133"	42.3333333333333	"Female"	"Windows 10"	"Edge 92.0.902.67"	"Version8"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	3	2	2	112	423	0.95	393	454
+"a"	"210725_a136"	21.9166666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.107"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	4	3	2	102	1360	0.95	1270	1440
+"a"	"210725_a138"	30.1666666666667	"Female"	"Windows 10"	"Edge 92.0.902.62"	"Version2"	"English"	"Born and raised in the UK"	"Yes sometimes"	3	3	2	2	111	211	0.95	185	237
+"a"	"210725_a152"	29.75	"Male"	"Mac OS 10.13.6"	"Chrome 92.0.4515.107"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	1	1	114	469	0.95	433	505
+"a"	"210725_a177"	21.6666666666667	"Male"	"Windows 10"	"Chrome 92.0.4515.131"	"Version5"	"English and another language (bilingual)"	"Born and raised in the UK"	"No"	1	1	1	3	114	456	0.95	426	485
+"a"	"210725_a81"	29	"Female"	"Mac OS 10.15"	"Firefox 89.0"	"Version3"	"English"	"Raised in the UK from this age (please specify):"	"Yes sometimes"	3	4	2	2	112	283	0.95	253	313
+"a"	"210725_a84"	25.5	"Female"	"Mac OS 10.14.6"	"Chrome 92.0.4515.107"	"Version6"	"English"	"Raised in the UK from this age (please specify):"	"Yes sometimes"	3	3	1	2	115	949	0.95	873	1020
+"a"	"210725_a98"	31.75	"Male"	"Ubuntu undefined"	"Firefox 91.0"	"Version4"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	2	2	3	112	254	0.95	224	283
+"c"	"210725_c124"	9.25	"Male"	"Windows 10"	"Chrome 92.0.4515.159"	"Version1"	"English"	"Born and raised in the UK"	"No"	2	2	2	3	103	403	0.95	373	433
+"c"	"210725_c125"	0	"Male"	"Windows 10"	"Chrome 92.0.4515.159"	"Version2"	"English"	"Born and raised in the UK"	"I don't know"	2	2	1	2	104	333	0.95	298	368
+"c"	"210725_c128"	10.75	"Male"	"Chromium OS 13904.41.0"	"Chrome 91.0.4472.81"	"Version5"	"English"	"Born and raised in the UK"	"No"	2	3	2	3	110	308	0.95	272	344
+"c"	"210725_c133"	0	"Female"	"Windows 10"	"Edge 92.0.902.73"	"Version2"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	2	4	104	837	0.95	750	924
+"c"	"210725_c141"	10.5833333333333	"Male"	"Windows 10"	"Firefox 78.0"	"Version8"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	1	1	105	382	0.95	351	412
+"c"	"210725_c98"	11.4166666666667	"Female"	"Mac OS 10.15.6"	"Safari 14.1.1"	"Version5"	"English"	"Born and raised in the UK"	"No"	1	1	1	2	63	351	0.95	315	387
+"c"	"210818_c166"	8.66666666666667	"Male"	"Windows 10"	"Chrome 92.0.4515.131"	"Version4"	"English"	"Born and raised in the UK"	"No"	2	1	2	2	104	475	0.95	440	509
+"c"	"210823_c180"	12.9166666666667	"Female"	"Windows 10"	"Chrome 92.0.4515.159"	"Version2"	"English"	"Born and raised in the UK"	"Yes sometimes"	2	1	1	1	113	1220	0.95	1160	1270
