@@ -1,0 +1,75 @@
+---
+title: "Untitled"
+author: "Katrina Li"
+date: "13/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+data<-read.delim("220107_full_data_cleaned.txt", header=T)
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# zscoring/scaling
+data$RT_z <- scale(data$RT, center = TRUE, scale = TRUE)
+
+# Fixed
+data$GROUP <- factor(data$group, levels = c("a","c"), labels = c("Adults", "Children"))
+data$GROUPc <- factor(data$group, levels = c("c","a"), labels = c("Children","Adults"))
+data$AUDIO <- factor(data$audio, levels = c("aNM","aM"), labels = c( "No Mask","Mask")) 
+data$VISUAL <- factor(data$VISUAL, levels = c("vNM","vM"), labels = c( "No Mask","Mask"))
+data$PREDICT <- factor(data$PREDICT, levels = c("H","L"), labels = c("High","Low"))
+#data$TRIALORDER <- as.numeric(data$TRIALORDER)
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION <- as.factor(data$CONDITION)
+#data$BLOCK <- as.factor(data$BLOCK)
+#data$LIST <- as.factor(data$Experiment_version)
+
+# Sum Contrast Coding
+contrasts(data$GROUP) <- c(-0.5,+0.5)
+contrasts(data$GROUPc) <- c(-0.5,+0.5)
+contrasts(data$AUDIO) <- c(-0.5,+0.5)
+contrasts(data$VISUAL) <- c(-0.5,+0.5)
+contrasts(data$PREDICT) <- c(-0.5,+0.5)
+
+
+lmm.all <- lmerTest::lmer(RT ~ 
+                            AUDIO:GROUP +
+                            
+                            GROUP +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.all)
+
+lmm.allc <- lmerTest::lmer(RT ~ 
+                            AUDIO:GROUPc +
+                            
+                            GROUPc +
+                            AUDIO +
+                               
+                            (1 | SUBJECT) + 
+                            (1 | ITEM),
+                          
+                           data, 
+                           lmerControl(optimizer = "bobyqa") , 
+                           REML=F, na.action=na.omit)
+summary(lmm.allc)
+```

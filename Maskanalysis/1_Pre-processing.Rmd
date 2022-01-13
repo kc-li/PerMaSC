@@ -271,12 +271,13 @@ itemnumbers <- groupwiseMean(RT ~ ITEM,
 range(data$RT)
 data$RTcut = cut(data$RT,breaks = c(-500,-50,0,1000,3000,20000))
 table(data$RTcut)
+data = subset(data, select = -RTcut)
 ```
 
 Unnatural reaction times below 0ms and above 3000ms were removed since they indicate insufficient attention (N=22; Fairs & Strijkers allow 2000ms for picture naming; Vogt, Hauber, Kuhlen & Rahman allowed 3000ms for picture naming from onset; Kessler, Treiman & Mullennix allowed 2000ms for word reading). 
 
 After this cleaning process, reaction times will be inspected with histograms, with boxplots, and by Participant with qqplot. 
-Data remaining: **6477**.
+Data remaining: **6478**.
 
 ```{r outliers, echo=FALSE}
 data <- subset(data, data$RT < 3000) #29 trials removed
@@ -336,6 +337,13 @@ diffi_distr
 
 ```
 
+```{r output full data before new vairables added}
+errorincluded <- rbind(error, data)
+write.table(errorincluded, "220112_errordata.txt", sep="\t", row.names=FALSE)
+nrow(errorincluded)
+```
+
+
 
 ## Transform reaction times and remove outliers
 
@@ -373,5 +381,3 @@ qqmath(~RT|SUBJECT, data=data, main="Responses by Subject")
 ```{r save}
 write.table(data, "220112_full_data_cleaned.txt", sep="\t", row.names=FALSE)
 ```
-
-
