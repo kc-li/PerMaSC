@@ -1,0 +1,318 @@
+"parid","scheduleID","accuracy","original_label","note.x","correctans","note.y","duration2","id"
+"210719_a25",14557507,0,"14557507_122LaNMvNM","spin","spoon","0_spin",0.113513205380578,23
+"210719_a25",14557507,0,"14557507_134LaMvM","ten","tin","0_ten",0.209799674940896,35
+"210719_a25",14557507,0,"14557507_21HaNMvNM","clark?","clerk","0_clark?",0.136221929505815,49
+"210719_a41",14610319,0,"14610319_118LaMvNM","snail","sling","0_snail",0.0727179878048687,19
+"210719_a41",14610319,0,"14610319_140HaMvNM","nasalisation 'mban'","van","0_nasalisation 'mban'",0.0633392210144847,41
+"210719_a41",14610319,0,"14610319_17LaMvM","pulsed?","calf","0_pulsed?",0.104774030528031,46
+"210719_a41",14610319,0,"14610319_38HaNMvNM","wrongthencorrectsit","den","0_wrongthencorrectsit",0.112451388888854,66
+"210719_a41",14610319,0,"14610319_94LaMvM","bet","pet","0_bet",0.195592788461494,122
+"210719_a41",14610319,0,"14610319_98LaMvM","time","pine","0_time",0.203901969178031,125
+"210719_c12",14456668,0,"14456668_65HaMvM","I dont' know","herd","0_I dont' know",0.226919070512793,94
+"210719_c12",14456668,0,"14456668_74LaMvNM","a kick","kick","0_a kick",0.132138194444437,103
+"210719_c26",14526592,0,"14526592_140HaNMvNM","s van","van","0_s van",0.378744021575145,41
+"210719_c26",14526592,0,"14526592_21LaMvM","'clocp'","clerk","0_'clocp'",0.155468070652176,49
+"210719_c26",14526592,0,"14526592_50LaMvNM","'fame'","flame","0_'fame'",0.213850378787868,79
+"210719_c26",14526592,0,"14526592_51LaNMvM","sounds like 'flog'. I think it ends with a click actually","flock","0_sounds like 'flog'. I think it ends with a click actually",0.164010725766559,80
+"210719_c26",14526592,0,"14526592_73HaNMvNM","I think the final 'k' is voiced though","junk","0_I think the final 'k' is voiced though",0.0889519278607054,102
+"210719_c29",14956811,0,"14956811_107LaMvNM","it ends with a click","rope","0_it ends with a click",0.452937859195401,6
+"210719_c29",14956811,0,"14956811_121LaMvM","spoold","spool","0_spoold",0.258672032828265,20
+"210719_c29",14956811,0,"14956811_134LaNMvNM","too quite to be heard","tin","0_too quite to be heard",0.16942329545455,33
+"210719_c29",14956811,0,"14956811_16HaNMvM","do not think she said anything","cake","0_do not think she said anything",0.197637731481464,43
+"210719_c29",14956811,0,"14956811_21LaMvNM","cars?","clerk","0_cars?",0.159377083333325,47
+"210719_c29",14956811,0,"14956811_3LaMvM","sounds like boy","bay","0_sounds like boy",0.55666105769231,66
+"210719_c29",14956811,0,"14956811_57HaMvNM","sounds like Alices recording rather than the participant","glue","0_sounds like Alices recording rather than the participant",0.0869077380952206,83
+"210719_c29",14956811,0,"14956811_58HaNMvM","cannot hear","goal","0_cannot hear",0.0779895833333057,84
+"210719_c29",14956811,0,"14956811_74LaMvNM","cannot hear","kick","0_cannot hear",0.356009114583344,101
+"210719_c29",14956811,0,"14956811_79HaNMvM","double l","lid","0_double l",0.204062499999992,105
+"210719_c29",14956811,0,"14956811_8LaMvM","Is there a devoicing of b?","blame","0_Is there a devoicing of b?",0.221119791666695,115
+"210719_c29",14956811,0,"14956811_9HaMvNM","dust","blast","0_dust",0.277948611111157,124
+"210719_c47",14557278,0,"14557278_134HaMvM","discard_she siad i don't know","tin","0_discard_she siad i don't know",0.924031249999999,34
+"210719_c53",15074698,0,"15074698_103HaMvNM","graft","raft","0__graft",0.310773958333334,4
+"210719_c53",15074698,0,"15074698_107LaMvM","self correction","rope","0__self correction",0.515698309748426,7
+"210719_c53",15074698,0,"15074698_114HaMvM","sick?","silk","0__sick?",0.573974166666666,15
+"210719_c53",15074698,0,"15074698_118HaMvM","slink?","sling","0__slink?",0.330029861111115,19
+"210719_c53",15074698,0,"15074698_37HaMvM","self-correction","deck","0__self-correction",0.385744791666639,65
+"210719_c53",15074698,0,"15074698_42LaMvNM","dun?","doll","0__dun?",0.692156249999954,71
+"210719_c53",15074698,0,"15074698_58LaMvNM","cannot figure out what the child said","goal","0__cannot figure out what the child said",0.518091856060551,86
+"210719_c66",14758562,0,"14758562_121HaNMvM","discard_spoon","spool","0_discard_spoon",0.459563112745101,21
+"210719_c66",14758562,0,"14758562_20HaMvNM","discard_small chunks","chunks","0_discard_small chunks",0.51017329545455,46
+"210719_c66",14758562,0,"14758562_28HaMvNM","discard_tops","cops","0_discard_tops",0.0636445129107983,54
+"210719_c66",14758562,0,"14758562_2HaMvM","discard_bar","barn","0_discard_bar",0.155506824712631,55
+"210719_c66",14758562,0,"14758562_38HaNMvNM","discard_deaf","den","0_discard_deaf",0.176536458333345,62
+"210719_c66",14758562,0,"14758562_51HaMvM","discard_flop","flock","0_discard_flop",0.18924227150535,76
+"210719_c66",14758562,0,"14758562_74LaNMvNM","discard_tin","kick","0_discard_tin",0.119030024509811,98
+"210719_c66",14758562,0,"14758562_91LaMvNM","discard_not","notch","0_discard_not",0.629077448388699,114
+"210719_c71",14549435,0,"14549435_133HaNMvM","unsure_thrat?","throat","0_unsure_thrat?",0.119427483974349,33
+"210719_c71",14549435,0,"14549435_2LaMvM","varn","barn","0__varn",0.614718749999966,57
+"210719_c71",14549435,0,"14549435_43LaMvM","dark","dove","0__dark",1.06382679263558,70
+"210723_a76",14582654,0,"14582654_134LaMvM","tim?","tin","0_tim?",0.103835416666676,35
+"210723_a76",14582654,0,"14582654_17LaMvNM","car?_orcutoff?","calf","0_car?_orcutoff?",0.0629895833333478,46
+"210723_a76",14582654,0,"14582654_32LaNMvM","cop?","crop","0_cop?",0.0910191349637728,61
+"210723_a76",14582654,0,"14582654_60LaMvM","gran","grin","0_gran",0.0935670833333404,89
+"210723_a76",14582654,0,"14582654_64LaMvM","ahead","hen","0_ahead",0.038072916666664,93
+"210723_a76",14582654,0,"14582654_80HaNMvM","clock? Alice's k?","lock","0_clock? Alice's k?",0.162321527777749,109
+"210723_a78",14657603,0,"14657603_50LaNMvNM","plane","flame","0_plane",0.0930640407985805,75
+"210723_a78",14657603,0,"14657603_57LaMvM","blue","glue","0_blue",0.108122596153805,80
+"210723_a78",14657603,0,"14657603_8LaNMvM","maim?","blame","0_maim?",0.0834005681818439,111
+"210723_a78",14657603,0,"14657603_91LaMvM","nokch?","notch","0_nokch?",0.140793402777774,113
+"210723_a79",14566634,0,"14566634_35LaMvM","purt?","curb","0_purt?",0.0458866880085367,63
+"210723_a79",14566634,0,"14566634_42LaNMvM","though?","doll","0_though?",0.0528676631943057,70
+"210723_a79",14566634,0,"14566634_43LaMvM","duck?","dove","0_duck?",0.0400945902170378,71
+"210723_a79",14566634,0,"14566634_60HaMvM","grunt?","grin","0_grunt?",0.124430878734472,88
+"210723_a79",14566634,0,"14566634_64HaMvM","hand","hen","0_hand",0.0683344671201667,91
+"210725_a118",14685140,0,"14685140_89LaMvNM","mud","mug","0_mud",0.23496527777769,117
+"210725_a118",14685140,0,"14685140_96LaMvM","pearl","pile","0_pearl",0.19837326388884,124
+"210725_a120",14668484,0,"14668484_111LaMvM","sleeves","seeds","0_sleeves",0.497184371775024,12
+"210725_a120",14668484,0,"14668484_121LaNMvNM","I don't know","spool","0_I don't know",0.223694519927534,22
+"210725_a120",14668484,0,"14668484_21LaMvM","I don't know","clerk","0_I don't know",0.518130549065418,49
+"210725_a120",14668484,0,"14668484_32HaNMvNM","voiced p","crop","0_voiced p",0.340900297619029,61
+"210725_a120",14668484,0,"14668484_33LaMvM","crowns","crown","0_crowns",0.384287508941327,62
+"210725_a120",14668484,0,"14668484_43LaNMvM","I don't know","dove","0_I don't know",0.531734490740718,72
+"210725_a120",14668484,0,"14668484_47HaMvM","self-correction and I don't know","drum","0_self-correction and I don't know",0.896020833333296,76
+"210725_a120",14668484,0,"14668484_62LaMvM","I don't know","hay","0_I don't know",0.360636111111091,91
+"210725_a120",14668484,0,"14668484_74LaMvM","I don't know","kick","0_I don't know",0.539566358024643,103
+"210725_a139",14758059,0,"14758059_23HaNMvM","clerk?","clock","0_clerk?",0.249517987375157,51
+"210725_a156",14930256,0,"14930256_53HaMvM","'folks'","frogs","0_'folks'",0.295752662556112,77
+"210725_a156",14930256,0,"14930256_64LaMvM","'hat'","hen","0_'hat'",0.50632353988604,86
+"210725_a156",14930256,0,"14930256_72LaMvM","'cheese'","juice","0_'cheese'",1.15824125937144,93
+"210725_a165",14947964,0,"14947964_90LaMvNM","'bnet'","net","0_'bnet'",0.405739075203257,118
+"210725_a176",15219350,0,"15219350_104LaMvNM","brent?","rent","0_brent?",0.178179534313724,5
+"210725_a176",15219350,0,"15219350_118LaMvM","slave","sling","0_slave",0.164189980158724,19
+"210725_a176",15219350,0,"15219350_42LaNMvNM","dawn? usually L in response is clear","doll","0_dawn? usually L in response is clear",0.335868472066522,71
+"210725_a176",15219350,0,"15219350_87LaMvM","mock","mop","0_mock",0.314895254629619,115
+"210725_a176",15219350,0,"15219350_90LaNMvM","annette?","net","0_annette?",0.500891914776304,119
+"210725_a180",15192698,0,"15192698_127LaMvM","she said unknown","swamps","0_she said unknown",0.176281250000002,27
+"210725_a180",15192698,0,"15192698_134LaMvNM","ten","tin","0_ten",0.172905678353672,35
+"210725_a180",15192698,0,"15192698_38LaNMvNM","she said unknown","den","0_she said unknown",0.218090012024277,66
+"210725_a180",15192698,0,"15192698_41LaMvM","she said unknown","dive","0_she said unknown",0.186088774662409,70
+"210725_a180",15192698,0,"15192698_64LaMvNM","the hen","hen","0_the hen",0.103088427615518,93
+"210725_a180",15192698,0,"15192698_8LaNMvM","blane","blame","0_blane",0.181285523504243,118
+"210725_a180",15192698,0,"15192698_90LaNMvM","a net (annette)","net","0_a net (annette)",0.14476725260414,119
+"210725_a185",15129350,0,"15129350_120LaMvNM","punch","sponge","0_punch",0.180588287601637,21
+"210725_a185",15129350,0,"15129350_28LaMvM","pots","cops","0_pots",0.477758680555581,56
+"210725_a83",14570364,0,"14570364_139LaMvNM","t is made a affricative like ts","tub","0_t is made a affricative like ts",0.076562499999983,37
+"210725_a90",14625776,0,"14625776_35LaMvNM","'turb'","curb","0_'turb'",0.28547332192457,63
+"210725_a90",14625776,0,"14625776_60HaMvNM","nonword","grin","0_nonword",0.529319877730813,89
+"210725_a90",14625776,0,"14625776_61LaMvM","a growl","growl","0_a growl",0.281194836909094,90
+"210725_a96",14750145,0,"14750145_103LaMvNM","braft","raft","0__braft",0.000148379629629325,4
+"210725_a96",14750145,0,"14750145_107HaNMvNM","a rope","rope","0__a rope",0.0305457274011296,7
+"210725_a96",14750145,0,"14750145_111HaNMvNM","self-correction","seeds","0__self-correction",0.0129780092592569,12
+"210725_a96",14750145,0,"14750145_134LaMvM","don't know","tin","0__don't know",0.127304924242416,35
+"210725_a96",14750145,0,"14750145_23LaMvM","plop?","clock","0__plop?",0.113887731481455,51
+"210725_a96",14750145,0,"14750145_61LaNMvM","grown","growl","0__grown",0.0999649003622949,90
+"210725_a96",14750145,0,"14750145_79HaMvNM","glid","lid","0__glid",0.0273312499999179,107
+"210725_a96",14750145,0,"14750145_82LaNMvNM","voiced 'g'","lungs","0__voiced 'g'",0.0311912878786984,111
+"210725_c122",15102120,0,"15102120_121LaNMvNM","school","spool","0__school",0.292777718926558,22
+"210725_c122",15102120,0,"15102120_128LaMvNM","one","swan","0__one",0.187350198412695,28
+"210725_c122",15102120,0,"15102120_29LaMvM","discard_craft","crash","0_discard_craft",0.222324202674884,57
+"210725_c122",15102120,0,"15102120_39LaNMvM","discard_doubt","dent","0_discard_doubt",0.356946581196581,67
+"210725_c122",15102120,0,"15102120_42LaMvNM","discard_dog","doll","0_discard_dog",0.319391819985583,71
+"210725_c122",15102120,0,"15102120_88LaMvNM","discard_mout","mouse","0_discard_mout",0.308720643939438,116
+"210725_c122",15102120,0,"15102120_91HaMvM","discard_not","notch","0_discard_not",0.16963421474361,120
+"210725_c130",15367679,0,"15367679_103HaMvNM","unsure_braft","raft","0_unsure_braft",0.346625060916179,3
+"210725_c130",15367679,0,"15367679_105HaNMvNM","grim","rim","0__grim",0.350919575825825,5
+"210725_c130",15367679,0,"15367679_21LaMvM","unsure_clock","clerk","0_unsure_clock",0.324751620370321,48
+"210725_c130",15367679,0,"15367679_35LaNMvM","unsure_cab?","curb","0_unsure_cab?",0.587737127976141,62
+"210725_c130",15367679,0,"15367679_38LaMvNM","donnot know","den","0__donnot know",0.16640843253964,65
+"210725_c130",15367679,0,"15367679_53LaNMvNM","frot?","frogs","0__frot?",0.193721228314729,81
+"210725_c130",15367679,0,"15367679_61HaNMvNM","unsure_grown?","growl","0_unsure_grown?",0.245783194444414,89
+"210725_c135",15571068,0,"15571068_100LaNMvNM","unsure_toll","pole","0_unsure_toll",0.087724126344086,1
+"210725_c135",15571068,0,"15571068_104HaMvM","vanpt","rent","0__vanpt",0.672119212962963,5
+"210725_c135",15571068,0,"15571068_105LaNMvNM","unsure_vim","rim","0_unsure_vim",0.347538825757576,6
+"210725_c135",15571068,0,"15571068_108HaNMvM","vow","row","0__vow",0.142961805555554,8
+"210725_c135",15571068,0,"15571068_133HaNMvM","unsure_thlout?","throat","0_unsure_thlout?",0.18141700268815,34
+"210725_c135",15571068,0,"15571068_136LaNMvNM","unsure_overlap in the onset","trail","0_unsure_overlap in the onset",0.537944532571899,36
+"210725_c135",15571068,0,"15571068_14LaMvNM","unsure_boom?","broom","0_unsure_boom?",0.487856249999965,43
+"210725_c135",15571068,0,"15571068_15HaNMvNM","unsure_buise","bruise","0_unsure_buise",0.218706249999954,44
+"210725_c135",15571068,0,"15571068_32LaNMvNM","unsure_cop?","crop","0_unsure_cop?",0.171884374999991,61
+"210725_c135",15571068,0,"15571068_36LaMvNM","dark","dart","0__dark",0.16074953703702,64
+"210725_c135",15571068,0,"15571068_53LaMvNM","unsure_fogs","frogs","0_unsure_fogs",0.37955069444439,82
+"210725_c135",15571068,0,"15571068_60HaMvM","unsure_guam?","grin","0_unsure_guam?",0.323572916666592,89
+"210725_c135",15571068,0,"15571068_8LaMvNM","unsure_lame - there seems to be a burst, but I cannot hear it","blame","0_unsure_lame - there seems to be a burst, but I cannot hear it",0.36145753205119,117
+"210725_c135",15571068,0,"15571068_93LaNMvM","discard_I donot know","pad","0_discard_I donot know",0.399177083333257,120
+"210725_c76",14745223,0,"14745223_108LaNMvM","brow","row","0__brow",0.600499811035526,7
+"210725_c76",14745223,0,"14745223_123HaNMvM","discard_self-correction","sport","0_discard_self-correction",0.641997491734124,23
+"210725_c76",14745223,0,"14745223_138LaNMvM","trup?","truck","0__trup?",0.165249433106567,37
+"210725_c76",14745223,0,"14745223_139LaNMvNM","unsure_I think the onset is an afficative rather than a plosive","tub","0_unsure_I think the onset is an afficative rather than a plosive",0.438203217795049,38
+"210725_c76",14745223,0,"14745223_140HaMvM","unsure_cannot figure out the onset - in fact, it sounds like dan rather than van to my ears","van","0_unsure_cannot figure out the onset - in fact, it sounds like dan rather than van to my ears",0.404694168265593,40
+"210725_c76",14745223,0,"14745223_21LaMvNM","club","clerk","0__club",0.370293753865198,48
+"210725_c76",14745223,0,"14745223_31LaNMvNM","unsure_sounds like quib","crib","0_unsure_sounds like quib",0.369037960863352,59
+"210725_c76",14745223,0,"14745223_50HaNMvM","blame","flame","0__blame",0.61093738570699,78
+"210725_c76",14745223,0,"14745223_76LaMvM","the knob","knob","0__the knob",0.342607529784431,104
+"210725_c76",14745223,0,"14745223_78HaMvNM","blap","lap","0__blap",0.516043083900229,105
+"210725_c81",14745923,0,"14745923_123HaMvNM","discard_I think the child said sth before","sport","0_discard_I think the child said sth before",0.341598639455789,24
+"210725_c81",14745923,0,"14745923_137HaNMvNM","discard_whole sentence repeated","trap","0_discard_whole sentence repeated",0.402274803641262,36
+"210725_c81",14745923,0,"14745923_19LaMvM","shut","chat","0__shut",0.346963070942664,46
+"210725_c81",14745923,0,"14745923_53HaMvM","incomplete recording","frogs","0__incomplete recording",0.190431972789071,81
+"210725_c81",14745923,0,"14745923_5HaMvNM","gream? incomplete recording","beam","0__gream? incomplete recording",0.352008864151657,87
+"210725_c81",14745923,0,"14745923_60LaMvM","unsure_grim?","grin","0_unsure_grim?",0.400927437641656,88
+"210725_c81",14745923,0,"14745923_64LaMvM","hand","hen","0__hand",0.218832199546398,92
+"210725_c81",14745923,0,"14745923_72LaMvM","unsure_geese?","juice","0_unsure_geese?",0.305990173847249,100
+"210725_c81",14745923,0,"14745923_82LaNMvNM","voiced 'g' in the coda","lungs","0__voiced 'g' in the coda",0.392623906705495,110
+"210725_c84",14993977,0,"14993977_108LaMvM","a row","row","0__a row",0.471589569161001,8
+"210725_c84",14993977,0,"14993977_138LaMvM","track","truck","0__track",0.512790146361567,36
+"210725_c86",14742950,0,"14742950_118LaMvM","discard_said don't know","sling","0_discard_said don't know",0.273025968309859,18
+"210725_c86",14742950,0,"14742950_121LaNMvM","discard_said don't know","spool","0_discard_said don't know",0.18525446428572,21
+"210725_c86",14742950,0,"14742950_122LaMvM","discard_said don't know","spoon","0_discard_said don't know",0.222208333333342,22
+"210725_c86",14742950,0,"14742950_27LaMvNM","discard_said don't know","coin","0_discard_said don't know",0.468704861111121,53
+"210725_c86",14742950,0,"14742950_58LaNMvNM","discard_girl","goal","0_discard_girl",0.349331845238083,81
+"210725_c86",14742950,0,"14742950_64LaMvNM","discard_hand","hen","0_discard_hand",0.398302083333306,88
+"210725_c94",14889970,0,"14889970_105LaMvM","room? vowel in TIN and CLIFF are fronter","rim","0_room? vowel in TIN and CLIFF are fronter",0.0598979591836741,5
+"210725_c94",14889970,0,"14889970_137LaNMvM","self-correction?","trap","0_self-correction?",0.263753482345322,36
+"210725_c94",14889970,0,"14889970_28LaMvM","pops","cops","0_pops",0.560740425799963,55
+"210725_c94",14889970,0,"14889970_37HaNMvM","geck?","deck","0_geck?",0.872289342403633,64
+"210725_c94",14889970,0,"14889970_5HaMvM","bean","beam","0_bean",0.765454262290916,87
+"210725_c94",14889970,0,"14889970_60HaMvNM","groan","grin","0_groan",0.737089947089856,88
+"210725_c94",14889970,0,"14889970_73LaMvM","jank","junk","0_jank",0.505654875283312,101
+"210725_c94",14889970,0,"14889970_96LaMvM","pearl","pile","0_pearl",0.390919447143688,123
+"210725_c94",14889970,0,"14889970_97LaNMvM","pale?","pill","0_pale?",0.449243722179972,124
+"210823_c177",15326180,0,"15326180_21HaMvNM","unsure_clock?","clerk","0_unsure_clock?",0.148538608425838,48
+"210823_c177",15326180,0,"15326180_2LaMvM","Van?","barn","0__Van?",0.111170823885118,57
+"210823_c177",15326180,0,"15326180_43LaMvM","I don't know","dove","0__I don't know",0.195738284054386,71
+"210823_c177",15326180,0,"15326180_57HaNMvNM","unsure_clue?","glue","0_unsure_clue?",0.088973696145132,84
+"210823_c177",15326180,0,"15326180_85LaMvM","nut?","mat","0__nut?",0.206492689029545,112
+"210823_c177",15326180,0,"15326180_86LaMvNM","unsure_charity meal","meal","0_unsure_charity meal",0.122963142929052,113
+"210823_c177",15326180,0,"15326180_8LaMvNM","lame","blame","0__lame",0.103818259544141,117
+"210823_c177",15326180,0,"15326180_9HaNMvNM","cannot figure out what she said","blast","0__cannot figure out what she said",0.106088435374033,127
+"210823_c179",15327645,0,"15327645_37LaMvNM","discard_debt","deck","0_discard_debt",0.157174221713603,65
+"210823_c179",15327645,0,"15327645_41LaMvNM","unsure_die","dive","0_unsure_die",0.217553465830775,70
+"210823_c179",15327645,0,"15327645_60LaNMvM","unsure_grinned","grin","0_unsure_grinned",0.3397732426304,89
+"210823_c179",15327645,0,"15327645_69HaMvNM","unsure_hurt","host","0_unsure_hurt",0.852986117299906,98
+"210823_c179",15327645,0,"15327645_87LaMvNM","discard_mock","mop","0_discard_mock",0.176728129848414,115
+"210823_c179",15327645,0,"15327645_98LaMvM","discard_time","pine","0_discard_time",0.183187397864288,126
+"210823_c179",15327645,0,"15327645_99LaNMvM","unsure_tot?","plot","0_unsure_tot?",0.0817816650470036,127
+"210719_a08",14866651,0,"14866651_108LaMvM","a row","row","0__a row",0.130807672764227,8
+"210719_a08",14866651,0,"14866651_61HaMvNM","grown?","growl","0__grown?",0.0707801951476767,90
+"210719_a09",14867512,0,"14867512_141LaMvM","discard_works","wax","0_discard_works",0.196110507246374,42
+"210719_a10",14860025,0,"14860025_113LaMvM","feet","sheep","0__feet",0.101992680180182,14
+"210719_a10",14860025,0,"14860025_121LaMvM","spoon?","spool","0__spoon?",0.165350375441705,22
+"210719_a40",14704561,0,"14704561_90LaMvM","discard_annette","net","0_discard_annette",0.340000374744847,119
+"210719_a59",14860196,0,"14860196_105LaMvM","discard_roo","rim","0_discard_roo",0.231253063725489,6
+"210719_a59",14860196,0,"14860196_28LaMvM","unsure_pops?","cops","0_unsure_pops?",0.0914927536231716,56
+"210719_a59",14860196,0,"14860196_31HaMvNM","unsure_unsure onset","crib","0_unsure_unsure onset",0.0915729166666495,60
+"210719_a59",14860196,0,"14860196_50HaMvM","unsure_unsure onset","flame","0_unsure_unsure onset",0.120965544871808,79
+"210719_a59",14860196,0,"14860196_53HaNMvNM","unsure_unsure onset","frogs","0_unsure_unsure onset",0.0714843749999829,82
+"210719_a59",14860196,0,"14860196_54LaNMvM","unsure_unsure onset","fudge","0_unsure_unsure onset",0.148760416666647,83
+"210719_a59",14860196,0,"14860196_68HaMvNM","unsure_unsure onset","hive","0_unsure_unsure onset",0.0778415798610865,97
+"210719_a59",14860196,0,"14860196_73LaMvM","discard_chunk","junk","0_discard_chunk",0.123071022727288,102
+"210719_a59",14860196,0,"14860196_93HaMvM","unsure_unsure onset","pad","0_unsure_unsure onset",0.0773116987179208,121
+"210719_a59",14860196,0,"14860196_96LaMvM","unsure_unsure onset","pile","0_unsure_unsure onset",0.0949687499999641,124
+"210719_a59",14860196,0,"14860196_99HaMvNM","unsure_unsure onset","plot","0_unsure_unsure onset",0.0884508928571108,127
+"210719_c08",15216048,0,"15216048_27HaMvNM","discard_talk coin","coin","0_discard_talk coin",0.335720523049631,53
+"210719_c08",15216048,0,"15216048_28LaMvM","discard_pots","cops","0_discard_pots",0.225331249999982,54
+"210719_c08",15216048,0,"15216048_31HaMvNM","discard_ssss","crib","0_discard_ssss",0.318910833333305,58
+"210719_c08",15216048,0,"15216048_32LaMvM","unsure_croc","crop","0_unsure_croc",0.331697916666627,59
+"210719_c08",15216048,0,"15216048_38HaMvM","discard_gun","den","0_discard_gun",0.243357638888867,64
+"210719_c08",15216048,0,"15216048_51LaMvNM","unsure_flop?","flock","0_unsure_flop?",0.128348749999958,78
+"210719_c08",15216048,0,"15216048_5HaMvM","discard_great beam?","beam","0_discard_great beam?",0.267804687499932,86
+"210719_c27",15318438,0,"15318438_126HaNMvNM","shtrap?","strap","0__shtrap?",0.594385051169603,26
+"210719_c27",15318438,0,"15318438_17LaNMvNM","car?","calf","0__car?",0.700642606932149,46
+"210719_c43",14729926,0,"14729926_121HaMvNM","pool","spool","0_pool",0.064572976936379,13
+"210719_c43",14729926,0,"14729926_133HaMvM","throats_also th too weak","throat","0_throats_also th too weak",0.141817708333335,21
+"210719_c43",14729926,0,"14729926_28LaMvNM","co..cops","cops","0__co..cops",0.333708333333334,34
+"210719_c43",14729926,0,"14729926_32LaMvNM","crap","crop","0__crap",0.141989583333341,38
+"210719_c43",14729926,0,"14729926_38LaMvM","dent","den","0__dent",0.105302083333328,42
+"210719_c43",14729926,0,"14729926_74HaNMvM","discard_k..kick","kick","0_discard_k..kick",0.295394675925934,66
+"210719_c45",15153565,0,"15153565_46LaMvM","jug?","drug","0__jug?",0.116545138888867,52
+"210719_c45",15153565,0,"15153565_47HaMvNM","draf?","drum","0__draf?",0.132296706989237,53
+"210719_c45",15153565,0,"15153565_91HaMvNM","not?","notch","0__not?",0.0889701867816086,75
+"210719_c51",15126922,0,"15126922_114LaNMvM","sail? or unreleased k?","silk","0__sail? or unreleased k?",0.108968749999999,15
+"210719_c51",15126922,0,"15126922_20LaMvNM","unrealised s?","chunks","0__unrealised s?",0.144006628787892,47
+"210719_c51",15126922,0,"15126922_28LaMvNM","pops","cops","0__pops",0.134277777777768,55
+"210719_c51",15126922,0,"15126922_37LaNMvM","unsure_is there a prenasaling or just a hmm before?","deck","0_unsure_is there a prenasaling or just a hmm before?",0.211276041666679,64
+"210719_c51",15126922,0,"15126922_38LaMvM","death?","den","0__death?",0.138540364583335,65
+"210719_c51",15126922,0,"15126922_4LaNMvM","beap?","beak","0__beap?",0.114520833333358,76
+"210719_c51",15126922,0,"15126922_50LaMvM","unsure_there is a hesitation, and I am not sure what this child is saying","flame","0_unsure_there is a hesitation, and I am not sure what this child is saying",0.123343750000032,77
+"210719_c51",15126922,0,"15126922_5LaMvM","tim","beam","0__tim",0.175124117231633,86
+"210719_c51",15126922,0,"15126922_73LaMvNM","unsure_cannot figure out what it is","junk","0_unsure_cannot figure out what it is",0.117750000000001,99
+"210719_c51",15126922,0,"15126922_88LaMvM","unsure_ma or mou?","mouse","0_unsure_ma or mou?",0.157906249999996,113
+"210725_a113",14876122,0,"14876122_109HaMvNM","unsure_psound","sand","0_unsure_psound",0.0575488754060167,8
+"210725_a113",14876122,0,"14876122_114HaNMvM","unsure_psilk?","silk","0_unsure_psilk?",0.058492903334173,14
+"210725_a113",14876122,0,"14876122_119HaMvM","blash","splash","0__blash",0.0746671525753193,19
+"210725_a113",14876122,0,"14876122_17LaNMvNM","scarf?","calf","0__scarf?",0.373696974724865,45
+"210725_a113",14876122,0,"14876122_4HaNMvM","creak?","beak","0__creak?",0.107807572641519,77
+"210725_a113",14876122,0,"14876122_50HaMvM","unsure_fling?","flame","0_unsure_fling?",0.1031326224184,78
+"210725_a113",14876122,0,"14876122_51LaMvNM","clock","flock","0__clock",0.03784958427822,79
+"210725_a113",14876122,0,"14876122_54LaNMvM","bulge?","fudge","0__bulge?",0.121870748299358,82
+"210725_a113",14876122,0,"14876122_62LaNMvM","unsure_sounds like tay","hay","0_unsure_sounds like tay",0.076621073961519,90
+"210725_a113",14876122,0,"14876122_67LaNMvNM","psips?","hips","0__psips?",0.285724463428778,95
+"210725_a113",14876122,0,"14876122_68HaMvNM","unsure_chive?","hive","0_unsure_chive?",0.323259769023906,96
+"210725_a113",14876122,0,"14876122_91HaNMvM","cannot figure out what it is","notch","0__cannot figure out what it is",0.0922403628118786,119
+"210725_a130",14796603,0,"14796603_61LaNMvM","unsure_grown?","growl","0_unsure_grown?",0.126162202380925,90
+"210725_a130",14796603,0,"14796603_64LaMvM","'hands'?","hen","0__'hands'?",0.222078837719266,93
+"210725_a132",14693662,0,"14693662_25LaNMvNM","coat","coach","0__coat",0.260639583333315,53
+"210725_a132",14693662,0,"14693662_57LaMvNM","flu?","glue","0__flu?",0.18681723484849,85
+"210725_a132",14693662,0,"14693662_7HaMvM","bent","bend","0__bent",0.114635416666658,108
+"210725_a132",14693662,0,"14693662_80HaMvM","knock","lock","0__knock",0.155506250000002,109
+"210725_a132",14693662,0,"14693662_82LaMvNM","voiced g","lungs","0__voiced g",0.141276442307685,111
+"210725_a132",14693662,0,"14693662_98LaMvM","time?","pine","0__time?",0.128741107723556,126
+"210725_a133",14990368,0,"14990368_4LaNMvNM","unsure_beat?","beak","0_unsure_beat?",0.415408319536454,77
+"210725_a136",14837862,0,"14837862_108HaMvNM","unsure_grow?","row","0_unsure_grow?",0.786742773437499,7
+"210725_a136",14837862,0,"14837862_4HaMvM","unsure_beaHk?","beak","0_unsure_beaHk?",0.453328642787625,76
+"210725_a136",14837862,0,"14837862_58LaMvNM","discard_bowl","goal","0_discard_bowl",0.718137575301313,84
+"210725_a136",14837862,0,"14837862_90LaNMvNM","discard_annette","net","0_discard_annette",0.433023799669115,115
+"210725_a138",14861730,0,"14861730_117LaMvM","unsure_sides?","slice","0_unsure_sides?",0.239047095070426,18
+"210725_a138",14861730,0,"14861730_120HaNMvNM","unsure_overlapped with alice","sponge","0_unsure_overlapped with alice",0.530623043570223,21
+"210725_a138",14861730,0,"14861730_14LaMvM","unsure_brew?","broom","0_unsure_brew?",0.189802083333333,43
+"210725_a138",14861730,0,"14861730_59LaNMvM","discard_gang","gown","0_discard_gang",0.375087268518513,87
+"210725_a138",14861730,0,"14861730_86LaMvM","discard_repeated two words","meal","0_discard_repeated two words",0.210395833333365,114
+"210725_a152",15094721,0,"15094721_62LaMvM","unsure_'hen'?","hay","0_unsure_'hen'?",0.375705615579591,90
+"210725_a81",15036602,0,"15036602_35LaMvNM","unsure__curl?","curb","0__unsure__curl?",0.0706009070294726,63
+"210725_a81",15036602,0,"15036602_39LaMvNM","a dent","dent","0__a dent",0.508129251700694,67
+"210725_a81",15036602,0,"15036602_7LaMvNM","unsure_brand?","bend","0_unsure_brand?",0.311439909297121,108
+"210725_a81",15036602,0,"15036602_80LaMvNM","unsure_the lock","lock","0_unsure_the lock",0.195875141723434,109
+"210725_a84",14783259,0,"14783259_73LaMvNM","unsure_chunk?","junk","0_unsure_chunk?",0.122250566893399,100
+"210725_a98",15151086,0,"15151086_21LaMvM","sound like 'clock'","clerk","0_sound like 'clock'",0.177617223328497,49
+"210725_a98",15151086,0,"15151086_61HaNMvNM","sound like 'grown'","growl","0_sound like 'grown'",0.187649858897686,90
+"210725_a98",15151086,0,"15151086_86LaNMvNM","self correction","meal","0_self correction",0.83584651491762,114
+"210725_a98",15151086,0,"15151086_88LaMvNM","'house'","mouse","0_'house'",0.229149999999947,116
+"210725_a98",15151086,0,"15151086_90LaNMvNM","'knet'?","net","0_'knet'?",0.374874495967703,119
+"210725_a98",15151086,0,"15151086_95HaNMvM","'prie'?","pie","0_'prie'?",0.139498735549097,123
+"210725_c124",15410143,0,"15410143_136HaMvNM","quail","trail","0_quail",0.213593749999987,31
+"210725_c124",15410143,0,"15410143_17LaMvM","discard_car","calf","0_discard_car",0.417614583333318,41
+"210725_c124",15410143,0,"15410143_19LaNMvM","unsure_cat?","chat","0_unsure_cat?",0.362937293572145,42
+"210725_c124",15410143,0,"15410143_4LaMvNM","unsure_bleak?","beak","0_unsure_bleak?",0.394997725095806,72
+"210725_c124",15410143,0,"15410143_65HaMvNM","unsure_had?","herd","0_unsure_had?",0.285549189814759,88
+"210725_c124",15410143,0,"15410143_67LaMvM","unsure_haps?","hips","0_unsure_haps?",0.483896546803578,90
+"210725_c124",15410143,0,"15410143_98LaMvM","discard_time","pine","0_discard_time",0.114951861032353,118
+"210725_c125",15465974,0,"15465974_132LaMvNM","unsure_don't know the word? Or problem with 'th'","thorns","0_unsure_don't know the word? Or problem with 'th'",0.418726686507938,29
+"210725_c125",15465974,0,"15465974_37HaMvNM","discard_stack","deck","0_discard_stack",0.209898582175953,59
+"210725_c125",15465974,0,"15465974_43HaNMvNM","discard_duck","dove","0_discard_duck",0.199672111742444,66
+"210725_c125",15465974,0,"15465974_5HaNMvM","discard_bream","beam","0_discard_bream",0.384767568407966,81
+"210725_c125",15465974,0,"15465974_86LaMvM","unsure_charity meal","meal","0_unsure_charity meal",0.19557886904758,106
+"210725_c128",15186960,0,"15186960_121LaMvNM","discard_changed her answer","spool","0_discard_changed her answer",0.162738486842109,22
+"210725_c128",15186960,0,"15186960_46LaMvNM","discard_joke","drug","0_discard_joke",0.273108506944396,75
+"210725_c128",15186960,0,"15186960_64HaMvM","discard_mother hen?","hen","0_discard_mother hen?",0.311880015432052,93
+"210725_c128",15186960,0,"15186960_80LaMvM","discard_lop","lock","0_discard_lop",0.379772382920066,109
+"210725_c128",15186960,0,"15186960_86LaMvNM","real","meal","0_real",0.232652871621525,114
+"210725_c133",15185742,0,"15185742_105HaMvM","something before 'rim'","rim","0__something before 'rim'",0.203988721804511,5
+"210725_c133",15185742,0,"15185742_134LaNMvNM","repeat the sentence","tin","0__repeat the sentence",0.321993407172997,33
+"210725_c133",15185742,0,"15185742_30LaNMvM","the crew","crew","0__the crew",0.323976822916677,56
+"210725_c133",15185742,0,"15185742_68LaNMvNM","the hive_hive","hive","0__the hive_hive",0.175002083333283,93
+"210725_c133",15185742,0,"15185742_91HaMvNM","not","notch","0__not",0.156003030302998,115
+"210725_c141",15355404,0,"15355404_107HaNMvNM","unsure_a rope","rope","0_unsure_a rope",0.13822875,7
+"210725_c141",15355404,0,"15355404_108LaMvNM","unsure_a row","row","0_unsure_a row",0.209716085271317,8
+"210725_c141",15355404,0,"15355404_121HaMvM","discard_school","spool","0_discard_school",0.263739583333333,22
+"210725_c141",15355404,0,"15355404_17LaMvNM","discard_don't know","calf","0_discard_don't know",0.210746527777786,46
+"210725_c141",15355404,0,"15355404_27LaMvM","discard_don't know","coin","0_discard_don't know",0.21968750000002,55
+"210725_c141",15355404,0,"15355404_42HaMvNM","discard_don't know","doll","0_discard_don't know",0.13132638888888,71
+"210725_c141",15355404,0,"15355404_59LaMvNM","discard_gap","gown","0_discard_gap",0.110642427884642,87
+"210725_c141",15355404,0,"15355404_64LaMvM","discard_head","hen","0_discard_head",0.191824652777797,93
+"210725_c141",15355404,0,"15355404_72LaMvM","discard_don't know","juice","0_discard_don't know",0.105857638888949,101
+"210725_c141",15355404,0,"15355404_98LaMvNM","discard_pies","pine","0_discard_pies",0.15514843750006,126
+"210725_c96",14886549,0,"14886549_121HaNMvM","spoon","spool","0__spoon",0.186735416666664,14
+"210725_c96",14886549,0,"14886549_30LaMvM","gray","crew","0__gray",0.399635416666655,35
+"210725_c96",14886549,0,"14886549_78LaMvNM","lab","lap","0__lab",0.0684166666666641,62
+"210725_c98",14889358,0,"14889358_116LaMvM","sleeved?echo can't be told clearly","sleeves","0__sleeved?echo can't be told clearly",0.230559027777772,11
+"210725_c98",14889358,0,"14889358_132HaMvNM","dorns? ","thorns","0__dorns? ",0.164020833333332,20
+"210725_c98",14889358,0,"14889358_86LaMvNM","charity meal","meal","0__charity meal",0.156281249999978,64
+"210818_c166",15254546,0,"15254546_123LaMvNM","discard_fricative not captured","sport","0_discard_fricative not captured",0.373578273809521,24
+"210818_c166",15254546,0,"15254546_17HaMvNM","palf","calf","0__palf",0.130760416666661,42
+"210818_c166",15254546,0,"15254546_21LaMvM","don't know","clerk","0__don't know",0.0985104166666559,44
+"210818_c166",15254546,0,"15254546_31HaNMvM","crim","crib","0__crim",0.0800166666666655,55
+"210818_c166",15254546,0,"15254546_76LaNMvNM","knowl","knob","0__knowl",0.112989583333302,98
+"210818_c166",15254546,0,"15254546_86LaNMvNM","charity meal","meal","0__charity meal",0.189947916666625,107
+"210823_c180",15344475,0,"15344475_104LaNMvNM","unsure_r..rent","rent","0_unsure_r..rent",0.0921979166666667,5
+"210823_c180",15344475,0,"15344475_137LaMvNM","track","trap","0__track",0.0988491512345604,37
+"210823_c180",15344475,0,"15344475_46LaMvM","unsure_response cut off...jar?dru?","drug","0_unsure_response cut off...jar?dru?",0.0437972756409692,75

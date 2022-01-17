@@ -38,7 +38,7 @@ library(stargazer)
 
 ## Data File
 
-Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7853** observations. 
+Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7769** observations. 
 
 From first batch of files: 17 adults and 17 children.
 
@@ -93,7 +93,7 @@ data$SEX <- as.factor(data$sex)
 
 ## Exclude training trials
 
-8 training trials per participant excluded. Remaining data = **7378**.
+8 training trials per participant excluded. Remaining data = **7294**.
 
 ```{r training}
 data <- data %>%
@@ -116,7 +116,7 @@ Besieds, based on the post-experiment questionnaire, we excluded participants wh
 
 **Exclude a180 - dyalexia; 210725_a113 - effot doubtful; 210719_a59 - poor recording quality.**
 
-Remaining data: **7018**
+Remaining data: **6944**
 
 ```{r participants, echo=FALSE}
 data <- subset(data, data$SUBJECT != '210725_a180')
@@ -189,13 +189,13 @@ Target words with an error rate of 40% or higher (cf. Crepaldi et al. 2016) will
 Items w 40% error rate or higher: NONE
 Items w higher than 20% error rate: 
 64L: 21.4%
-21L: 20.6%
+~~21L: 20.6%~~
 
 **No targets removed based on error rate. **
 
 **We excluded three ambiguous target words: knob, meal, net.**
 
-Remaining trials: **6787**
+Remaining trials: **6725**
 ```{r}
 data %>%
   group_by(ITEM) %>%
@@ -212,7 +212,9 @@ print(paste("Remaining trials: ", nrow(data)))
 ### Exclude trials with notes of 'discard'
 In the correct responses (ACC ==1), we delete the ones with 'discard' marking (7 removed), because it's not possible to mark the speech onset accurately, but we keep the ones with 'unsure' marking (including participants sounding unsure; and coder unsure because of overlapping sound.)
 
-Remaining data = **6779**.
+Update: Most of the notes have been examined separately.
+
+Remaining data = **6725**.
 
 ```{r inspect data, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 #7 noted as 'discard' in ACC==1 -> accurate
@@ -233,19 +235,20 @@ data <- subset(data, data$ACC !=1 | !grepl('discard',note))
 print(paste("Remaining trials: ", nrow(data)))
 # store the number at the current stage
 x = nrow(data)
+table(data$accuracy)
 ```
 
 
 
 ### Exclude incorrect trials
-Incorrect and problematic trials were removed (N=272, 4.01%). 
+Incorrect and problematic trials were removed ~~(N=272, 4.01%)~~ (N= 186, 2.77%)
 We will analyse wrong trials separately.
 
-Remaining trials: **6507**
+Remaining trials: **6539**
 
 ```{r export error data}
 error <- subset(data, data$ACC!=1)
-write.csv(error,"220112_unfiltered_error.csv")
+write.csv(error,"220117_unfiltered_error.csv")
 ```
 
 ```{r exclude error data}
@@ -274,10 +277,10 @@ table(data$RTcut)
 data = subset(data, select = -RTcut)
 ```
 
-Unnatural reaction times below 0ms and above 3000ms were removed since they indicate insufficient attention (N=22; Fairs & Strijkers allow 2000ms for picture naming; Vogt, Hauber, Kuhlen & Rahman allowed 3000ms for picture naming from onset; Kessler, Treiman & Mullennix allowed 2000ms for word reading). 
+Unnatural reaction times below 0ms and above 3000ms were removed since they indicate insufficient attention (N=29; Fairs & Strijkers allow 2000ms for picture naming; Vogt, Hauber, Kuhlen & Rahman allowed 3000ms for picture naming from onset; Kessler, Treiman & Mullennix allowed 2000ms for word reading). 
 
 After this cleaning process, reaction times will be inspected with histograms, with boxplots, and by Participant with qqplot. 
-Data remaining: **6478**.
+Data remaining: **6510**.
 
 ```{r outliers, echo=FALSE}
 data <- subset(data, data$RT < 3000) #29 trials removed
@@ -337,19 +340,13 @@ diffi_distr
 
 ```
 
-```{r output full data before new vairables added}
-errorincluded <- rbind(error, data)
-write.table(errorincluded, "220112_errordata.txt", sep="\t", row.names=FALSE)
-nrow(errorincluded)
-```
-
 
 
 ## Transform reaction times and remove outliers
 
 The data were found to be positively skewed. Therefore we tested common transformations (actually only tested log so far) and chose the one with the best fit/but found no satisfactory improvement. Outliers three standard deviations from the mean per participant were removed.
 
-Data remaining: 6387.
+Data remaining: 6417.
 
 ```{r transformation, echo=FALSE}
 skewness(data$RT, na.rm = TRUE)
@@ -377,7 +374,15 @@ qqmath(~RT|SUBJECT, data=data, main="Responses by Subject")
 
 
 ## Save cleaned data sheet
-
 ```{r save}
-write.table(data, "220112_full_data_cleaned.txt", sep="\t", row.names=FALSE)
+write.table(data, "220117_full_data_cleaned.txt", sep="\t", row.names=FALSE)
 ```
+
+```{r output full data before new vairables added}
+data_noaddition = subset(data, select = -c(LogRT,RT500,logRT500))
+errorincluded <- rbind(error, data_noaddition)
+write.table(errorincluded, "220117_errordata.txt", sep="\t", row.names=FALSE)
+nrow(errorincluded)
+```
+
+

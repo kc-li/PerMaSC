@@ -1,0 +1,99 @@
+"parid","scheduleID","accuracy","original_label","note.x","correctans","note.y","duration2","id"
+"210719_a25",14557507,1,"14557507_39HaNMvM","including pre-nasalisation","dent","1_including pre-nasalisation",0.114772671568623,67
+"210719_a25",14557507,1,"14557507_9LaNMvNM","including prenasalisation","blast","1_including prenasalisation",0.124345416666671,128
+"210719_c12",14456668,1,"14456668_112HaNMvNM","onset not sure","shed","1_onset not sure",0.102570601851852,13
+"210719_c12",14456668,1,"14456668_12HaNMvNM","including pre-nasalisation","bread","1_including pre-nasalisation",0.176312499999998,30
+"210719_c12",14456668,1,"14456668_131HaMvM","preceded by f","thief","1_preceded by f",0.121082916666662,32
+"210719_c12",14456668,1,"14456668_132LaMvNM","say 'many thorns'","thorns","1_say 'many thorns'",0.27025536616161,33
+"210719_c12",14456668,1,"14456668_2HaNMvNM","pre-nasalisation","barn","1_pre-nasalisation",0.137320900537645,58
+"210719_c12",14456668,1,"14456668_38HaNMvM","pre-nasalisation","den","1_pre-nasalisation",0.292417708333346,66
+"210719_c12",14456668,1,"14456668_58HaNMvM","including pre-nasalisation","goal","1_including pre-nasalisation",0.0513104166666523,86
+"210719_c12",14456668,1,"14456668_5HaNMvM","pre-nasalisation","beam","1_pre-nasalisation",0.147233101851839,88
+"210719_c12",14456668,1,"14456668_60LaNMvNM","pre-nasalisation","grin","1_pre-nasalisation",0.196756558641951,89
+"210719_c12",14456668,1,"14456668_61HaMvM","pre-nasalisation","growl","1_pre-nasalisation",0.287266426282031,90
+"210719_c12",14456668,1,"14456668_72LaNMvNM","pre-nasalisation","juice","1_pre-nasalisation",0.101754166666652,101
+"210719_c47",14557278,1,"14557278_23HaMvM"," s","clock","1__ s",0.6908463010204,50
+"210719_c47",14557278,1,"14557278_72HaMvM","unsure_juiced","juice","1_unsure_juiced",0.718084508145409,99
+"210719_c53",15074698,1,"15074698_12LaNMvM","pre-nasaling","bread","1__pre-nasaling",0.557052083333332,30
+"210719_c53",15074698,1,"15074698_140HaNMvNM","pre-nasaling","van","1__pre-nasaling",0.608193569862152,41
+"210719_c53",15074698,1,"15074698_41HaMvM","pre-nasaling","dive","1__pre-nasaling",0.823388262750399,70
+"210719_c53",15074698,1,"15074698_59HaMvNM","pre-nasaling","gown","1__pre-nasaling",0.618522103658478,87
+"210719_c66",14758562,1,"14758562_119HaNMvNM","OVERLAP","splash","1__OVERLAP",0.431287268667958,19
+"210719_c66",14758562,1,"14758562_120HaMvM","unclear overlap with noise","sponge","1__unclear overlap with noise",0.246268749999999,20
+"210719_c71",14549435,1,"14549435_128LaNMvM","unsure_","swan","1_unsure_",0.307635416666656,27
+"210725_a120",14668484,1,"14668484_19HaNMvM","glotalized t","chat","1_glotalized t",0.373446147798759,47
+"210725_a156",14930256,1,"14930256_3HaMvM","including pre-nasalisation","bay","1_including pre-nasalisation",0.214965773809553,64
+"210725_a156",14930256,1,"14930256_40HaMvM","including pre-nasalisation","ditch","1_including pre-nasalisation",0.219258776246733,65
+"210725_a165",14947964,1,"14947964_68HaMvM","sounds like 'hize' or 'hithe'.","hive","1_sounds like 'hize' or 'hithe'.",0.200960888364733,96
+"210725_a176",15219350,1,"15219350_60LaMvNM","but appears unsure","grin","1_but appears unsure",0.177522298303501,89
+"210725_a176",15219350,1,"15219350_64LaMvNM","appears unsure","hen","1_appears unsure",0.322206495097987,93
+"210725_a185",15129350,1,"15129350_60HaMvNM","unsure - rising tone","grin","1_unsure - rising tone",0.714522762345609,89
+"210725_a185",15129350,1,"15129350_96LaMvM","unsure - rising tone","pile","1_unsure - rising tone",0.372343749999885,124
+"210725_a185",15129350,1,"15129350_98LaNMvNM","unsure - rising tone","pine","1_unsure - rising tone",0.305183576839681,126
+"210725_a83",14570364,1,"14570364_140HaNMvM","v is not fully voiced ","van","1_v is not fully voiced ",0.00400698529411447,39
+"210725_a83",14570364,1,"14570364_15LaMvM","do not know if /b/ is make into a fricative or it was just the noise from the equipment (pre-nasalisation involved)","bruise","1_do not know if /b/ is make into a fricative or it was just the noise from the equipment (pre-nasalisation involved)",0.00264583333332102,42
+"210725_a83",14570364,1,"14570364_21HaMvM","clock","clerk","1_clock",0.0166606582125326,47
+"210725_a83",14570364,1,"14570364_2HaMvNM","pre-nasalisation","barn","1_pre-nasalisation",0.00929111842100672,56
+"210725_a83",14570364,1,"14570364_42LaNMvNM","correct but strange","doll","1_correct but strange",0.00368251811589748,69
+"210725_a83",14570364,1,"14570364_58LaNMvNM","pre-nasalisation","goal","1_pre-nasalisation",0.0278017178362007,84
+"210725_a83",14570364,1,"14570364_72LaMvNM","prevoicing","juice","1_prevoicing",0.00752478448267202,99
+"210725_a83",14570364,1,"14570364_73HaNMvM","prevoicing","junk","1_prevoicing",0.0160984623014884,100
+"210725_c122",15102120,1,"15102120_114HaMvM","unsure_rising","silk","1_unsure_rising",0.17310208333334,15
+"210725_c122",15102120,1,"15102120_58LaMvNM","unsure_","goal","1_unsure_",0.285683732269547,86
+"210725_c130",15367679,1,"15367679_50LaMvNM","don't know","flame","1__don't know",0.518995061728361,78
+"210725_c130",15367679,1,"15367679_88LaMvNM","donnot know","mouse","1__donnot know",0.435029513888878,115
+"210725_c135",15571068,1,"15571068_103HaNMvM","unsure_","raft","1_unsure_",0.562144549086758,4
+"210725_c135",15571068,1,"15571068_131LaNMvNM","discard_cannot figure out the onset","thief","1_discard_cannot figure out the onset",0.671826567150291,32
+"210725_c76",14745223,1,"14745223_82HaMvNM","unsure_I think the answer was right, but was not fully recorded","lungs","1_unsure_I think the answer was right, but was not fully recorded",0.496814058956971,110
+"210725_c81",14745923,1,"14745923_3HaMvM","pre-nasaling","bay","1__pre-nasaling",0.384215419501118,67
+"210725_c81",14745923,1,"14745923_40HaMvM","pre-nasaling","ditch","1__pre-nasaling",0.33601284958425,68
+"210725_c81",14745923,1,"14745923_46HaMvM","pre-nasaling","drug","1__pre-nasaling",0.509210668394331,74
+"210725_c81",14745923,1,"14745923_47LaNMvNM","pre-nasaling","drum","1__pre-nasaling",0.453769841269832,75
+"210725_c81",14745923,1,"14745923_58HaMvNM","pre-nasaling","goal","1__pre-nasaling",0.493546365914739,85
+"210725_c81",14745923,1,"14745923_73LaNMvM","pre-nasaling","junk","1__pre-nasaling",0.599110339171062,101
+"210725_c84",14993977,1,"14993977_23LaNMvM","unreleased coda","clock","1__unreleased coda",0.31546863189719,49
+"210725_c86",14742950,1,"14742950_114LaMvM","she sounded unsure","silk","1__she sounded unsure",0.443199954710146,14
+"210725_c86",14742950,1,"14742950_128LaNMvNM","sounded unsure","swan","1__sounded unsure",0.430727083333345,27
+"210725_c86",14742950,1,"14742950_37LaMvM","sounded unsure","deck","1__sounded unsure",0.494785416666673,62
+"210725_c86",14742950,1,"14742950_41LaMvM","sounded unsure","dive","1__sounded unsure",0.665516301789097,67
+"210725_c86",14742950,1,"14742950_5LaNMvNM","but correct herself later to a wrong answer","beam","1__but correct herself later to a wrong answer",0.808766144852456,83
+"210725_c86",14742950,1,"14742950_66HaMvM","unsure_","hint","1_unsure_",0.142749849033805,90
+"210725_c86",14742950,1,"14742950_82LaMvM","unsure","lungs","1__unsure",0.512112132352911,105
+"210823_c177",15326180,1,"15326180_140LaNMvNM","Not very sure about the onset time. There was a russling sound of metals before.","van","1__Not very sure about the onset time. There was a russling sound of metals before.",0.4295711093271,40
+"210823_c177",15326180,1,"15326180_14LaMvNM","Pre-nasaling","broom","1__Pre-nasaling",0.211270437999758,42
+"210823_c177",15326180,1,"15326180_39LaMvM","pre-nasaling","dent","1__pre-nasaling",0.148497843581893,66
+"210823_c177",15326180,1,"15326180_5LaNMvM","pre-nasaling","beam","1__pre-nasaling",0.202678676408823,87
+"210823_c177",15326180,1,"15326180_60HaMvM","pre-nasaling","grin","1__pre-nasaling",0.154270527782955,88
+"210823_c177",15326180,1,"15326180_72HaMvM","pre-nasaling","juice","1__pre-nasaling",0.13118152524163,100
+"210823_c179",15327645,1,"15327645_116HaMvM","unsure_overlap","sleeves","1_unsure_overlap",0.583718007596847,17
+"210823_c179",15327645,1,"15327645_117HaNMvM","unsure_overlap","slice","1_unsure_overlap",0.583824359433386,18
+"210823_c179",15327645,1,"15327645_120HaMvM","unsure_overlap","sponge","1_unsure_overlap",0.65757006933417,21
+"210823_c179",15327645,1,"15327645_68LaNMvM","unsure_overlap","hive","1_unsure_overlap",0.740226005031445,97
+"210823_c179",15327645,1,"15327645_85HaMvM","unsure_overlap","mat","1_unsure_overlap",0.744103707942173,113
+"210823_c179",15327645,1,"15327645_88HaNMvNM","unsure_overlap","mouse","1_unsure_overlap",0.627461709830129,116
+"210719_a09",14867512,1,"14867512_90LaNMvNM","discard_annette","net","1_discard_annette",0.235107780612253,119
+"210719_c08",15216048,1,"15216048_120LaMvNM","unsure_overlap","sponge","1_unsure_overlap",0.63726478494624,20
+"210719_c08",15216048,1,"15216048_128HaMvM","unsure_onset hard to determine","swan","1_unsure_onset hard to determine",0.30528699712643,27
+"210719_c43",14729926,1,"14729926_131LaMvNM","discard_th too weak to detect","thief","1_discard_th too weak to detect",0.174260416666669,19
+"210719_c43",14729926,1,"14729926_132HaNMvM","discard_th too weak to detect","thorns","1_discard_th too weak to detect",0.196284722222224,20
+"210719_c43",14729926,1,"14729926_53HaMvNM","discard_f too weak to detect","frogs","1_discard_f too weak to detect",0.242256324404764,50
+"210719_c43",14729926,1,"14729926_54HaNMvM","discard_f too weak to detect","fudge","1_discard_f too weak to detect",0.209322916666665,51
+"210719_c43",14729926,1,"14729926_65LaMvNM","discard_h too weak to detect","herd","1_discard_h too weak to detect",0.207281250000008,59
+"210725_a130",14796603,1,"14796603_42HaMvNM","discard_incomplete","doll","1_discard_incomplete",0.103680729166626,71
+"210725_a132",14693662,1,"14693662_107LaNMvNM","unreleased p","rope","1__unreleased p",0.145534027777778,7
+"210725_a132",14693662,1,"14693662_72LaNMvM","unsure_unsure about the onset","juice","1_unsure_unsure about the onset",0.163027626811612,101
+"210725_a132",14693662,1,"14693662_9LaMvNM","unfinished?","blast","1__unfinished?",0.181854166666682,128
+"210725_a152",15094721,1,"15094721_21LaMvM","unsure_it sounds like 'clock'","clerk","1_unsure_it sounds like 'clock'",0.360646258503422,48
+"210725_a152",15094721,1,"15094721_38LaMvNM","debt?","den","1__debt?",0.371759183673504,65
+"210725_a98",15151086,1,"15151086_65HaNMvNM","There is an overlap","herd","1_There is an overlap",0.332235944323116,94
+"210725_a98",15151086,1,"15151086_96HaNMvNM","'prile'?","pile","1_'prile'?",0.19321055711606,124
+"210725_c124",15410143,1,"15410143_119HaNMvNM","unsure_overlap with alice","splash","1_unsure_overlap with alice",0.670612630208339,17
+"210725_c133",15185742,1,"15185742_57HaMvNM","pre-nasalisation","glue","1__pre-nasalisation",0.174976934523784,81
+"210725_c133",15185742,1,"15185742_59LaNMvM","pre-nasalisation","gown","1__pre-nasalisation",0.141601524758414,83
+"210725_c96",14886549,1,"14886549_109LaNMvM","discard_echo in response","sand","1_discard_echo in response",0.226908700980394,7
+"210725_c96",14886549,1,"14886549_2HaMvM","pre-nasalisation","barn","1__pre-nasalisation",0.140828399122796,34
+"210725_c96",14886549,1,"14886549_36HaNMvM","pre-nasalisation","dart","1__pre-nasalisation",0.15985069444443,40
+"210725_c96",14886549,1,"14886549_46HaNMvM","pre-nasalisation","drug","1__pre-nasalisation",0.124114583333323,46
+"210818_c166",15254546,1,"15254546_105HaNMvNM","rising intonation","rim","1_rising intonation",0.186674479166667,6
+"210818_c166",15254546,1,"15254546_12LaNMvM","pre-nasalisation","bread","1__pre-nasalisation",0.151538194444441,30
+"210818_c166",15254546,1,"15254546_37HaMvM","ending slight cut off","deck","1__ending slight cut off",0.159725079113926,59

@@ -1,0 +1,99 @@
+label	correctans	note	duration_raw	doublecheck
+14557507_39HaNMvM	dent	1_including pre-nasalisation	0.11477267156862325	1_including pre-nasalisation
+14557507_9LaNMvNM	blast	1_including prenasalisation	0.12434541666667087	1_including prenasalisation
+14456668_112HaNMvNM	shed	1_onset not sure	0.10257060185185196	1_onset not sure
+14456668_12HaNMvNM	bread	1_including pre-nasalisation	0.1763124999999981	1_including pre-nasalisation
+14456668_131HaMvM	thief	1_preceded by f	0.12108291666666204	1_preceded by f
+14456668_132LaMvNM	thorns	1_say 'many thorns'	0.27025536616161006	2
+14456668_2HaNMvNM	barn	1_pre-nasalisation	0.13732090053764523	1_pre-nasalisation
+14456668_38HaNMvM	den	1_pre-nasalisation	0.2924177083333461	1_pre-nasalisation
+14456668_58HaNMvM	goal	1_including pre-nasalisation	0.05131041666665226	1_including pre-nasalisation
+14456668_5HaNMvM	beam	1_pre-nasalisation	0.1472331018518389	1_pre-nasalisation
+14456668_60LaNMvNM	grin	1_pre-nasalisation	0.19675655864195107	1_pre-nasalisation
+14456668_61HaMvM	growl	1_pre-nasalisation	0.2872664262820308	1_pre-nasalisation
+14456668_72LaNMvNM	juice	1_pre-nasalisation	0.10175416666665171	1_pre-nasalisation
+14557278_23HaMvM	clock	1__ s	1.1908463010204002	1__ s
+14557278_72HaMvM	juice	1_unsure_juiced	1.2180845081454095	1_unsure_juiced
+15074698_12LaNMvM	bread	1__pre-nasaling	1.057052083333332	1__pre-nasaling
+15074698_140HaNMvNM	van	1__pre-nasaling	1.1081935698621521	1__pre-nasaling
+15074698_41HaMvM	dive	1__pre-nasaling	1.3233882627503988	1__pre-nasaling
+15074698_59HaMvNM	gown	1__pre-nasaling	1.1185221036584778	1__pre-nasaling
+14758562_119HaNMvNM	splash	1__OVERLAP	0.9312872686679583	2
+14758562_120HaMvM	sponge	1__unclear overlap with noise	0.7462687499999987	1__unclear overlap with noise
+14549435_128LaNMvM	swan	1_unsure_	0.8076354166666562	1_unsure_
+14668484_19HaNMvM	chat	1_glotalized t	0.8734461477987594	1_glotalized t
+14930256_3HaMvM	bay	1_including pre-nasalisation	0.7149657738095527	1_including pre-nasalisation
+14930256_40HaMvM	ditch	1_including pre-nasalisation	0.7192587762467326	1_including pre-nasalisation
+14947964_68HaMvM	hive	1_sounds like 'hize' or 'hithe'.	0.7009608883647331	1_sounds like 'hize' or 'hithe'.
+15219350_60LaMvNM	grin	1_but appears unsure	0.6775222983035007	1_but appears unsure
+15219350_64LaMvNM	hen	1_appears unsure	0.822206495097987	1_appears unsure
+15129350_60HaMvNM	grin	1_unsure - rising tone	1.2145227623456094	1_unsure - rising tone
+15129350_96LaMvM	pile	1_unsure - rising tone	0.8723437499998852	1_unsure - rising tone
+15129350_98LaNMvNM	pine	1_unsure - rising tone	0.8051835768396813	1_unsure - rising tone
+14570364_140HaNMvM	van	1_v is not fully voiced 	0.7040069852941144	1_v is not fully voiced 
+14570364_15LaMvM	bruise	1_do not know if /b/ is make into a fricative or it was just the noise from the equipment (pre-nasalisation involved)	0.702645833333321	1_do not know if /b/ is make into a fricative or it was just the noise from the equipment (pre-nasalisation involved)
+14570364_21HaMvM	clerk	1_clock	0.7166606582125326	1_clock
+14570364_2HaMvNM	barn	1_pre-nasalisation	0.7092911184210067	1_pre-nasalisation
+14570364_42LaNMvNM	doll	1_correct but strange	0.7036825181158974	2
+14570364_58LaNMvNM	goal	1_pre-nasalisation	0.7278017178362006	1_pre-nasalisation
+14570364_72LaMvNM	juice	1_prevoicing	0.707524784482672	1_prevoicing
+14570364_73HaNMvM	junk	1_prevoicing	0.7160984623014883	1_prevoicing
+15102120_114HaMvM	silk	1_unsure_rising	0.6731020833333332	1_unsure_rising
+15102120_58LaMvNM	goal	1_unsure_	0.7856837322695469	1_unsure_
+15367679_50LaMvNM	flame	1__don't know	1.0189950617283614	0
+15367679_88LaMvNM	mouse	1__donnot know	0.9350295138888782	0
+15571068_103HaNMvM	raft	1_unsure_	1.062144549086753	1_unsure_
+15571068_131LaNMvNM	thief	1_discard_cannot figure out the onset	1.1718265671502905	2
+14745223_82HaMvNM	lungs	1_unsure_I think the answer was right, but was not fully recorded	0.9968140589569714	2
+14745923_3HaMvM	bay	1__pre-nasaling	0.8842154195011176	1__pre-nasaling
+14745923_40HaMvM	ditch	1__pre-nasaling	0.8360128495842503	1__pre-nasaling
+14745923_46HaMvM	drug	1__pre-nasaling	1.0092106683943314	1__pre-nasaling
+14745923_47LaNMvNM	drum	1__pre-nasaling	0.9537698412698319	1__pre-nasaling
+14745923_58HaMvNM	goal	1__pre-nasaling	0.9935463659147388	1__pre-nasaling
+14745923_73LaNMvM	junk	1__pre-nasaling	1.0991103391710624	1__pre-nasaling
+14993977_23LaNMvM	clock	1__unreleased coda	0.8154686318971898	1__unreleased coda
+14742950_114LaMvM	silk	1__she sounded unsure	0.9431999547101384	1__she sounded unsure
+14742950_128LaNMvNM	swan	1__sounded unsure	0.9307270833333519	1__sounded unsure
+14742950_37LaMvM	deck	1__sounded unsure	0.994785416666673	1__sounded unsure
+14742950_41LaMvM	dive	1__sounded unsure	1.165516301789097	1__sounded unsure
+14742950_5LaNMvNM	beam	1__but correct herself later to a wrong answer	1.3087661448524557	1__but correct herself later to a wrong answer
+14742950_66HaMvM	hint	1_unsure_	0.6427498490338053	1_unsure_
+14742950_82LaMvM	lungs	1__unsure	1.012112132352911	1__unsure
+15326180_140LaNMvNM	van	1__Not very sure about the onset time. There was a russling sound of metals before.	0.8519078325774103	1__Not very sure about the onset time. There was a russling sound of metals before.
+15326180_14LaMvNM	broom	1__Pre-nasaling	0.7112704379997581	1__Pre-nasaling
+15326180_39LaMvM	dent	1__pre-nasaling	0.6484978435818931	1__pre-nasaling
+15326180_5LaNMvM	beam	1__pre-nasaling	0.7026786764088229	1__pre-nasaling
+15326180_60HaMvM	grin	1__pre-nasaling	0.6542705277829555	1__pre-nasaling
+15326180_72HaMvM	juice	1__pre-nasaling	0.6311815252416295	1__pre-nasaling
+15327645_116HaMvM	sleeves	1_unsure_overlap	1.0837180075968433	2
+15327645_117HaNMvM	slice	1_unsure_overlap	1.083824359433379	2
+15327645_120HaMvM	sponge	1_unsure_overlap	1.157570069334156	2
+15327645_68LaNMvM	hive	1_unsure_overlap	1.2402260050314453	2
+15327645_85HaMvM	mat	1_unsure_overlap	1.2441037079421733	2
+15327645_88HaNMvNM	mouse	1_unsure_overlap	1.1274617098301292	2
+14867512_90LaNMvNM	net	1_discard_annette	0.7351077806122532	2
+15216048_120LaMvNM	sponge	1_unsure_overlap	1.1372647849462396	2
+15216048_128HaMvM	swan	1_unsure_onset hard to determine	0.8052869971264442	2
+14729926_131LaMvNM	thief	1_discard_th too weak to detect	0.6742604166666695	2
+14729926_132HaNMvM	thorns	1_discard_th too weak to detect	0.6962847222222308	2
+14729926_53HaMvNM	frogs	1_discard_f too weak to detect	0.7422563244047637	2
+14729926_54HaNMvM	fudge	1_discard_f too weak to detect	0.7093229166666788	2
+14729926_65LaMvNM	herd	1_discard_h too weak to detect	0.7072812499999941	2
+14796603_42HaMvNM	doll	1_discard_incomplete	0.6036807291666264	2
+14693662_107LaNMvNM	rope	1__unreleased p	0.645534027777785	1__unreleased p
+14693662_72LaNMvM	juice	1_unsure_unsure about the onset	0.663027626811612	1_unsure_unsure about the onset
+14693662_9LaMvNM	blast	1__unfinished?	0.6818541666666817	1__unfinished?
+15094721_21LaMvM	clerk	1_unsure_it sounds like 'clock'	0.860646258503408	1_unsure_it sounds like 'clock'
+15094721_38LaMvNM	den	1__debt?	0.8717591836735039	0
+15151086_65HaNMvNM	herd	1_There is an overlap	0.8322359443231164	1_There is an overlap
+15151086_96HaNMvNM	pile	1_'prile'?	0.6932105571160605	0
+15410143_119HaNMvNM	splash	1_unsure_overlap with alice	1.1706126302083248	2
+15185742_57HaMvNM	glue	1__pre-nasalisation	0.6749769345237837	1__pre-nasalisation
+15185742_59LaNMvM	gown	1__pre-nasalisation	0.6416015247584141	1__pre-nasalisation
+14886549_109LaNMvM	sand	1_discard_echo in response	0.7269087009804025	2
+14886549_2HaMvM	barn	1__pre-nasalisation	0.6408283991227961	1__pre-nasalisation
+14886549_36HaNMvM	dart	1__pre-nasalisation	0.6598506944444296	1__pre-nasalisation
+14886549_46HaNMvM	drug	1__pre-nasalisation	0.6241145833333235	1__pre-nasalisation
+15254546_105HaNMvNM	rim	1_rising intonation	0.686674479166669	1_rising intonation
+15254546_12LaNMvM	bread	1__pre-nasalisation	0.6515381944444414	1__pre-nasalisation
+15254546_37HaMvM	deck	1__ending slight cut off	0.6597250791139402	2

@@ -1,0 +1,41 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Data with notes
+
+```{r}
+data <- read.delim("220113_All_Responses_With_Notes.txt", header = T)
+data <- data[,c("parid","scheduleID", "accuracy", "original_label","note")]
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+path <- "timep2"
+timep2files <- list.files(path,pattern = "p2.txt",full.names = T)
+
+p2files <-tibble(File = timep2files) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t",check.names = F)) %>%
+  unnest(Data) %>%
+  select(-File) %>%
+  mutate(label = str_replace_all(label,"\\.",""))%>%
+  mutate(label = str_replace_all(label,"\\_$","")) %>%
+  mutate(label = str_replace_all(label,",$","")) %>%
+  group_by(parid) %>%
+  mutate(id = row_number(),
+         parid = substr(parid,1,nchar(parid)-4))
+
+data <- data %>%
+  left_join(p2files, by = c("parid"="parid", "original_label" = "label" ))
+
+errornote <- subset(data, accuracy==0)
+RTnote <- subset(data, accuracy ==1)
+
+write.csv(errornote, "220114_Notes_errors.csv",row.names = FALSE)
+write.csv(RTnote, "220114_Notes_RT.csv",row.names = FALSE)
+```
+
