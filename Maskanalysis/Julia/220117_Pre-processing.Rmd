@@ -1,0 +1,523 @@
+---
+title: "Pre-processing"
+author: "Julia Schwarz"
+date: "28/10/2021"; modified: "17/01/2022"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(performance)
+```
+
+## Data File
+
+Raw data file with all 33 adults + 31 children, no data removed except empty responses. **7769** observations. 
+From first batch of files: 17 adults and 17 children.
+From second batch of files: 16 adults and 14 children.
+
+```{r load data, echo=FALSE}
+data<-read.csv("220117_fulldata.csv", header=T) 
+print(paste("Total data: ", nrow(data)))
+
+data[!duplicated(data$parid),] %>%
+  group_by(group) %>%
+  summarise(n = n())
+```
+
+## Variable Prep
+New variables here: *TRIAL*, *BLOCK*, *AGE*, *SEX*
+
+```{r variables, echo=FALSE}
+# Random 
+data$SUBJECT <- as.factor(data$parid)
+data$ITEM <- as.factor(data$number)
+
+# Outcome Var
+data$RT <- as.numeric(data$react2) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- as.factor(data$group) #adults vs children
+data$AUDIO <- as.factor(data$audio) 
+data$VIDEO <- as.factor(data$video)
+data$PREDICT <- as.factor(data$context)
+
+# For figures and models
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High Predictability", "Low Predictability"))
+
+# Other
+data$ACC <- as.factor(data$accuracy) #1==correct
+data$CONDITION <- as.factor(data$type)
+data$TRIAL <- as.numeric(data$row_number) #trialorder
+data$BLOCK <- as.factor(data$block) #Block 1-4
+data$AGE <- (data$date.of.birth_year + (data$date.of.birth_month/12))
+data$SEX <- as.factor(data$sex)
+data$LIST <- as.factor(data$randomiser_t27m) #Randomised Version 1-8
+```
+
+
+## Exclude training trials
+
+8 training trials per participant excluded. Remaining data = **7294**.
+
+```{r training}
+data <- data %>%
+  filter(display != "Practice") # the same as below
+data <- subset(data, data$ITEM != '101L')
+data <- subset(data, data$ITEM != '48L')
+data <- subset(data, data$ITEM != '44L')
+data <- subset(data, data$ITEM != '45H')
+data <- subset(data, data$ITEM != '13H')
+data <- subset(data, data$ITEM != '102L')
+data <- subset(data, data$ITEM != '55H')
+data <- subset(data, data$ITEM != '52H')
+print(paste("Remaining data: ", nrow(data)))
+```
+
+
+A few data checks:
+
+```{r a few summaries}
+NegVal <- subset(data, data$RT < 0) #only 128 obs. (1.8%) are below 0ms
+128/7294
+
+Blockinfo <- groupwiseMean(RT ~ BLOCK,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+Blockinfo
+
+Conditioninfo <- groupwiseMean(RT ~ CONDITION,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+Conditioninfo #63ms difference between full mask and no mask before cleaning 
+
+Participantinfo <- groupwiseMean(RT ~ SUBJECT,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+Participantinfo
+a136 <- subset(data, data$SUBJECT=='210725_a136')
+
+Questionnaireinfo <- groupwiseMean(RT ~ SUBJECT +
+                                        AGE +
+                                        Difficulty.y +
+                                        Distraction +
+                                        response_4_1 +
+                                        response_4_2 +
+                                        response_4_3 +
+                                        response_4_4 +
+                                        response_4_text +
+                                        response_5 +
+                                        Comments,
+                                  data   = data,
+                                  conf   = 0.95,
+                                  digits = 3)
+Questionnaireinfo
+a10 <- subset(data, data$SUBJECT=='210719_a10')
+```
+
+```{r}
+All_Notes <- subset(data, data$note!="")
+Correct_Answers_Notes <- subset(All_Notes, All_Notes$ACC==1) 
+as.data.frame(All_Notes)
+as.data.frame(Correct_Answers_Notes)
+write.table(All_Notes, "220117_All_Responses_With_Notes.txt", sep="\t", row.names=FALSE)
+write.table(Correct_Answers_Notes, "220117_Correct_Responses_With_Notes.txt", sep="\t", row.names=FALSE)
+```
+
+
+**Exclude** those with major problems:
+- a136 reports significant problems with video and audio display: "Video and sound froze (most of the time)"; also has extremely high RTs
+- a118 reports: "Sometimes the video box with the arrow on was smaller and then the video appeared in the bottom right of the browser instead of in the middle, until the Next button appeared, when it went back to normal. I could always see the video, but it wasn't always in the same place."
+- a83 says: "I think sometimes the video was slow but the audio was working normally so there was a mismatch between lips and sound but this didn't affect me per say."
+- a10 reports: "Occasionally in the final round the video lagged (it almost always froze just before the last word!)"
+- c166 reports: "page needed refreshing about every 4 videos. Speech with no mask was out of sink with video mouth movements." 
+
+
+**Retain** those with minor problems:
+- a78 indicated experiment was very difficult (5; highest of all); but responses look reasonable
+- c133 reports distraction of 4 (highest of all); reports: "The videos occasionally were laggy."
+
+
+## Participant screening
+
+Based on the examination of recordings, we excluded participants reporting low commitment to the task (irrelevant speaking, background noise), any major misunderstandings of the instructions, or significant technical problems (e.g. with the experiment display). Relative information are noted down in the Google sheet 'Missing Trials or Answers'.
+
+Based on the demographic questionnaire, we excluded participants who did not match our recruitment criteria despite pre-screening (e.g. dyslexia, cf. Data collection procedures). 
+
+**Further Exclude:**  
+- a180 - dyslexia; 
+- a113 - effort doubtful; 
+- a59 - poor recording quality
+
+Remaining data: **6471**
+
+```{r participants, echo=FALSE}
+data <- subset(data, data$SUBJECT != '210725_a180')
+data <- subset(data, data$SUBJECT != '210725_a113')
+data <- subset(data, data$SUBJECT != '210719_a59')
+data <- subset(data, data$SUBJECT != '210725_a136')
+data <- subset(data, data$SUBJECT != '210725_a118')
+data <- subset(data, data$SUBJECT != '210725_a83')
+data <- subset(data, data$SUBJECT != '210719_a10')
+print(paste("Remaining data: ", nrow(data)))
+```
+
+### Based on the total number of trials
+
+There are four children whose usable datapoints are less than 100, indicating the technical problems might be severe. c166 also reports technical issues. We also exclude these participants. 
+
+- 210719_c43:75
+- 210719_c45:76
+- 210725_c96:72 (age 13)
+- 210725_c98:57
+
+**c43, c45, c96, c98 are excluded because more than 25% of responses are missing. c166 reported severe technical issues**
+
+The smallest count is 96 (c135). We can claim that if losing tokens more than 20%, then the participant was excluded.
+
+Remaining data: **6091**
+
+```{r}
+
+data %>%
+  group_by(GROUP, parid) %>%
+  summarise(count = n() ) %>%
+  filter(count<101)
+
+data <- subset(data, data$SUBJECT != '210719_c43')
+data <- subset(data, data$SUBJECT != '210719_c45')
+data <- subset(data, data$SUBJECT != '210725_c98')
+data <- subset(data, data$SUBJECT != '210725_c96')
+data <- subset(data, data$SUBJECT != '210818_c166')
+
+
+print(paste("Remaining data: ", nrow(data)))
+```
+
+
+### Based on accuracy
+
+We will exclude participants with an error rate above 20% . No participants were excluded based on accuracy. 
+
+Participants with error rate above 20%: NONE
+Participants with error rate above 10%: NONE
+Highest error rate: 6.8%
+
+```{r}
+data %>%
+  group_by(parid) %>%
+  summarise(errorrate = (1-sum(accuracy)/n())*100) %>%
+  filter(errorrate > 6)
+```
+
+
+The final participant set consisted of 26 adults (f=17) and 26 children (f=15).
+
+```{r}
+# Check if adult & children match
+data[!duplicated(data$parid),] %>%
+  group_by(GROUP) %>%
+  summarise(n = n(), age.mean = mean(AGE))
+# Check if sex match
+data[!duplicated(data$parid),] %>%
+  group_by(GROUP,SEX) %>%
+  summarise(n = n())
+
+# Language
+qdata <- data[!duplicated(data$parid),]
+nrow(qdata)
+qdata %>%
+  group_by(GROUP,languages) %>%
+  summarise(n=n())
+```
+
+
+
+## Items and trials (exclude items w high error rate)
+
+Target words with an error rate of 40% or higher (cf. Crepaldi et al. 2016) will be removed from the analysis. 
+
+Items w 40% error rate or higher: NONE
+Items w higher than 20% error rate: 
+64L: 23.1%
+
+**No targets removed based on error rate.**
+
+We excluded three ambiguous target words: **knob, meal, net.** The meaning of knob in BE is ambiguous in the low predictability sentence and caused amusements among some participants, especially children. The target meal was preceded by 'charity' in the high predictability sentence and therefore several participants repeated the full compound. The target net was preceded by an indefinite article 'a' and therefore misinterpreted as the name 'Anette' by several participants. 
+
+Remaining trials: **5946**
+
+```{r}
+data %>%
+  group_by(ITEM) %>%
+  summarise(errorrate = 100*(1-sum(accuracy)/n())) %>%
+  filter(errorrate > 20)
+data <- subset(data, data$correctans != 'knob')
+data <- subset(data, data$correctans != 'meal')
+data <- subset(data, data$correctans != 'net')
+
+print(paste("Remaining trials: ", nrow(data)))
+```
+
+
+### Distraction and Difficulty (commitment to the experiment)
+
+Difficulty.y >3: **210723_a78** (Difficulty 5, Distraction 3)
+
+Distraction >3: **210725_c133** (Difficulty 2, Disctraction 4)
+
+**Nothing excluded**
+
+```{r filtering, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+data[!duplicated(data$parid),] %>%
+  filter(Difficulty.y > 3)
+
+data[!duplicated(data$parid),] %>%
+  filter(Distraction > 3)
+```
+
+
+### Exclude trials with notes of 'discard'
+
+In the correct responses (ACC ==1), we delete the ones with 'discard' marking, because it's not possible to mark the speech onset accurately, but we keep the ones with 'unsure' marking (including participants sounding unsure; and coder unsure because of overlapping sound.)
+
+**No trials discarded**. Remaining data = **5946**. 
+
+```{r inspect data, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+## Take out
+data %>%
+  filter(ACC ==1) %>%
+  filter(grepl('discard',note))
+
+# Noted with unsure: Keep them all
+data %>%
+  filter(ACC ==1) %>%
+  filter(grepl('unsure',note))
+```
+
+```{r}
+# The negation of (data$ACC = 1 & grepl('discard',note))
+data <- subset(data, data$ACC !=1 | !grepl('discard',note))
+print(paste("Remaining trials: ", nrow(data)))
+# store the number at the current stage
+x = nrow(data)
+```
+
+
+
+### Exclude incorrect trials
+
+Incorrect and problematic trials were removed (N=248, 4.1%). 
+We will analyse incorrect responses separately.
+
+Remaining trials: **5778**
+
+```{r export error data}
+error <- subset(data, data$ACC!=1)
+write.csv(error,"220117_unfiltered_errors.csv")
+168/5946  #2.8%
+```
+
+```{r exclude error data}
+data <- subset(data, data$ACC != 0) 
+print(paste("Wrong trials: ", x-nrow(data), "(error rate: ", 100*(x-nrow(data))/x, ")"))
+print(paste("Remaining trials: ", nrow(data)))
+```
+
+```{r items, echo=FALSE}
+# We checked for each item that we have enough data (17-32)
+itemnumbers <- groupwiseMean(RT ~ ITEM,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+summary(itemnumbers$n)
+```
+
+
+Save full data for error analysis.
+
+```{r output full data before new vairables added}
+errorincluded <- rbind(error, data)
+write.table(errorincluded, "220117_errordata.txt", sep="\t", row.names=FALSE)
+nrow(errorincluded)
+```
+
+
+
+## Inspect data and remove extreme responses
+
+```{r, hist of raws}
+adults <- subset(data, data$GROUP=="Adults") #2948
+A_High <- subset(adults, adults$RT>2000) #6 
+
+children <- subset(data, data$GROUP=="Children") #2830
+hist(adults$RT, breaks = 300)
+hist(children$RT, breaks = 300)
+C_High <- subset(children, children$RT>2000) #48
+```
+
+Extreme reaction times below -400ms and above 2000ms were removed since they indicate insufficient attention (following Mahler & Chenery, 2019, who used a similar design: "Outliers above 2000 ms and below −400 ms were removed", p. 89)
+
+(For comparison from picture naming studies: Fairs & Strijkers allow 2000ms for picture naming; Vogt, Hauber, Kuhlen & Rahman allowed 3000ms for picture naming from onset-- NB: we're measuring from offset; Kessler, Treiman & Mullennix allowed 2000ms for word reading: "Trials with response times quicker than 100 ms or slower than 2000 ms were rejected from the analysis."). 
+
+After this cleaning process, reaction times will be inspected with histograms, with boxplots, and by Participant with qqplot. 
+Data remaining: **5723**.
+
+```{r outliers, echo=FALSE}
+data <- subset(data, data$RT < 2000) #54 trials removed
+data <- subset(data, data$RT > -400) #1 trial removed
+5778-5723
+
+print(paste("Remaining trials: ", nrow(data)))
+
+hist(data$RT, breaks = 30)
+boxplot(data$RT)
+skewness(data$RT, na.rm = TRUE) # 1.27
+
+qqmath(~RT|SUBJECT, data=data, main="Responses by Subject")
+
+# By group
+adults <- subset(data, data$GROUP=="Adults")
+hist(adults$RT,  breaks=50)
+skewness(adults$RT, na.rm = TRUE) 
+children <- subset(data, data$GROUP!="Adults")
+hist(children$RT, breaks = 50)
+skewness(children$RT, na.rm = TRUE) 
+
+# By condition
+L <- subset(adults, adults$PREDICT=="L")
+hist(L$RT)
+skewness(L$RT)
+H <- subset(adults, adults$PREDICT=="H")
+hist(H$RT)
+skewness(H$RT)
+
+# residuals
+residmod <- lm(RT ~ SUBJECT, adults)
+res1 <- residuals(residmod)
+qqnorm(res1)
+skewness(res1)
+residmod2 <- lm(RT ~ SUBJECT, children)
+res2 <- residuals(residmod2)
+qqnorm(res2)
+skewness(res2)
+```
+
+
+
+### Do we need this block?
+
+```
+# remove duplicated, only consider one line per participant
+# CI interval
+diffi_distr <- data[!duplicated(data$parid),] %>%
+  summarise(difficulty.mean = mean(Difficulty.y), 
+            difficulty.sd = sd(Difficulty.y),
+            n = n(),
+            diffculty.min = min(Difficulty.y), 
+            diffculty.max = max(Difficulty.y), 
+            distraction.mean = mean(Distraction),
+            distraction.sd = sd(Distraction),
+            distraction.min = min(Distraction), 
+            distraction.max = max(Distraction),
+            )%>%
+  mutate(difficulty.se = difficulty.sd/sqrt(n),
+         distraction.se = distraction.sd/sqrt(n),
+         difficulty.lower.ci = difficulty.mean - qt(1-(0.05/2), n -1) * difficulty.se,
+         difficulty.upper.ci = difficulty.mean + qt(1-(0.05/2), n -1) * difficulty.se,
+         distraction.lower.ci = distraction.mean - qt(1-(0.05/2), n -1) * distraction.se,
+         distraction.upper.ci = distraction.mean + qt(1-(0.05/2), n -1) * distraction.se
+  ) %>%
+  select(difficulty.mean, difficulty.sd, difficulty.lower.ci, difficulty.upper.ci, distraction.mean, distraction.sd, distraction.lower.ci, distraction.upper.ci)
+diffi_distr
+# difficultymean <- groupwiseMean(Difficulty.y,
+#                            data   = Qpart,
+#                            conf   = 0.95,
+#                            digits = 3)
+
+```
+
+
+## Transform reaction times and/or remove outliers
+
+The data were found to be positively skewed. Therefore we tested the log transformation after removing negative values, but  found no satisfactory improvement. Removing outliers three standard deviations from the mean per participant improved the skew, in particular the skew of the residuals (see analysis file, cross-checked).
+
+Data remaining: **5691**.
+
+```{r testing different transformations, include=FALSE}
+data2 <- data
+data2$logRT <- log(data2$RT)
+data2$logRT <- as.numeric(data2$logRT)
+skewness(data2$LogRT, na.rm = TRUE) # -1.14 ###log does not improve the skew a lot
+
+outliers <- data %>% group_by(SUBJECT) %>% filter(!(abs(RT - mean(RT)) < 3*sd(RT))) #69 obs.
+data2 <- data %>% group_by(SUBJECT) %>% filter(!(abs(RT - mean(RT)) > 3*sd(RT)))
+
+skewness(data2$RT, na.rm = TRUE) #1.4275
+hist(data2$RT, breaks = 30)
+adults2 <- subset(data2, data2$GROUP=="Adults")
+children2 <- subset(data2, data2$GROUP!="Adults")
+hist(adults2$RT,  breaks=50)
+skewness(adults2$RT, na.rm = TRUE) 
+hist(children2$RT, breaks = 50)
+skewness(children2$RT, na.rm = TRUE) 
+
+qqmath(~RT|SUBJECT, data=data2, main="Responses by Subject")
+```
+
+Remove outliers 3 standard deviations from the mean (70/5723 = 1.2%). 
+
+```{r}
+data <- data %>% group_by(SUBJECT) %>% filter(!(abs(RT - mean(RT)) > 3*sd(RT)))
+5723-5653
+70/5723
+```
+
+**5653 observations remaining in the final data sheet.**
+
+```{r}
+data[!duplicated(data$parid),] %>%
+  group_by(GROUP) %>%
+  summarise(n = n())
+```
+
+
+## Save cleaned data sheet
+
+```{r save}
+write.table(data, "220118_fulldata_cleaned.txt", sep="\t", row.names=FALSE)
+```
+
+
+```{r}
+data_noaddition = subset(data) #, select = -c(LogRT,RT500,logRT500)
+errorincluded <- rbind(error, data_noaddition)
+write.table(errorincluded, "220117_errordata_noaddition.txt", sep="\t", row.names=FALSE)
+```

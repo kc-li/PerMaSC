@@ -1,0 +1,17 @@
+"GROUP","CONDITION","PREDICT","n","Mean","Conf.level","Trad.lower","Trad.upper"
+"Adults","aMvM","H",362,378,0.95,350,406
+"Adults","aMvM","L",339,507,0.95,477,538
+"Adults","aMvNM","H",375,348,0.95,320,376
+"Adults","aMvNM","L",354,463,0.95,432,494
+"Adults","aNMvM","H",371,364,0.95,335,392
+"Adults","aNMvM","L",370,450,0.95,423,476
+"Adults","aNMvNM","H",371,372,0.95,345,400
+"Adults","aNMvNM","L",361,429,0.95,403,454
+"Children","aMvM","H",348,586,0.95,537,634
+"Children","aMvM","L",308,655,0.95,606,704
+"Children","aMvNM","H",356,556,0.95,512,601
+"Children","aMvNM","L",326,634,0.95,586,681
+"Children","aNMvM","H",353,569,0.95,523,615
+"Children","aNMvM","L",354,613,0.95,568,658
+"Children","aNMvNM","H",353,545,0.95,499,590
+"Children","aNMvNM","L",352,605,0.95,560,651

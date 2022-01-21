@@ -60,11 +60,12 @@ modifykeep <- keep %>%
   mutate(
   duration_new = case_when(
     parid == "210719_a25time" ~ duration_raw,
+    parid == "210719_c12time" ~ duration_raw,
     parid == "210719_a41time" ~ duration_raw - 0.8,
     parid == "210725_a83time" ~ duration_raw - 0.7,
     TRUE ~ duration_raw - 0.5
     )
-  ) %>%
+  )%>%
   select(label, duration_new)
 
 p2files <-p2files %>%
@@ -146,10 +147,6 @@ p2files %>%
 ```
 
 ```{r second batch}
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(readr)
 path_2 <- "datafile_second_batch"
 timep1files_2 <- list.files(path_2,pattern = "p1.txt",full.names = T)
 timep2files_2 <- list.files(path_2,pattern = "p2.txt",full.names = T)
@@ -178,6 +175,7 @@ modifykeep_2 <- keep %>%
   mutate(
   duration_new = case_when(
     parid == "210719_a25time" ~ duration_raw,
+    parid == "210719_c12time" ~ duration_raw,
     parid == "210719_a41time" ~ duration_raw - 0.8,
     parid == "210725_a83time" ~ duration_raw - 0.7,
     TRUE ~ duration_raw - 0.5

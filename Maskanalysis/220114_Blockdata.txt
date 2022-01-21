@@ -1,0 +1,17 @@
+"GROUP"	"CONDITION"	"BLOCK"	"n"	"Mean"	"Conf.level"	"Trad.lower"	"Trad.upper"
+"Adults"	"aNMvNM"	"1"	182	440	0.95	399	482
+"Adults"	"aNMvNM"	"2"	174	402	0.95	364	440
+"Adults"	"aNMvNM"	"3"	188	365	0.95	329	400
+"Adults"	"aNMvNM"	"4"	188	395	0.95	360	430
+"Adults"	"aMvM"	"1"	176	476	0.95	427	524
+"Adults"	"aMvM"	"2"	174	458	0.95	412	504
+"Adults"	"aMvM"	"3"	178	418	0.95	380	456
+"Adults"	"aMvM"	"4"	173	410	0.95	375	445
+"Children"	"aNMvNM"	"1"	173	615	0.95	547	682
+"Children"	"aNMvNM"	"2"	179	555	0.95	488	621
+"Children"	"aNMvNM"	"3"	175	569	0.95	503	635
+"Children"	"aNMvNM"	"4"	178	563	0.95	503	622
+"Children"	"aMvM"	"1"	157	705	0.95	629	780
+"Children"	"aMvM"	"2"	156	592	0.95	520	665
+"Children"	"aMvM"	"3"	169	613	0.95	547	680
+"Children"	"aMvM"	"4"	174	569	0.95	506	632

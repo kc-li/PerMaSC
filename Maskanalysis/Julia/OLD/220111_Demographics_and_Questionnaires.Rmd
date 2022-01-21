@@ -1,0 +1,185 @@
+---
+title: "Demographic Information and Questionnaires"
+author: "Julia Schwarz"
+date: "11/01/2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(see) 
+```
+
+```{r load data, echo=FALSE}
+data<-read.delim("220107_full_data_cleaned.txt", header=T)
+```
+
+6385 data points.
+
+Variables:
+
+## General
+SUBJECT = participant
+RT = RT
+GROUP = children vs. adults
+
+## Participants
+AGE = age
+Participant.OS= Operating System
+Participant.Browser	= Browser
+randomiser_t27m = Experiment Version 1-8
+sex	= f / m / non-binary
+languages = (English==monolingual)
+response_6 = where they were born and raised
+
+## Qualitative Data
+mask.problems	= pre-questionnaire Q1 (see below)
+Difficulty.x = Pre-questionnaire Q2
+Tiring = Pre-questionnaire Q3
+
+## Procedure
+Difficulty.y = post-questionnaire Q1
+Distraction = post-questionnaire Q2
+
+
+# Summarize data by participant
+
+```{r summarise data by participant}
+participants <- groupwiseMean(RT ~ GROUP + 
+                                       SUBJECT + 
+                                       AGE + 
+                                       sex + 
+                                       Participant.OS +
+                                       Participant.Browser +
+                                       randomiser_t27m +
+                                       languages +
+                                       response_6 +
+                                       mask.problems +
+                                       Difficulty.x +
+                                       Tiring +
+                                       Difficulty.y +
+                                       Distraction,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+summary(participants$SUBJECT) #60
+
+as.data.frame(participants)
+
+write.table(participants, "220111_participant_summary.txt", sep="\t", row.names=FALSE)
+```
+
+
+```{r}
+adults <- subset(participants, participants$GROUP=='a')
+children <- subset(participants, participants$GROUP!='a')
+```
+
+
+# METHODS
+## Participants
+
+Participants were recruited through social media and mailing lists between May and September 2021. XX adults and XX children living in the UK took part in the experiment. XX participants were excluded because they did not meet the specified requirements, XX because of insufficient technical equipment, and XX because of high error rates (XXX%, mean = XXX%). 
+
+The remaining 30 adults (age 20-60, mean = 30.7) and 30 children (age 8-12, mean = XX) had acquired English before the age of 7 and reported having no hearing, writing or language difficulties. 26 adults and 25 children were monolingual English speakers, and 4 adults and 5 children were bilingual (English and another language). Adults received a £5 and families a £10 supermarket voucher for their participation. Ethical approval was obtained from the University of Cambridge MMLL Research Ethics Committee.
+
+```{r participants}
+summary(participant_summary$GROUP=="a")
+
+summary(adults$AGE)
+hist(adults$AGE, breaks = 40)
+summary(children$AGE) #ca. 10, 1 child currently missing
+hist(children$AGE, breaks = 13)
+
+summary(adults$languages=="English")
+26/30
+summary(children$languages=="English")
+25/30
+```
+
+## Procedure
+
+After finishing the shadowing task, the adult participants and the children’s parents were asked to rate the difficulty of the experiment on a five-point scale from ‘very easy = 1’ to ‘very difficult = 5’ (adults mean = 1.8; children mean = 1.8), and their concentration during the study on a five-point scale from ‘very concentrated = 1’ to ‘very distracted = 5’ (adults mean = 1.8; children mean = 1.7). The study took 30-45 minutes in total.
+
+```{r procedure}
+summary(adults$Difficulty.y)
+hist(adults$Difficulty.y)
+summary(adults$Distraction)
+hist(adults$Distraction)
+
+summary(children$Difficulty.y)
+hist(children$Difficulty.y)
+summary(children$Distraction)
+hist(children$Distraction)
+```
+
+
+# ANALYSIS 
+## Qualitative Data
+
+Before the start of the formal experiment, adult participants and child participants’ parents were asked about their general experience with speech and face masks. This data is summarized descriptively. 
+
+Questions:
+1. Have you / has your child ever reported problems with understanding people that wear a face mask?
+2. How difficult is it for you / your child to understand others who wear a face mask? (1=very easy; 5=very difficult)
+3. How tiring is it for you / your child to listen to a person wearing a face mask?
+
+
+# RESULTS
+## Qualitative Data
+
+The majority of adult participants self-reported that they 'sometimes' or 'frequently' have had problems with understanding people that wear a face mask (87%), while 13% reported no problems. In contrast to this, only 40% of parents reported that their child had sometimes encountered problems with understanding people with a face mask, while 47% said they had not encountered any such problems. Adult participants also judged masked speech as more difficult and more tiring than parents did for their children: On a scale of 1 (very easy) to 5 (very difficult), adults rated the difficulty of understanding masked speech on average as 2.6/5, and parents as 2.2/5. On a scale of 1 (not tiring) to 5 (very tiring), adults rated how tiring listening to masked speech is as 2.5/5 on average, and parents as 1.8/5. 
+
+```{r mask problems}
+summary(adults$mask.problems=="I don't know")   #0
+summary(adults$mask.problems=="No")             #4
+4/30
+summary(adults$mask.problems=="Yes sometimes")  #25
+26/30
+summary(adults$mask.problems=="Yes frequently") #1
+
+summary(children$mask.problems=="I don't know")   #4
+summary(children$mask.problems=="No")             #14
+14/30
+summary(children$mask.problems=="Yes sometimes")  #12
+12/30
+summary(children$mask.problems=="Yes frequently") #0
+```
+
+```{r difficulty}
+summary(adults$Difficulty.x)
+summary(children$Difficulty.x)
+```
+
+```{r tiring}
+summary(adults$Tiring)
+summary(children$Tiring)
+```
+
+
+
+
+
+
+
+
+
+
+
+

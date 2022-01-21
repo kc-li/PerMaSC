@@ -1,0 +1,356 @@
+---
+title: "Descriptive Statistics and Plots"
+author: "Julia Schwarz"
+date: "28/10/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Packages
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(see) 
+```
+
+
+
+## Data File
+
+Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 3560 observations. 
+
+```{r load data, echo=FALSE}
+data<-read.delim("211029_subset_data_cleaned.txt", header=T)
+```
+
+
+
+## Variable Prep
+
+```{r variables, echo=FALSE}
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$AUDIO <- factor(data$AUDIO, levels = c("aM","aNM"), labels = c("Mask", "No Mask")) 
+data$VISUAL <- factor(data$VISUAL, levels = c("vM","vNM"), labels = c("Mask", "No Mask"))
+data$PREDICT <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Low"))
+#data$TRIALORDER <- as.numeric(data$TRIALORDER)
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION <- as.factor(data$CONDITION)
+#data$BLOCK <- as.factor(data$BLOCK)
+#data$LIST <- as.factor(data$Experiment_version)
+
+```
+
+
+
+## Subsets
+```{r subsets, include=FALSE}
+
+adults <- subset(data, data$GROUP == 'a') #1808
+children <- subset(data, data$GROUP == 'c') #1752
+
+```
+
+
+## Descriptive Statistics
+
+The overall mean response time was 1044ms. 
+Children on average responded slower than Adults (1130ms vs. 960ms; diff=170ms).
+Auditorily masked speech was responded to more slowly than unmasked speech (1040ms vs. 1050ms; diff=10ms).
+Visually masked speech was responded to more slowly than no visual obstructions (1030ms vs. 1050ms; diff=20ms).
+Targets with low predictability were responded to more slowly than targets with high predictability (1000ms vs. 1090ms; diff=90ms).
+
+```{r lexicality, echo=FALSE}
+# This is to compare effect for each group
+mean(data$RT)
+
+part.mean <- groupwiseMean(RT ~ SUBJECT,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+group.mean <- groupwiseMean(RT ~ GROUP,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+1130-960
+
+audio.mean <- groupwiseMean(RT ~ AUDIO,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+1050-1040
+
+visual.mean <- groupwiseMean(RT ~ VISUAL,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+1050-1030
+
+
+predict.mean <- groupwiseMean(RT ~ PREDICT,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+1090-1000
+
+combined.predicteffect <- groupwiseMean(RT ~ GROUP + AUDIO + VISUAL + PREDICT,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+combined.visualeffect <- groupwiseMean(RT ~ GROUP + PREDICT + AUDIO + VISUAL,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+combined.auditoryeffect <- groupwiseMean(RT ~ GROUP + PREDICT + VISUAL + AUDIO,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+
+
+as.data.frame(combined.predicteffect)
+as.data.frame(combined.visualeffect)
+as.data.frame(combined.auditoryeffect)
+
+write.table(combined.predicteffect, "211029_MeanRTs_Predict_Subset.txt", sep="\t", row.names=FALSE)
+write.table(combined.visualeffect, "211029_MeanRTs_Visual_Subset.txt", sep="\t", row.names=FALSE)
+write.table(combined.auditoryeffect, "211029_MeanRTs_Auditory_Subset.txt", sep="\t", row.names=FALSE)
+
+```
+
+
+
+
+
+## Plotting
+
+# Effects by Participants
+
+```{r by participant function, echo=FALSE}
+
+# A function for just plotting paired data (as two univariate scatterplots with lines connecting the related datapoints)
+specialplot2 <- function( condition1, condition2, labels=c("Condition1", "Condition2"), dvlab="DV", main=NA, pch=21, pt.col="black", pt.bg=rgb(.5,.5,.5,alpha=.75), l.col=rgb(.5,.5,.5,alpha=.5) ){
+	
+	# number of observations per condition
+	N <- length(condition1)
+
+	# x-coordinates for the data points. This is set up in a way to jitter the x-coordinates but
+	#	also make sure that each pair of data points has the same x-distance between them
+	xvalues <- jitter( rep( 0, each=N ), 10 )
+	xvalues <- c( xvalues-1, xvalues+1 )
+
+	# Set up the plot area
+	plot(
+		xvalues, 
+		c(condition1, condition2), 
+		xaxt="n", # suppresses x-axis ticks
+		type="n", # leaves the plot area blank
+		ylab=dvlab, # y-axis label
+		xlim=c(-2,2), # x-axis limits
+		xlab=NA, # suppresses the x-axis label
+		main=main, # subplot title
+		cex.main=2, # Increase the font size for the subplot title
+		ylim=c(200,2000), # y-axis limit
+		cex.lab=2 # large font axis label
+	)
+
+	# x-axis ticks labelling the conditions
+	axis( 1, at=c(-1,1), labels=labels, cex.axis=2 )
+
+	# For each related pair of datapoints, draw a line that will connect the datapoint in condition1 to the datapoint in condiiton2
+	for( i in 1:N ){
+		lines( xvalues[c(i,i+N)], c(condition1[i], condition2[i]), col=l.col )
+	}
+
+	# Draw the two univariate scatters
+	points( xvalues, c(condition1, condition2), pch=pch, bg=pt.bg, col=pt.col )
+	
+	par(new=F )
+
+}
+```
+
+# Predictability
+
+```{r predictability by subject, echo=FALSE}
+means1 <- tapply(adults$RT, list(adults$PREDICT, adults$SUBJECT), mean)
+specialplot2(means1[1,], means1[2,], labels=c("High", "Low Cloze Probability"), dvlab="Mean Reaction time (ms)", main="Predictability effect in the adult group", pt.col="red", pt.bg=rgb(.75,0,0,alpha=.25), l.col=rgb(.75,0,0,alpha=.25), pch=21 )
+
+means2 <- tapply(children$RT, list(children$PREDICT, children$SUBJECT), mean)
+specialplot2(means2[1,], means2[2,], labels=c("High", "Low"), dvlab="Mean Reaction time (ms)", main="Predictability effect in the child group", pt.col="red", pt.bg=rgb(.75,0,0,alpha=.25), l.col=rgb(.75,0,0,alpha=.25), pch=21 )
+```
+
+# Visual
+
+```{r visual effect by subject, echo=FALSE}
+means3 <- tapply(adults$RT, list(adults$VISUAL, adults$SUBJECT), mean)
+specialplot2(means1[1,], means1[2,], labels=c("No Mask", "Mask"), dvlab="Mean Reaction time (ms)", main="Visual mask effect in the adult group", pt.col="red", pt.bg=rgb(.75,0,0,alpha=.25), l.col=rgb(.75,0,0,alpha=.25), pch=21 )
+
+means4 <- tapply(children$RT, list(children$VISUAL, children$SUBJECT), mean)
+specialplot2(means2[1,], means2[2,], labels=c("No Mask", "Mask"), dvlab="Mean Reaction time (ms)", main="Visual mask effect in the child group", pt.col="red", pt.bg=rgb(.75,0,0,alpha=.25), l.col=rgb(.75,0,0,alpha=.25), pch=21 )
+```
+
+
+
+
+
+# Summary plots
+
+```{r simple comparison plots, echo=FALSE}
+
+ggplot(data, aes(PREDICT, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+  ) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  theme_classic() +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line",size = 0.6, aes(group = 1)) +
+  ggtitle("Reaction times by Group and Predictability") +
+  labs(x = "Predict", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        strip.text.x = element_text(size = 20) # for sub-title of the figure
+        ) # for y-axis title 
+
+
+ggplot(data, aes(VISUAL, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+  ) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  theme_classic() +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = 1)) +
+  ggtitle("Reaction times by Group and Visual Mask Effect") +
+  labs(x = "Visual", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        strip.text.x = element_text(size = 20) # for sub-title of the figure
+        ) # for y-axis title 
+
+
+ggplot(data, aes(AUDIO, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+  ) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  theme_classic() +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6,aes(group = 1)) +
+  ggtitle("Reaction times by Group and Acoustic Mask Effect") +
+  labs(x = "Audio", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 15), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        strip.text.x = element_text(size = 20) # for sub-title of the figure
+        ) # for y-axis title 
+
+# Auditory * Predictability
+ggplot(data, aes(PREDICT, RT, colour=AUDIO)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1)
+  ) +
+  stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
+  theme_classic() +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6,aes(group = AUDIO), position = position_dodge(0.1)) +
+  ggtitle("Reaction times by Audio X Predict Mask Interaction") +
+  labs(x = "Predict", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 20), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15), # for y axis title
+        strip.text.x = element_text(size = 20), # for sub-title of the figure
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15), # for legend title
+        )+ # for y-axis title 
+  scale_color_manual(values=c("#0072B2", "#D55E00")) # color palette
+
+
+# Auditory * Visual
+ggplot(data, aes(VISUAL, RT, colour=AUDIO)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1)
+  ) +
+  stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
+  theme_classic() +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6,aes(group = AUDIO),position = position_dodge(0.1)) +
+  ggtitle("Reaction times by Audio X Visual Mask Interaction") +
+  labs(x = "Visual", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 20), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15), # for y axis title
+        strip.text.x = element_text(size = 20), # for sub-title of the figure
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15), # for legend title
+        )+ # for y-axis title 
+  scale_color_manual(values=c("#0072B2", "#D55E00")) # color palette
+
+
+ggplot(data, aes(CONDITION, RT, colour=PREDICT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               position = position_dodge(0.1)
+  ) +
+  theme_classic() +
+  stat_summary(fun = mean, geom = "point", size = 3, position = position_dodge(0.1)) +
+  facet_grid(cols = vars(GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = PREDICT),position = position_dodge(0.1)) +
+  ggtitle("Mean Reaction times in ms") +
+  labs(x = "audio-video", y = "Mean Reaction Times in ms") +
+  theme(axis.text.x = element_text(size = 15, angle = 20), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15), # for y-axis title 
+        strip.text.x = element_text(size = 20), # for sub-title of the figure
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15), # for legend title
+        ) +
+  scale_color_manual(values=c('#394053','#E69F00')) # color palette
+
+
+```
+
+
+

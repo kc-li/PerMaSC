@@ -32,6 +32,17 @@ library(emmeans)
 library(performance)
 library(effects)
 library(stargazer)
+intertheme <- theme(axis.text.x = element_text(size = 13), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+                legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15))
+singletheme <- theme(axis.text.x = element_text(size = 10), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=13), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        )
 ```
 
 ## Data File
@@ -39,7 +50,7 @@ library(stargazer)
 Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 6387 observations. 
 
 ```{r load data, echo=FALSE}
-data<-read.delim("220112_full_data_cleaned.txt", header=T)
+data<-read.delim("220118_fulldata_cleaned.txt", header=T)
 ```
 ## Variable Prep
 
@@ -177,12 +188,7 @@ combined.auditoryeffect <- groupwiseMean(RT ~ GROUP + PREDICTABILITY + VISUAL + 
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8}
-singletheme <- theme(axis.text.x = element_text(size = 10), # for x label text
-        axis.title.x = element_text(size = 15), # for x axis title
-        axis.title.y = element_text(size = 15),
-        legend.text = element_text(size=13), # for legend size
-        legend.title = element_text(size=15)# for legend title
-        )
+
 p1_visual <- ggplot(data, aes(VISUAL, RT)) +
   stat_summary(fun.data = mean_cl_normal,
                geom = "errorbar",
@@ -202,7 +208,7 @@ p1_visual <- ggplot(data, aes(VISUAL, RT)) +
   stat_summary(fun = mean, geom="line", size = 3,aes(group = 1), colour=('#666666')) +
   labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
   singletheme +
-  coord_cartesian(ylim = c(380, 700)) +
+  coord_cartesian(ylim = c(350, 700)) +
   scale_colour_manual(values = c("#999999", "#E69F00"))
 
 p1_acoustic <- ggplot(data, aes(ACOUSTIC, RT)) +
@@ -224,7 +230,7 @@ p1_acoustic <- ggplot(data, aes(ACOUSTIC, RT)) +
   stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
   labs(x = "Acoustic", y = "Mean Reaction Times in ms", linetype = "Group") +
   singletheme +
-  coord_cartesian(ylim = c(380, 700)) +
+  coord_cartesian(ylim = c(350, 700)) +
   scale_colour_manual(values = c("#999999", "#E69F00"))
 
 p1_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
@@ -246,7 +252,7 @@ p1_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
   stat_summary(fun =mean, geom="line", size = 3,aes(group = 1),colour=('#666666')) +
   labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
   singletheme +
-  coord_cartesian(ylim = c(380, 700))
+  coord_cartesian(ylim = c(350, 700))
 
 ggarrange(p1_acoustic + theme(plot.margin = margin(l=2,r=-2)),
           p1_visual + theme(axis.text.y = element_blank(),
@@ -260,6 +266,7 @@ ggarrange(p1_acoustic + theme(plot.margin = margin(l=2,r=-2)),
           ncol = 3, common.legend = TRUE, legend = "bottom",
           align = "hv",
           widths = c(2, 2, 2))
+ggsave("figure/210119_individual_effect.png", width = 10, height = 6)
 
 ```
 
@@ -272,11 +279,7 @@ Acoustic diff is 11ms there is no visual mask -> 40ms when there is visual mask.
 Visual diff is 2ms there is no acoustic mask -> 31ms when there is acoustic mask.
 
 ```{r echo=FALSE}
-intertheme <- theme(axis.text.x = element_text(size = 13), # for x label text
-        axis.title.x = element_text(size = 15), # for x axis title
-        axis.title.y = element_text(size = 15),
-                legend.text = element_text(size=13), # for legend size
-        legend.title = element_text(size=15))
+
 p1_acoustic_visual <- ggplot(data, aes(VISUAL, RT)) +
   stat_summary(fun.data = mean_cl_normal,
                geom = "errorbar",
@@ -297,7 +300,7 @@ p1_acoustic_visual <- ggplot(data, aes(VISUAL, RT)) +
   labs(x = "Visual", y = "Mean Reaction Times in ms",linetype = "Group") +
   theme_classic() +
   intertheme + # for legend title
-  coord_cartesian(ylim = c(380, 700)) +
+  coord_cartesian(ylim = c(350, 700)) +
   scale_color_manual(values=c('#666666', "#CC0066"))
 
 p1_acoustic_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
@@ -320,7 +323,30 @@ p1_acoustic_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
   labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
   theme_classic() +
   intertheme+ # for legend title) 
-  coord_cartesian(ylim = c(380, 700)) +
+  coord_cartesian(ylim = c(350, 700)) +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+
+p1_visual_predict <- ggplot(data, aes(PREDICTABILITY, RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               alpha = 0.5,
+               aes(group = interaction(GROUP, VIDEO), colour = ACOUSTIC, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3,alpha = 0.5, aes(group = interaction(GROUP,ACOUSTIC), colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, alpha = 0.5,aes(group = interaction(GROUP,ACOUSTIC),colour = ACOUSTIC,linetype = GROUP),position = position_dodge(0.1)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 3,
+               aes(group = ACOUSTIC,colour = ACOUSTIC),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 5,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 3,aes(group = ACOUSTIC,colour = ACOUSTIC),position = position_dodge(0.1)) +
+  labs(x = "Predictability", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() +
+  intertheme+ # for legend title) 
+  coord_cartesian(ylim = c(350, 700)) +
   scale_color_manual(values=c('#666666', "#CC0066"))
 
 ggarrange(p1_acoustic_visual + theme(plot.margin = margin(l=2,r=-2)),
@@ -523,7 +549,10 @@ ggplot(data, aes(BLOCK,RT, linetype = GROUP)) +
                position = position_dodge(0.1) ) +
   stat_summary(fun = mean, geom = "point",size = 3,position = position_dodge(0.1)) +
   stat_summary(fun =mean, geom="line", size = 0.6, position = position_dodge(0.1)) +
-  theme_classic()
+  labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group") +
+  theme_classic() + 
+  singletheme
+ggsave("figure/RTblock.png", width = 8, height = 5)
 
 ggplot(subset(data, CONDITION == 1|CONDITION ==4), aes(BLOCK,RT)) +
   stat_summary(fun.data = mean_cl_normal,
@@ -534,10 +563,11 @@ ggplot(subset(data, CONDITION == 1|CONDITION ==4), aes(BLOCK,RT)) +
   stat_summary(fun = mean, geom = "point",aes(group = interaction(GROUP,type),colour = type), size = 3, position = position_dodge(0.1)) +
   stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,type), colour = type, linetype = GROUP), position = position_dodge(0.1)) +
   theme_classic()+
-  labs(x = "BLOCK", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  scale_colour_manual(labels = c("(+)aM(+)vM","(-)aM(-)vM"),values=c('#666666', "#CC0066")) +
   theme_classic() +
   intertheme+ # for legend title) 
-  coord_cartesian(ylim = c(380, 700)) +
-  scale_color_manual(values=c('#666666', "#CC0066"))
+  coord_cartesian(ylim = c(340, 780))
+ggsave("figure/RTblock_subset.png", width = 8, height = 5)
 
 ```
