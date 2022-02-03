@@ -1,0 +1,243 @@
+---
+title: "220202_Pre-processing_reordering"
+author: "Katrina Li"
+date: "02/02/2022"
+output: html_document
+---
+This file covers content in both data cleaning and pre-processing, to give an accurate estimation of loss of files
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(performance)
+library(tidyr)
+library(stringr)
+library(readr)
+```
+
+```{r}
+errorcheck <- read.delim("checkingnotes/soundcheck_error.txt", header = T) #317
+keep <- subset(errorcheck, errorcheck$doublecheck == 1) #55
+discard <- subset(errorcheck, errorcheck$doublecheck == 2) #61
+
+RTcheck <- read.delim("checkingnotes/soundcheck_RT.txt", header = T) #98
+RTdiscard <- subset(RTcheck, RTcheck$doublecheck == 2) #23
+RTerror <- subset(RTcheck, RTcheck$doublecheck == 0) #4
+```
+
+```{r }
+path <- "datafile/26_26final"
+timep1files <- list.files(path,pattern = "p1.txt",full.names = T)
+timep2files <- list.files(path,pattern = "p2.txt",full.names = T)
+
+p1files <-tibble(File = timep1files) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
+  unnest(Data)%>%
+  select(-File)%>%
+  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$",""))
+
+p2files <-tibble(File = timep2files) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t",check.names = F)) %>%
+  unnest(Data) %>%
+  select(-File) %>%
+  mutate(label = str_replace_all(label,"\\.",""))%>%
+  mutate(label = str_replace_all(label,"\\_$","")) %>%
+  mutate(label = str_replace_all(label,",$",""))
+
+modifykeep <- keep %>% 
+  left_join(p2files, by = "label") %>%
+  drop_na() %>%
+  mutate(
+  duration_new = case_when(
+    parid == "210719_a25time" ~ duration_raw,
+    parid == "210719_c12time" ~ duration_raw,
+    parid == "210719_a41time" ~ duration_raw - 0.8,
+    parid == "210725_a83time" ~ duration_raw - 0.7,
+    TRUE ~ duration_raw - 0.5
+    )
+  )%>%
+  select(label, duration_new)
+
+p2files <-p2files %>%
+  left_join(modifykeep, by = "label") %>%
+  mutate(
+    duration2 = ifelse(is.na(duration_new), duration2, duration_new),
+    note = ifelse(is.na(duration_new), note, sub("0","1",note))
+  ) %>%
+  select(-duration_new)
+
+stimulim <- read.csv("datafile_first_batch/stimulim.csv",header = T)
+
+#c29timep2, a120timep1&a120 timep2 have encoding problems. 
+# Solution: open the file in Numbers, copy it to excel, and save as tab-delimited file txt
+
+# Other possible errors: by using 'separte' failes below, you will be able to see 
+combine <- p1files %>% 
+  pivot_wider(
+    names_from = timetype,
+    values_from = timepoint,
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) %>%
+  inner_join(p2files, by = c("parid","label")) %>% #anti_join could see which files are not matched
+  mutate(
+    beep_response = duration1 + duration2,
+    original_label = label
+  ) %>%
+  separate(note, into=c("accuracy", "note"), sep="(?<=[0-1])_") %>%
+  separate(label, into=c("scheduleID", "sentence"), sep = "_") %>% 
+  separate(sentence, into = c('number','audio','video'), sep = "(a|v)(?=M|NM)") %>%
+  mutate(
+    note = str_replace_all(note,"^_",""), # Replace extra '_' symbol in the note
+    video = str_replace_all(video, "[a-z]$","")
+  )%>%
+  mutate(
+    audio = paste0("a",audio),
+    video = paste0("v",video),
+    sentence_label = paste(number, audio, sep="_")
+  ) %>%
+  left_join(stimulim, by = c("sentence_label","number")) %>%
+  mutate(
+    react1 = (beep_response - length1)*1000,
+    react2 = (beep_response - length2)*1000,
+    type = paste0(audio,video),
+    context = str_sub(number,-1,-1),
+    parid = str_sub(parid, 1, nchar(parid)-4),
+    group = str_extract(parid,"(?<=_)[a,c]"),
+    batch = 1
+    #group = recode(group,a="adult",c="child")
+  )  %>%
+  select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2,batch,original_label) 
+
+
+# check group balanece
+combine[!duplicated(combine$parid),] %>%
+  group_by(group) %>%
+  summarise(n = n())
+
+# check if there are left-overs in merge
+p1.wide <- p1files %>% 
+  pivot_wider(
+    names_from = timetype,
+    values_from = timepoint,
+  ) %>%
+  mutate(
+    duration1 = rstart-b
+  ) 
+#in timep1 but no match in timep2
+p1.wide %>%
+  anti_join(p2files, by = c("parid","label"))
+#a120 has a wrong symbol added to video condition. saved it!
+# a79 timep2 has a missing point (early processing and not able to track)
+
+#in timep2 but no match in timep1
+p2files %>%
+  anti_join(p1.wide, by = c("parid","label"))
+```
+
+```{r}
+nrow(combine)
+```
+
+```{r load data, echo=FALSE}
+data <- combine
+
+```
+## Variable Prep
+New variables here: *TRIAL*, *BLOCK*, *AGE*, *SEX*
+
+```{r variables, echo=FALSE}
+# Random 
+data$SUBJECT <- as.factor(data$parid)
+data$ITEM <- as.factor(data$number)
+
+# Outcome Var
+data$RT <- as.numeric(data$react2) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- as.factor(data$group) #adults vs children
+data$AUDIO <- as.factor(data$audio) 
+data$VIDEO <- as.factor(data$video)
+data$PREDICT <- as.factor(data$context)
+
+# For figures and models
+data$GROUP <- factor(data$GROUP, levels = c("a","c"), labels = c("Adults", "Children"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High Predictability", "Low Predictability"))
+
+# Other
+data$ACC <- as.factor(data$accuracy) #1==correct
+data$CONDITION <- as.factor(data$type)
+#data$TRIAL <- as.numeric(data$row_number) #trialorder
+#data$BLOCK <- as.factor(data$block) #Block 1-4
+#data$AGE <- (data$date.of.birth_year + (data$date.of.birth_month/12))
+#data$SEX <- as.factor(data$sex)
+#data$LIST <- as.factor(data$randomiser_t27m) #Randomised Version 1-8
+```
+
+## Participants already excluded
+## Exclude practice trials and specific trials!
+```{r}
+data <- subset(data, data$ITEM != '101L')
+data <- subset(data, data$ITEM != '48L')
+data <- subset(data, data$ITEM != '44L')
+data <- subset(data, data$ITEM != '45H')
+data <- subset(data, data$ITEM != '13H')
+data <- subset(data, data$ITEM != '102L')
+data <- subset(data, data$ITEM != '55H')
+data <- subset(data, data$ITEM != '52H')
+print(paste("Remaining data: ", nrow(data)))
+data <- subset(data, data$correctans != 'knob')
+data <- subset(data, data$correctans != 'meal')
+data <- subset(data, data$correctans != 'net')
+print(paste("Remaining data: ", nrow(data)))
+```
+
+## Discard because of noting down in the spreadsheet
+```{r}
+mis <- read.csv("datafile/missing_trials.csv", header = T)
+mis <- subset(mis, mis$Missing !="NONE")
+errorcheck <- read.delim("checkingnotes/soundcheck_error.txt", header = T) #317
+keep <- subset(errorcheck, errorcheck$doublecheck == 1) #55
+discard <- subset(errorcheck, errorcheck$doublecheck == 2) #61
+
+RTcheck <- read.delim("checkingnotes/soundcheck_RT.txt", header = T) #98
+RTdiscard <- subset(RTcheck, RTcheck$doublecheck == 2) #23
+RTerror <- subset(RTcheck, RTcheck$doublecheck == 0) #4
+rep <- read.delim("checkingtokennum/rep.csv",header = FALSE)
+
+fulldata <- data %>% #6003
+  filter(!original_label %in% mis$Missing) %>% #5997 (6 bad)
+  filter(!original_label %in% rep$V1) %>% #5970 (27 rep)
+  filter(!original_label %in% discard$label) %>% #5959 (11 bad)
+  filter(!original_label %in% RTdiscard$label) #5946 (13 bad)
+5946
+nrow(fulldata)
+```
+
+5946 is indeed the final number.
+
+Summary of datapoints is kept in notion:
+- 26 + 26 files yield **6556** intervals (should be 6557, but one from a79 is missing in timep2, causing a missing point)
+- Excluding practice trials and three problematic target words, there are **6003** points [baseline]
+- 30 files excluded because of bad recording quality
+- 27 files excluded becasue of repetition or missing the target the word
+- 6003-57 = 5946

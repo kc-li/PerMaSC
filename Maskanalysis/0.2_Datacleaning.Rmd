@@ -263,7 +263,7 @@ p2files_2 %>%
   anti_join(p1.wide_2, by = c("parid","label"))
 ```
 
-r full data inspection}
+r full data inspection
 
 ```{r}
 data1 <- read.csv("datafile/firstbatch.csv",header = T)
@@ -303,7 +303,7 @@ fulldata <- fulldata %>% #7873
   filter(!original_label %in% discard$label) %>% #7792
   filter(!original_label %in% RTdiscard$label)
 
-# check if some of the missingv trials noted in the spreadsheet are includedinthe dataset
+# check if some of the missingv trials noted in the spreadsheet are included inthe dataset
 fulldata %>%
   filter(parid == "210723_a78" & number =="113L")
 
