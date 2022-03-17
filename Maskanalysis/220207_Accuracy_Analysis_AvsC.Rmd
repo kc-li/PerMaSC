@@ -1,0 +1,857 @@
+---
+title: "PerMaSC accuracy"
+author: "Jasper Sim Hong" ; edited by: "Julia Schwarz"
+date: "15/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, include=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(lmerTest)
+library(lme4)
+library(performance)
+library(sjPlot)
+library(jtools)
+library(car)
+library(emmeans)
+library(rcompanion)
+library(gtsummary)
+library(qwraps2)
+library(webshot)
+
+options(scipen = 100)
+```
+
+## Data
+
+```{r data}
+data<-read.delim("220117_errordata.txt", sep="\t", header=T)
+table(data$ACC) 
+5946-5778
+168/(5778+168) # error rate
+
+```
+
+All responses summarised.
+
+```{r summary}
+allresp <- groupwiseMean(RT ~ group + type +
+                             context,
+                           data   = data,
+                           conf   = 0.95,
+                           digits = 3)
+as.data.frame(allresp)
+write.table(allresp, "220207_allresp_summarised.txt", sep="\t", row.names=FALSE)
+```
+
+
+
+## Variable Prep
+
+```{r variables, echo=FALSE}
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM) #this represents the different sentences (H & L), NOT the different targets
+
+# Outcome Var
+data$ACC <- as.factor(data$ACC) #1==correct
+
+# RT
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+data$RT_z <- scale(data$RT, center = TRUE, scale = TRUE)
+
+# Fixed Main Effects
+data$AUDIO <- factor(data$AUDIO, levels=c("aNM","aM"))
+data$VIDEO <- factor(data$VIDEO, levels = c("vNM", "vM"))
+data$PREDICT <- factor(data$PREDICT, levels = c("H", "L"))
+data$AGE <- as.numeric(data$AGE)
+data$AGE <- round(data$AGE, digits = 2)
+data$TRIAL <- as.numeric(data$TRIAL)
+data$GROUP <- as.factor(data$GROUP) #adults vs children
+
+# Fixed Effects Contrast Coded
+contrasts(data$AUDIO) <- contr.sum(2)
+contrasts(data$AUDIO)
+contrasts(data$VIDEO) <- contr.sum(2)
+contrasts(data$VIDEO)
+contrasts(data$PREDICT) <- contr.sum(2)
+contrasts(data$PREDICT)
+contrasts(data$GROUP) <- contr.sum(2)
+contrasts(data$GROUP)
+
+# Fixed Effects Centered; "if in doubt, center"
+data$AGE_c <- scale(data$AGE, scale = FALSE, center = TRUE)
+data$TRIAL_c <- scale(data$TRIAL, scale = FALSE, center = TRUE)
+
+# Other
+data$CONDITION <- as.factor(data$CONDITION)
+data$BLOCK <- as.factor(data$BLOCK)
+data$LIST <- as.factor(data$LIST)
+data$SEX <- as.factor(data$sex)
+
+#subsets
+adults <- subset(data, data$group=='a')
+children <- subset(data,data$group=='c')
+```
+
+# Full Start Model
+
+# Removed stepwise to allow computation: Video by subject random slope, by item audio slope
+
+```{r group}
+glm.complex <- glmer(ACC ~ 
+                            AUDIO:VIDEO +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP +
+                            VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1+PREDICT|SUBJECT)+ #+VIDEO taken out
+                            (1+VIDEO|ITEM), #AUDIO+ taken out
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+summary(glm.complex)
+```
+
+```{r optimize, include=FALSE}
+glm.1 <- glmer(ACC ~ 
+                            AUDIO:VIDEO +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP +
+                            VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1+PREDICT|SUBJECT)+ #+VIDEO taken out
+                            (1|ITEM), #AUDIO+ taken out #VIDEO
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.complex, glm.1) # no significant difference after simplifying the random slope
+
+glm.2 <- glmer(ACC ~ 
+                            AUDIO:VIDEO +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP +
+                            VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+ #PREDICT simplified
+                            (1|ITEM), #taken out #VIDEO
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.1, glm.2) # no sig. difference
+```
+
+```{r optimized glm}
+glm.3 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP +
+                            VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.2, glm.3) #no dif.
+
+glm.4 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO +
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            #AUDIO:GROUP +
+                            VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.3, glm.4) #sig. -> keep Audio:Group
+
+glm.5 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP + #keep
+                            #VIDEO:GROUP +
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.3, glm.5) #sig. -> keep video:group
+
+glm.6 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            AUDIO:PREDICT +
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP + #keep
+                            VIDEO:GROUP + #keep
+                            #VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.3, glm.6) #sig. -> keep video:predict
+
+glm.7 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            GROUP:PREDICT + 
+                            AUDIO:GROUP + #keep
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.3, glm.7) #n.s. drop
+
+glm.8 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            #GROUP:PREDICT + drop
+                            AUDIO:GROUP + #keep
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.7, glm.8) #n.s. drop group:predict
+summary(glm.8)
+
+glm.9 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            #GROUP:PREDICT + drop
+                            #AUDIO:GROUP + #drop
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.8, glm.9) #n.s. drop audio group
+
+# check re-introduced slopes
+glm.10 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            #GROUP:PREDICT + drop
+                            #AUDIO:GROUP + #drop
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            TRIAL_c +
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.9, glm.10) #n.s. predict slope
+
+glm.11 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            #GROUP:PREDICT + drop
+                            #AUDIO:GROUP + #drop
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT +
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            #TRIAL_c + #drop
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.9, glm.11) #n.s. drop trial
+summary(glm.11)
+
+glm.12 <- glmer(ACC ~ 
+                            #AUDIO:VIDEO + #drop
+                            #AUDIO:PREDICT + #drop
+                            #GROUP:PREDICT + drop
+                            #AUDIO:GROUP + #drop
+                            VIDEO:GROUP + #keep
+                            #VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                            #TRIAL_c + #drop
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.11, glm.12) #sig., keep
+```
+
+# Optimized with random slopes
+
+Since the model converges, we opted for a slightly larger random slope structure. NB that effects with and without random slopes are effectively the same! 
+
+```{r}
+glm.optimized <- glmer(ACC ~ 
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+
+
+# for comparison: random effects reduced:
+glm.optimized.intercept <- glmer(ACC ~ 
+                            VIDEO:GROUP + #keep
+                            VIDEO:PREDICT + #keep
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            GROUP + 
+                               
+                            (1|SUBJECT)+
+                            (1|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=data,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+
+summary(glm.optimized)
+summary(glm.optimized.intercept)
+
+```
+
+# The final accuracy model
+
+Below is the model reported in the paper. 
+
+```{r}
+tab_model(glm.optimized)
+```
+
+```{r model inspection}
+vif(glm.optimized) 
+check_overdispersion(glm.optimized) 
+check_singularity(glm.optimized) 
+sum(abs(resid(glm.optimized, scaled = TRUE)) > 3) / length(resid(glm.optimized)) 
+tab_model(glm.optimized)
+```
+
+# Post-hoc comparisons
+
+```{r}
+#emmip(data, ...) 
+#emmeans(data, pairwise~..., by="...")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Splitting children and adults
+
+Adults:
+
+```{r}
+glm.a1 <- glmer(ACC ~ 
+                            AUDIO:VIDEO + #
+                            AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+
+glm.a2 <- glmer(ACC ~ 
+                            AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a1, glm.a2) #not sig.
+
+glm.a3 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a2, glm.a3) #not sig.
+
+glm.a4 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            # VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a3, glm.a4) #not sig.
+
+glm.a5 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            #VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            #TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a4, glm.a5) #not sig.
+
+glm.a6 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #drop
+                            # AUDIO:PREDICT + #drop
+                            #VIDEO:PREDICT + #keep
+                            
+                            AUDIO + #keep
+                            VIDEO + #keep
+                            PREDICT + #keep
+                            #TRIAL_c + #drop
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a5, glm.a6)
+
+
+```
+
+*Final Adults Accuracy model:*
+
+```{r}
+glm.final <- glmer(ACC ~ 
+                            AUDIO + #keep
+                            VIDEO + #keep
+                            PREDICT + #keep
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+tab_model(glm.final)
+```
+
+
+Children:
+
+```{r}
+glm.a1 <- glmer(ACC ~ 
+                            AUDIO:VIDEO + #
+                            AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+
+glm.a2 <- glmer(ACC ~ 
+                            AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a1, glm.a2) #not sig.
+
+glm.a3 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a2, glm.a3) #not sig.
+
+glm.a4 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            # VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a3, glm.a4) #not sig.
+
+glm.a5 <- glmer(ACC ~ 
+                            # AUDIO:VIDEO + #
+                            # AUDIO:PREDICT + #
+                            #VIDEO:PREDICT + #
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                            #TRIAL_c + 
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+anova(glm.a4, glm.a5) #not sig.
+```
+
+*Final Children Accuracy model:*
+
+```{r}
+glm.final.c <- glmer(ACC ~ 
+                            ### double checked PREDICT:VIDEO + and is not sig.
+                            AUDIO + #keep
+                            VIDEO + #keep
+                            PREDICT + #keep
+                               
+                            (1+PREDICT|SUBJECT)+
+                            (1+VIDEO|ITEM),
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+tab_model(glm.final.c)
+```
+
+
+
+
+
+
+
+# Model Summaries side by side
+
+### tab model
+```{r}
+tab_model(glm.final, glm.final.c)
+
+tab_model(glm.final, glm.final.c, pred.labels = c("Intercept","Acoustic Mask","Visual Mask","Cloze Probability"),
+          dv.labels = c("Adults", "Children"),
+          file = "figure/220209ACCreg.html")
+          webshot("figure/220209ACCreg.html", "figure/220209ACCreg.png")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

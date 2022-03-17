@@ -120,7 +120,7 @@ combine <- p1files %>%
   )  %>%
   select(parid, scheduleID, react1, react2,accuracy, note, number, correctans,audio, video, context, group, type, beep_response, length1, length2,batch,original_label) 
 
-write.csv(combine,"datafile/firstbatch.csv",row.names = FALSE)
+#write.csv(combine,"datafile/firstbatch.csv",row.names = FALSE)
 
 # check group balanece
 combine[!duplicated(combine$parid),] %>%

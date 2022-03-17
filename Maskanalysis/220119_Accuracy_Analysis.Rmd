@@ -21,6 +21,7 @@ library(sjPlot)
 library(jtools)
 library(car)
 library(emmeans)
+library(patchwork)
 
 options(scipen = 100)
 ```
@@ -56,6 +57,10 @@ data$AGE <- round(data$AGE, digits = 2)
 data$TRIAL <- as.numeric(data$TRIAL)
 data$GROUP <- as.factor(data$GROUP) #adults vs children
 
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("-Acoustic Mask", "+Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("-Visual Mask", "+Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Low"))
+
 # Fixed Effects Contrast Coded
 contrasts(data$AUDIO) <- contr.sum(2)
 contrasts(data$AUDIO)
@@ -81,13 +86,13 @@ data$SEX <- as.factor(data$sex)
 ```{r}
 # With group_by(GROUP) or not
 data %>%
-  group_by(GROUP,AUDIO,VIDEO,PREDICT) %>%
+  group_by(VIDEO,AUDIO,PREDICT,GROUP) %>%
   summarise(n=n(),error_condition = round(((1- sum(accuracy)/n())*100),2))
 
 data %>%
-  group_by(GROUP) %>%
+  filter(CONDITION != "aMvM" & PREDICT == "L") %>%
+  group_by(GROUP,CONDITION) %>%
   summarise(n=n(),error_condition = round(((1- sum(accuracy)/n())*100),2))
-
 ```
 ```{r checking token numbers}
 # For checking data loss
@@ -109,6 +114,56 @@ nrow(data)
 
 ```
 
+
+
+```{r figure prep}
+visual <- data %>%
+  group_by(GROUP,VISUAL) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+acoustic <- data %>%
+  group_by(GROUP,ACOUSTIC) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+predict <- data %>%
+  group_by(GROUP,PREDICTABILITY) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+
+error_plot_individual <- function(data, xaxis){
+  ggplot(data, aes({{xaxis}}, error_rate, group = GROUP)) + # the double curly bracket asks for search the variable within the dataframe
+    geom_point(size = 3,colour=('#666666')) +
+    geom_line(aes(linetype = GROUP),size = 1,colour=('#666666')) +
+    coord_cartesian(ylim = c(0, 7)) +
+    labs(y = "Inaccurate Responses per Condition (%)", linetype = "Group") +
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.text.y = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=15), # for legend size
+        legend.title = element_text(size=15)# for legend title
+        )
+}
+
+p1_acoustic <- error_plot_individual(acoustic, ACOUSTIC) +
+  labs(x = "Acoustic")
+p1_visual <- error_plot_individual(visual, VISUAL) +
+  labs(x = "Visual")
+p1_predict <- error_plot_individual(predict, PREDICTABILITY)+
+  labs(x = "Cloze Probability")
+
+# patch work package
+remove_y <- theme(
+  axis.title.y = element_blank(),
+  axis.ticks.y = element_blank(),
+  axis.text.y = element_blank()
+)
+p1_acoustic_adjust <- p1_acoustic 
+p1_visual_adjust <- p1_visual + remove_y 
+p1_predict_adjust <- p1_predict + remove_y
+p.combine <- p1_acoustic_adjust+p1_visual_adjust+p1_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.combine
+p.combine <- patchwork::patchworkGrob(p.combine)
+ggsave("figure/220209_ACC_individual_effect.png", p.combine, width = 10, height = 6)
+```
 
 
 # Full Start Model
@@ -457,7 +512,6 @@ Since the model converges, we opted for a slightly larger random slope structure
 glm.optimized <- glmer(ACC ~ 
                             VIDEO:GROUP + #keep
                             VIDEO:PREDICT + #keep
-                            
                             AUDIO +
                             VIDEO +
                             PREDICT +
@@ -501,10 +555,13 @@ summary(glm.optimized.intercept)
 
 # The final accuracy model
 
+
 Below is the model reported in the paper. 
 
 ```{r}
-tab_model(glm.optimized)
+tab_model(glm.optimized,pred.labels = c("Intercept","Acoustic Mask","Visual Mask","Cloze Probability","Age Group","Visual Mask * Age Group", "Visual Mask * Cloze Probability"),
+          file = "figure/220204logistic.html")
+webshot("figure/220204logistic.html", "figure/220204logistic.png")
 ```
 
 ```{r model inspection}
@@ -520,10 +577,66 @@ tab_model(glm.optimized)
 ```{r}
 #emmip(data, ...) 
 #emmeans(data, pairwise~..., by="...")
+
+emmeans(glm.optimized, pairwise~VIDEO|GROUP, p.adjust.method = "bonferroni")
+plot(allEffects(glm.optimized))
 ```
 
 
+## Subsets
 
+```{r subsets, include=TRUE}
+
+adults <- subset(data, data$group == 'a') #3003
+summary(adults$AGE)
+contrasts(adults$AUDIO) #contrasts are kept in subsets
+
+children <- subset(data, data$group == 'c') #2943
+summary(children$AGE)
+
+```
+# Adults
+```{r group}
+glm.adults.complex <- glmer(ACC ~ 
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                               
+                            (1+PREDICT|SUBJECT)+ #+VIDEO taken out
+                            (1+VIDEO|ITEM), #AUDIO+ taken out
+                          
+                           family = binomial("logit"), 
+                           data=adults,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+tab_model(glm.adults.complex)
+plot(allEffects(glm.adults.complex))
+
+```
+# Children
+```{r group}
+glm.children.complex <- glmer(ACC ~ 
+                            
+                            AUDIO +
+                            VIDEO +
+                            PREDICT +
+                               
+                            (1+PREDICT|SUBJECT)+ #+VIDEO taken out
+                            (1+VIDEO|ITEM), #AUDIO+ taken out
+                          
+                           family = binomial("logit"), 
+                           data=children,                      
+                           control=glmerControl(optimizer="bobyqa", 
+                           optCtrl=list(maxfun=2e5),
+                           calc.derivs=FALSE), 
+                           na.action=na.omit)
+tab_model(glm.children.complex)
+plot(allEffects(glm.children.complex))
+
+```
 
 
 ### Jasper's code

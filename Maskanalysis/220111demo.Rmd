@@ -34,12 +34,15 @@ library(effects)
 library(stargazer)
 library(grid)
 library(gridExtra)
+library(patchwork)
 intertheme <- theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.text.y = element_text(size = 12), 
         axis.title.x = element_text(size = 15), # for x axis title
         axis.title.y = element_text(size = 15),
-                legend.text = element_text(size=15), # for legend size
+        legend.text = element_text(size=15), # for legend size
         legend.title = element_text(size=15))
 singletheme <- theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.text.y = element_text(size = 12), 
         axis.title.x = element_text(size = 15), # for x axis title
         axis.title.y = element_text(size = 15),
         legend.text = element_text(size=15), # for legend size
@@ -72,8 +75,8 @@ data$RT <- as.numeric(data$RT) #RT from the end of the sentence
 
 # Fixed
 data$GROUP <- factor(data$group, levels = c("a","c"), labels = c("Adults", "Children"))
-data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("No Acoustic Mask", "Acoustic Mask")) 
-data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("No Visual Mask", "Visual Mask"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("-Acoustic Mask", "+Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("-Visual Mask", "+Visual Mask"))
 data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Low"))
 
 # Other
@@ -136,13 +139,13 @@ audio.mean <- groupwiseMean(RT ~ ACOUSTIC,
                            data   = data,
                            conf   = 0.95,
                            digits = 3)
-540-516
+511-491 #20 
 
 visual.mean <- groupwiseMean(RT ~ VISUAL,
                            data   = data,
                            conf   = 0.95,
                            digits = 3)
-537-519
+511-491 #20
 
 
 predict.mean <- groupwiseMean(RT ~ PREDICTABILITY,
@@ -156,8 +159,8 @@ audio.visual.effect <- groupwiseMean(RT ~ VISUAL +  ACOUSTIC,
                            conf   = 0.95,
                            digits = 3)
 
-523-515
-557-517
+497-486 # 11 visual gain when acoustically no mask
+526-495 # 31 visual gain when acoustically masked
 visual.audio.effect <- groupwiseMean(RT ~ ACOUSTIC + VISUAL,
                            data   = data,
                            conf   = 0.95,
@@ -193,6 +196,85 @@ combined.auditoryeffect <- groupwiseMean(RT ~ GROUP + PREDICTABILITY + VISUAL + 
 # write.table(combined.auditoryeffect, "211029_MeanRTs_Auditory_Subset.txt", sep="\t", row.names=FALSE)
 
 ```
+
+
+
+```{r plot function block - individual no average}
+RT_plot_individual <- function(data, xaxis){
+  ggplot(data, aes({{xaxis}},RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3, aes(group = GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 1, aes(group =GROUP,linetype = GROUP)) + #1
+  theme_classic() +
+  theme(axis.text.x = element_text(size =9), # for x label text
+  axis.text.y = element_text(size = 9), 
+  axis.title.x = element_text(size = 13), # for x axis title
+  axis.title.y = element_text(size = 13),
+  legend.text = element_text(size=13), # for legend size
+  legend.title = element_text(size=13)# for legend title
+  )+
+  labs(y = "Mean Reaction Times in ms",linetype = "Group") +
+  coord_cartesian(ylim = c(350, 700))
+}
+
+p1_acoustic <- RT_plot_individual(data, ACOUSTIC) +
+  labs(x = "Acoustic")
+p1_visual <- RT_plot_individual(data, VISUAL) +
+  labs(x= "Visual")
+p1_predict <- RT_plot_individual(data, PREDICTABILITY) +
+  labs(x = "Cloze Probability")
+
+p1_acoustic_adjust <- p1_acoustic 
+p1_visual_adjust <- p1_visual + remove_y 
+p1_predict_adjust <- p1_predict + remove_y
+p.combine <- p1_acoustic_adjust+p1_visual_adjust+p1_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.combine
+p.combine <- patchwork::patchworkGrob(p.combine)
+ggsave("figure/220213_individual_effect.png", p.combine, dpi = 300, width = 180, height = 108, units = "mm") #10:6
+```
+
+```{r plot function block - interaction no average}
+RT_plot_interact <- function(data, xaxis, modify){
+  ggplot(data, aes({{xaxis}},RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               aes(group = interaction(GROUP, {{modify}}), colour = {{modify}}, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3, aes(group = interaction(GROUP,{{modify}}), colour = {{modify}}),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,{{modify}}),colour = {{modify}},linetype = GROUP),position = position_dodge(0.1)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=13), # for legend size
+      legend.title = element_text(size=13)) +
+  coord_cartesian(ylim = c(350, 700)) +
+  labs(y = "Mean Reaction Times in ms",linetype = "Group") +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+}
+
+p1_acoustic_visual <- RT_plot_interact(data, VISUAL, ACOUSTIC) +
+  labs(x = "Visual",colour = "Acoustic")
+
+p1_acoustic_predict <- RT_plot_interact(data, PREDICTABILITY, ACOUSTIC) +
+  labs(x = "Cloze Probability",colour = "Acoustic")
+
+# patch work package
+p1_acoustic_visual_adjust <- p1_acoustic_visual 
+p1_acoustic_predict_adjust <- p1_acoustic_predict + remove_y 
+p.interact.combine <- p1_acoustic_visual_adjust+p1_acoustic_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.interact.combine
+p.combine <- patchwork::patchworkGrob(p.interact.combine)
+ggsave("figure/220213_interaction_combine.png", p.combine, dpi = 300, width = 180, height = 108, units = "mm")
+
+```
+
+
 
 ```{r echo=FALSE, fig.height=5, fig.width=8}
 
@@ -380,7 +462,7 @@ p1_acoustic_predict_adjust <- p1_acoustic_predict + remove_y
 p.interact.combine <- p1_acoustic_visual_adjust+p1_acoustic_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
 p.interact.combine
 p.combine <- patchwork::patchworkGrob(p.interact.combine)
-ggsave("figure/220203interaction_combine.png", p.combine, width = 10, height = 6)
+ggsave("figure/220203_interaction_combine.png", p.combine, width = 10, height = 6)
 ```
 
 ## Statistic model
@@ -588,10 +670,44 @@ ggplot(subset(data, CONDITION == 1|CONDITION ==4), aes(BLOCK,RT)) +
   stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,type), colour = type, linetype = GROUP), position = position_dodge(0.1)) +
   theme_classic()+
   labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
-  scale_colour_manual(labels = c("(+)aM(+)vM","(-)aM(-)vM"),values=c('#666666', "#CC0066")) +
-  theme_classic() +
-  intertheme+ # for legend title) 
+  scale_colour_manual(labels = c("+Acoustic Mask, \n+Visual Mask","-Acoustic Mask,\n -Visual Mask"),values=c('#666666', "#CC0066")) +
+  theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=12), # for legend size
+        legend.title = element_text(size=12))+ # for legend title) 
   coord_cartesian(ylim = c(340, 780))
-ggsave("figure/RTblock_subset.png", width = 8, height = 5)
+ggsave("figure/220203_RTblock_subset.png", width = 8, height = 5)
 
 ```
+
+```{r}
+ggplot(subset(data, CONDITION == 1|CONDITION ==4), aes(TRIAL,RT)) +
+  stat_summary(fun = mean, geom = "point",aes(group = interaction(GROUP,type),colour = type), size = 3, position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,type), colour = type, linetype = GROUP), position = position_dodge(0.1)) +
+  theme_classic()+
+  labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  scale_colour_manual(labels = c("+Acoustic Mask, \n+Visual Mask","-Acoustic Mask,\n -Visual Mask"),values=c('#666666', "#CC0066")) +
+  theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=12), # for legend size
+        legend.title = element_text(size=12))+ # for legend title) 
+  coord_cartesian(ylim = c(340, 780))
+ggsave("figure/220205_Trial_subset.png", width = 8, height = 5)
+
+
+ggplot(subset(data, (CONDITION == 1|CONDITION ==4)&(BLOCK ==1|BLOCK ==4)), aes(TRIAL,RT)) +
+  stat_summary(fun = mean, geom = "point",aes(group = type,colour = type), size = 3, position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = type, colour = type), position = position_dodge(0.1)) +
+  theme_classic()+
+  labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  scale_colour_manual(labels = c("+Acoustic Mask, \n+Visual Mask","-Acoustic Mask,\n -Visual Mask"),values=c('#666666', "#CC0066")) +
+  theme(axis.text.x = element_text(size = 12), # for x label text
+        axis.title.x = element_text(size = 15), # for x axis title
+        axis.title.y = element_text(size = 15),
+        legend.text = element_text(size=12), # for legend size
+        legend.title = element_text(size=12))+ # for legend title) 
+  coord_cartesian(ylim = c(340, 780))
+```
+

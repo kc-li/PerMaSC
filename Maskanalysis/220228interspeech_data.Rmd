@@ -1,0 +1,353 @@
+---
+title: "220208 Interspeech evaluation"
+author: "Katrina Li"
+date: "28/02/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Packages}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(patchwork)
+```
+
+
+1. Participants numberset
+2. (External) Locate other relevant text files - from chronset & intensity; Extract the interval information.
+3. Using similar data cleaning scripts to extract those RT measures
+4. Match the final RT measurement in deleting some trials
+5. Calculate differences between these measures
+6. Decompose the effects of phonetic category)
+
+```{r step1: get participants number}
+golden<-read.delim("220118_fulldata_cleaned.txt", header=T)
+parid <- unique(golden$parid)
+paste0("'",parid,"'",sep = ",",collapse = "")
+# The output is copied into python
+```
+
+```{r step3: read into other measurements}
+path <- "interspeech/chron_inten"
+inten <- list.files(path,pattern = "inten.txt",full.names = T)
+chron <- list.files(path,pattern = "chronset.txt",full.names = T)
+intenfiles <-tibble(File = inten) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*inten)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
+  unnest(Data)%>%
+  select(-File)%>%
+  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$","")) %>%
+  mutate(parid = substr(parid, 1, nchar(parid)-5))
+
+chronfiles <-tibble(File = chron) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*chronset)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t",check.names = F)) %>%
+  unnest(Data) %>%
+  select(-File) %>%
+  mutate(label = str_replace_all(label,"\\.",""))%>%
+  mutate(label = str_replace_all(label,"\\_$","")) %>%
+  mutate(label = str_replace_all(label,",$","")) %>%
+  mutate(parid = substr(parid,1,nchar(parid)-8))
+```
+Unmatched observations between chronfiles and intenfiles:
+chronfiles have less observations than intenfiles
+
+We regenerate some intermediate files, as long as the file output files are of the same legnth, then it should be OK.
+-Regenerate: a120,
+
+
+
+```{r temporary check}
+# in intenfiles but not in chronfiles
+intenfiles %>%
+  anti_join(chronfiles,by = c("parid","label"))
+# a79 -- 14566634_40LaMvNM, 14566634_58LaNMvM --- 
+#录音存在于最后check文件中。chronsetfiles重新生成。
+#这两个在chronset返回的文件中显示为-1，故完全没有再生成整体文件时读取。改为0
+# Finally, only 63H was missing (in accordance with timep2)
+
+
+chronfiles %>%
+  anti_join(intenfiles,by = c("parid","label"))
+
+chronfiles[duplicated(chronfiles$label),]
+# a79 -- 14566634_3LaMvNM， 14566634_57HaNMvNM
+# No repetition now
+
+intenfiles[duplicated(intenfiles$label),]
+#210719_a40	14704561_116HaNMvNM	31.40188		
+#210719_c66	14758562_116HaMvM	35.43267		
+#210725_c130	15367679_112LaNMvM	24.03230		
+#210725_c84	14993977_112HaMvM	27.30202
+# The problem is that, with 0.5 more, some 'b' points were included without checking.
+```
+
+```{r join the two measurements}
+twomeasures <- intenfiles %>%
+  inner_join(chronfiles,by = c("parid","label"), suffix = c(".inten",".chron"))
+```
+
+
+```{r read the start of files (in the cheeck files)}
+startpath <- "interspeech/soundstart_check"
+start <- list.files(startpath,pattern = "start.txt",full.names = T)
+startfiles <-tibble(File = start) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*check_start)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
+  unnest(Data)%>%
+  select(-File)%>%
+  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$","")) %>%
+  mutate(parid = substr(parid, 1, nchar(parid)-11))
+
+start_twomeasure <- startfiles %>%
+  inner_join(twomeasures, by = c("parid","label"))
+
+startfiles %>%
+  anti_join(twomeasures)
+#a120 137L label最后有一个国际音标符号，所以没有match！
+twomeasures %>%
+  anti_join(startfiles) 
+```
+
+```{r read the p1files and stimulim}
+p1path <- "datafile/26_26final"
+timep1files <- list.files(p1path,pattern = "p1.txt",full.names = T)
+
+p1files <-tibble(File = timep1files) %>%
+  extract(File, "parid","([0-9]{6}_[A-Za-z0-9]*time)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
+  unnest(Data)%>%
+  select(-File)%>%
+  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$","")) %>%
+  pivot_wider(
+    names_from = timetype,
+    values_from = timepoint,
+  ) %>%
+  mutate(
+    duration1 = rstart-b, #duration 1 is key
+    parid = substr(parid, 1, nchar(parid)-4)
+  ) 
+
+p1files %>%
+  anti_join(start_twomeasure, by = c("parid","label"))
+#a79 63H in p1, but not in p2&check files, therefore not in start_twomeasure
+
+start_twomeasure %>%
+  anti_join(p1files)
+# 14620826_134H was manually delted from inten.txt and chron.txt
+
+RTassist <- p1files %>%
+  inner_join(start_twomeasure, by = c("parid","label"))
+
+```
+
+
+
+
+```{r merge with the analysed dataset}
+data<-read.delim("220118_fulldata_cleaned.txt", sep="\t", header=T) 
+
+RTassist.final <- data %>% 
+  inner_join(RTassist, by = c("parid" = "parid", "original_label" = "label"))
+
+data %>% 
+  anti_join(RTassist, by = c("parid" = "parid", "original_label" = "label"))
+```
+
+```{r Calculate RTinten & RTchron}
+# check the calss of variables is numeric
+# check there is no na
+RTassist.final %>%
+  filter(is.na(start_time))
+
+# Now generate the new RT measures
+# duration 1 is b-rstart
+# lelngth2 is the stimuli length
+# time.inten/chron - start_time is the correspondence of beep_response
+RTassist.final <- RTassist.final %>%
+  mutate(
+    RT.inten = case_when(
+    parid == "210719_a25" ~ (time.inten - start_time + duration1 - length2)*1000,
+    parid == "210719_c12" ~ (time.inten - start_time + duration1 - length2)*1000,
+    parid == "210719_a41" ~ (time.inten - start_time - 0.8 + duration1 - length2)*1000,
+    parid == "210725_a83" ~ (time.inten - start_time - 0.7 + duration1 - length2)*1000,
+    TRUE ~ (time.inten - start_time - 0.5 + duration1 - length2)*1000),
+    RT.chron = case_when(
+    parid == "210719_a25" ~ (time.chron - start_time + duration1 - length2)*1000,
+    parid == "210719_c12" ~ (time.chron - start_time + duration1 - length2)*1000,
+    parid == "210719_a41" ~ (time.chron - start_time - 0.8 + duration1 - length2)*1000,
+    parid == "210725_a83" ~ (time.chron - start_time - 0.7 + duration1 - length2)*1000,
+    TRUE ~ (time.chron - start_time - 0.5 + duration1 - length2)*1000),
+    onset = str_sub(correctans,1,1),
+    onset = as.factor(onset),
+    onset.type = case_shen(
+      onset == "b" ~ "plosive",
+      
+    )
+  )
+```
+
+```{r characterize onset type}
+levels(RTassist.final$onset)
+RTassist.final %>%
+  filter(onset=="c") %>%
+  select(correctans)
+```
+
+
+
+# Compare the different measures
+RT.inten - RT
+RT.chron - RT
+```{r}
+RTassist.final <- RTassist.final %>%
+  mutate(
+    diff.inten = RT.inten - RT,
+    diff.chron = RT.chron - RT
+  )
+
+RTassist.final %>%
+  ggplot(aes(x = RT.inten)) + 
+  geom_histogram(binwidth = 100)
+
+RTassist.final %>%
+  ggplot(aes(x = RT.chron)) + 
+  geom_histogram(binwidth = 100)
+
+t.test(RTassist.final$diff.inten)
+t.test(RTassist.final$diff.chron)
+
+```
+
+Measurement 1: AD
+```{r within 50ms}
+nrow(RTassist.final[RTassist.final$diff.inten <50 & RTassist.final$diff.inten > -50,])#4668
+nrow(RTassist.final[RTassist.final$diff.inten <50 & RTassist.final$diff.inten > -50,])/nrow(RTassist.final) #82.57%
+
+nrow(RTassist.final[RTassist.final$diff.inten <10 & RTassist.final$diff.inten > -10,])#2616
+nrow(RTassist.final[RTassist.final$diff.inten <10 & RTassist.final$diff.inten > -10,])/nrow(RTassist.final) #64.27%
+
+## Chronset
+nrow(RTassist.final[RTassist.final$diff.chron <50 & RTassist.final$diff.chron > -50,])#4287
+nrow(RTassist.final[RTassist.final$diff.chron <50 & RTassist.final$diff.chron > -50,])/nrow(RTassist.final) #75.84%
+
+nrow(RTassist.final[RTassist.final$diff.chron <10 & RTassist.final$diff.chron > -10,])#1603
+nrow(RTassist.final[RTassist.final$diff.chron <10 & RTassist.final$diff.chron > -10,])/nrow(RTassist.final) #28.37%
+  
+```
+
+
+Measurement 2: regression fits
+```{r}
+lm.chron <- lm(RT ~ RT.chron, data = RTassist.final)
+summary(lm.chron)
+RTassist.final$predicted.chron <- predict(lm.chron)
+RTassist.final$residual.chron <- residuals(lm.chron)
+
+lm.inten <- lm(RT ~ RT.inten, data = RTassist.final)
+summary(lm.inten)
+RTassist.final$predicted.inten <- predict(lm.inten)
+RTassist.final$residual.inten <- residuals(lm.inten)
+```
+
+```{r scatter plot}
+scatterplot <-function(data,yaxis){
+  ggplot(data, aes(x = RT, y = {{yaxis}})) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1,colour = "red") + 
+    ylim(-1350,3650) +
+    xlim(-1350,3650) +
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=11), # for legend size
+      legend.title = element_text(size=12)) +
+    xlab("Manual [ms]")
+}
+
+scatter.chron <- RTassist.final %>%
+  scatterplot(RT.chron) +
+  ylab("Chronset [ms]")
+
+scatter.inten <- RTassist.final %>%
+  scatterplot(RT.inten) +
+  ylab("Intensity-based [ms]")
+
+```
+
+```{r}
+scatter.combine <- scatter.chron+scatter.inten +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+scatter.combine
+ecdf <- patchwork::patchworkGrob(scatter.combine)
+ggsave("interspeech/220307scatterplot.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
+```
+
+
+```{r ecdf of residual}
+myecdf <- function(data){
+  ggplot(data, aes(diff,colour = method)) +
+    stat_ecdf(geom="line",size = 1.2) +
+    xlim(-1000,1000) +
+    theme_classic() + 
+    theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=11), # for legend size
+      legend.title = element_text(size=12)) +
+    labs(y="CDF", colour = "Method") +
+    scale_color_manual(values=c('#666666', "#CC0066"))
+}
+
+RT.plotdata <- RTassist.final %>%
+  select(parid, correctans,original_label,diff.chron,diff.inten) %>%
+  pivot_longer(cols = c(diff.chron,diff.inten), names_to = "method", values_to = "diff") %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("diff.chron","diff.inten"),labels = c("Chronset","Intensity-based"))
+  )
+
+absfigure <- RT.plotdata %>%
+  myecdf() +
+  xlab("Absolute difference [ms]")
+
+RT.plotdata2 <- RTassist.final %>%
+  select(parid, correctans,original_label,residual.chron,residual.inten) %>%
+  pivot_longer(cols = c(residual.chron,residual.inten), names_to = "method", values_to = "diff") %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("residual.chron","residual.inten"),labels = c("Chronset","Intensity-based"))
+  )
+
+residfigure <- RT.plotdata2 %>%
+  myecdf() +
+  xlab("Regression Residuals [ms]")
+
+```
+
+
+```{r combine figure}
+ecdf.combine <- absfigure+residfigure +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+ecdf.combine
+ecdf <- patchwork::patchworkGrob(ecdf.combine)
+ggsave("interspeech/220307ecdf.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
+```
+
+```{r writedata}
+write.table(RTassist.final,"interspeech/220308RTassist_final.txt", sep = "\t", row.names = FALSE)
+```
+
+

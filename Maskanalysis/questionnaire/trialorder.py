@@ -30,7 +30,6 @@ for filename in files:
         #dup = df.loc[df.Response.duplicated(), ['Participant Public ID','videoname']]
         #print(dup,'\n')
         # Generate row number
-        # Generate row number
         df['row_number'] = df.groupby(['Participant Public ID','display']).cumcount()+1
         df['filename'] = filename
         all_df.append(df)

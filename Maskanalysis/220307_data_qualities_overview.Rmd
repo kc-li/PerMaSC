@@ -1,0 +1,24 @@
+---
+title: "220307 participants problem overview"
+author: "Katrina Li"
+date: "07/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(data.table)
+library(stringr)
+```
+
+```{r}
+qadult <- read.csv("questionnaire/Qadult.csv", header = T)
+qchild <- read.csv("questionnaire/Qchild.csv", header = T)
+qall <- rbind(qadult, qchild)
+```
+
+```{r adult decompose}
+
+```
+

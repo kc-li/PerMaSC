@@ -1,0 +1,300 @@
+---
+title: "20220218final figure"
+author: "Katrina Li"
+date: "18/02/2022"
+output: html_document
+---
+## Packages
+
+```{r packages, include=FALSE}
+library(lme4)
+library(ggplot2)
+library(lattice)
+library(car)
+library(lmerTest)
+library(moments)
+library(rcompanion)
+library(MuMIn)
+library(Hmisc)
+library(dplyr)
+library(stargazer)
+library(see) 
+library(ggpubr)
+library(LMERConvenienceFunctions)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(moments)
+library(Hmisc)
+library(dplyr)
+library(emmeans)
+library(performance)
+library(effects)
+library(stargazer)
+library(grid)
+library(gridExtra)
+library(patchwork)
+remove_y <- theme(
+  axis.title.y = element_blank(),
+  axis.ticks.y = element_blank(),
+  axis.text.y = element_blank()
+)
+```
+
+## Data File
+
+Pre-processed data file (critical items only), outliers, fillers, practice, etc. removed. 6387 observations. 
+
+```{r load data, echo=FALSE}
+data<-read.delim("220118_fulldata_cleaned.txt", header=T)
+```
+## Variable Prep
+
+```{r variables, echo=FALSE}
+
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM)
+
+# Outcome Var
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+
+# Fixed
+data$GROUP <- factor(data$group, levels = c("a","c"), labels = c("Adults", "Children"))
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("-Acoustic Mask", "+Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("-Visual Mask", "+Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Low"))
+
+# Other
+data$ACC <- as.factor(data$ACC) #1==correct
+data$CONDITION_old <- as.factor(data$CONDITION)
+data$CONDITION <- factor(data$CONDITION, levels = c("aNMvNM","aNMvM","aMvNM","aMvM"), labels = c("1","2","3","4"))
+
+data$TRIAL <- as.numeric(data$row_number) 
+data$BLOCK <- as.numeric(data$block)
+
+# Only 2 people's age information is not finished yet!
+data$AGE <- as.numeric(data$date.of.birth_year + data$date.of.birth_month/12)
+data$SEX <- as.factor(data$sex)
+
+data$TARGET <- as.factor(data$ITEM)
+data$TARGET <- gsub('.{1}$', '', data$TARGET)
+
+contrasts(data$GROUP) <- c(-0.5,+0.5)
+contrasts(data$ACOUSTIC) <- c(-0.5,+0.5)
+contrasts(data$VISUAL) <- c(-0.5,+0.5)
+contrasts(data$PREDICTABILITY) <- c(-0.5,+0.5)
+
+```
+
+```{r Figure 4}
+RT_plot_individual <- function(data, xaxis){
+  ggplot(data, aes({{xaxis}},RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.2,
+               size = 0.6,
+               aes(group = GROUP, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point", size = 3, aes(group = GROUP)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group =GROUP,linetype = GROUP)) + #1
+  theme_classic() +
+  theme(axis.text.x = element_text(size =9), # for x label text
+  axis.text.y = element_text(size = 9), 
+  axis.title.x = element_text(size = 13), # for x axis title
+  axis.title.y = element_text(size = 13),
+  legend.text = element_text(size=11), # for legend size
+  legend.title = element_text(size=12)# for legend title
+  )+
+  labs(y = "Mean Reaction Times in ms",linetype = "Group") +
+  coord_cartesian(ylim = c(350, 700))
+}
+
+p1_acoustic <- RT_plot_individual(data, ACOUSTIC) +
+  labs(x = "Acoustic")
+p1_visual <- RT_plot_individual(data, VISUAL) +
+  labs(x= "Visual")
+p1_predict <- RT_plot_individual(data, PREDICTABILITY) +
+  labs(x = "Cloze Probability")
+
+p1_acoustic_adjust <- p1_acoustic 
+p1_visual_adjust <- p1_visual + remove_y 
+p1_predict_adjust <- p1_predict + remove_y
+p.combine <- p1_acoustic_adjust+p1_visual_adjust+p1_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.combine
+p.combine <- patchwork::patchworkGrob(p.combine)
+ggsave("figure/220218_Figure 4.tiff", p.combine, dpi = 300, width = 180, height = 108, units = "mm") #10:6
+ggsave("figure/220218_Figure 4.png", p.combine, dpi = 300, width = 180, height = 108, units = "mm") #10:6
+```
+```{r Figure 5}
+RT_plot_interact <- function(data, xaxis, modify){
+  ggplot(data, aes({{xaxis}},RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.5,
+               size = 0.6,
+               aes(group = interaction(GROUP, {{modify}}), colour = {{modify}}, linetype = GROUP),
+               position = position_dodge(0.1)) +
+  stat_summary(fun = mean, geom = "point", size = 3, aes(group = interaction(GROUP,{{modify}}), colour = {{modify}}),position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.6, aes(group = interaction(GROUP,{{modify}}),colour = {{modify}},linetype = GROUP),position = position_dodge(0.1)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=11), # for legend size
+      legend.title = element_text(size=12)) +
+  coord_cartesian(ylim = c(350, 700)) +
+  labs(y = "Mean Reaction Times in ms",linetype = "Group") +
+  scale_color_manual(values=c('#666666', "#CC0066"))
+}
+
+p1_acoustic_visual <- RT_plot_interact(data, VISUAL, ACOUSTIC) +
+  labs(x = "Visual",colour = "Acoustic")
+
+p1_acoustic_predict <- RT_plot_interact(data, PREDICTABILITY, ACOUSTIC) +
+  labs(x = "Cloze Probability",colour = "Acoustic")
+
+# patch work package
+p1_acoustic_visual_adjust <- p1_acoustic_visual 
+p1_acoustic_predict_adjust <- p1_acoustic_predict + remove_y 
+p.interact.combine <- p1_acoustic_visual_adjust+p1_acoustic_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.interact.combine
+p.combine <- patchwork::patchworkGrob(p.interact.combine)
+ggsave("figure/220218_Figure 5.tiff", p.combine, dpi = 300, width = 180, height = 108, units = "mm")
+ggsave("figure/220218_Figure 5.png", p.combine, dpi = 300, width = 180, height = 108, units = "mm")
+
+```
+```{r Figure 6}
+data.block <- subset(data, CONDITION == 1|CONDITION ==4)
+data.block$type <- factor(data.block$type, levels = c("aNMvNM","aMvM"))
+ggplot(data.block, aes(BLOCK,RT)) +
+  stat_summary(fun.data = mean_cl_normal,
+               geom = "errorbar",
+               width = 0.6,
+               size = 0.3,
+               position = position_dodge(0.1),
+               aes(group = interaction(GROUP,type),colour = type, linetype = GROUP)) +
+  stat_summary(fun = mean, geom = "point",aes(group = interaction(GROUP,type),colour = type), size = 1, position = position_dodge(0.1)) +
+  stat_summary(fun =mean, geom="line", size = 0.3, aes(group = interaction(GROUP,type), colour = type, linetype = GROUP), position = position_dodge(0.1)) +
+  theme_classic()+
+  labs(x = "Block", y = "Mean Reaction Times in ms",linetype = "Group",colour = "Mask On/Off") +
+  scale_colour_manual(labels = c("-Acoustic Mask, \n-Visual Mask","+Acoustic Mask,\n+Visual Mask"),values=c('#666666', "#CC0066")) +
+  theme(axis.text.x = element_text(size = 6), # for x label text
+        axis.text.y = element_text(size = 6),
+        axis.title.x = element_text(size = 7), # for x axis title
+        axis.title.y = element_text(size = 7),
+        legend.text = element_text(size=5), # for legend size
+        legend.title = element_text(size=6))+ # for legend title) 
+  coord_cartesian(ylim = c(340, 780))
+ggsave("figure/220218_Figure 6.tiff", dpi = 300, width = 85, height = 54, units = "mm")
+ggsave("figure/220218_Figure 6.png", dpi = 300, width = 85, height = 54, units = "mm")
+```
+
+
+# Accuracy
+## Data
+
+```{r data}
+data<-read.delim("220117_errordata.txt", sep="\t", header=T)
+table(data$ACC) 
+168/(5778+168) # error rate
+```
+
+## Variable Prep
+
+```{r variables, echo=FALSE}
+# Random 
+data$SUBJECT <- as.factor(data$SUBJECT)
+data$ITEM <- as.factor(data$ITEM) #this represents the different sentences (H & L), NOT the different targets
+
+# Outcome Var
+data$ACC <- as.factor(data$ACC) #1==correct
+
+# RT
+data$RT <- as.numeric(data$RT) #RT from the end of the sentence
+data$RT_z <- scale(data$RT, center = TRUE, scale = TRUE)
+
+# Fixed Main Effects
+data$AUDIO <- factor(data$AUDIO, levels=c("aNM","aM"))
+data$VIDEO <- factor(data$VIDEO, levels = c("vNM", "vM"))
+data$PREDICT <- factor(data$PREDICT, levels = c("H", "L"))
+data$AGE <- as.numeric(data$AGE)
+data$AGE <- round(data$AGE, digits = 2)
+data$TRIAL <- as.numeric(data$TRIAL)
+data$GROUP <- as.factor(data$GROUP) #adults vs children
+
+data$ACOUSTIC <- factor(data$AUDIO, levels = c("aNM","aM"), labels = c("-Acoustic Mask", "+Acoustic Mask")) 
+data$VISUAL <- factor(data$VIDEO, levels = c("vNM","vM"), labels = c("-Visual Mask", "+Visual Mask"))
+data$PREDICTABILITY <- factor(data$PREDICT, levels = c("H","L"), labels = c("High", "Low"))
+
+# Fixed Effects Contrast Coded
+contrasts(data$AUDIO) <- contr.sum(2)
+contrasts(data$AUDIO)
+contrasts(data$VIDEO) <- contr.sum(2)
+contrasts(data$VIDEO)
+contrasts(data$PREDICT) <- contr.sum(2)
+contrasts(data$PREDICT)
+contrasts(data$GROUP) <- contr.sum(2)
+contrasts(data$GROUP)
+
+# Fixed Effects Centered; "if in doubt, center"
+data$AGE_c <- scale(data$AGE, scale = FALSE, center = TRUE)
+data$TRIAL_c <- scale(data$TRIAL, scale = FALSE, center = TRUE)
+
+# Other
+data$CONDITION <- as.factor(data$CONDITION)
+data$BLOCK <- as.factor(data$BLOCK)
+data$LIST <- as.factor(data$LIST)
+data$SEX <- as.factor(data$sex)
+```
+
+```{r Figure 3}
+visual <- data %>%
+  group_by(GROUP,VISUAL) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+acoustic <- data %>%
+  group_by(GROUP,ACOUSTIC) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+predict <- data %>%
+  group_by(GROUP,PREDICTABILITY) %>%
+  summarise(n=n(),error_rate = round(((1- sum(accuracy)/n())*100),2))
+
+error_plot_individual <- function(data, xaxis){
+  ggplot(data, aes({{xaxis}}, error_rate, group = GROUP)) + # the double curly bracket asks for search the variable within the dataframe
+    geom_point(size = 3) +
+    geom_line(aes(linetype = GROUP),size = 0.6) +
+    coord_cartesian(ylim = c(0, 7)) +
+    labs(y = "Inaccurate Responses (%)", linetype = "Group") +
+    theme_classic() +
+    theme(axis.text.x = element_text(size =9), # for x label text
+  axis.text.y = element_text(size = 9), 
+  axis.title.x = element_text(size = 13), # for x axis title
+  axis.title.y = element_text(size = 13),
+  legend.text = element_text(size=11), # for legend size
+  legend.title = element_text(size=12)# for legend title
+  )
+}
+
+p1_acoustic <- error_plot_individual(acoustic, ACOUSTIC) +
+  labs(x = "Acoustic")
+p1_visual <- error_plot_individual(visual, VISUAL) +
+  labs(x = "Visual")
+p1_predict <- error_plot_individual(predict, PREDICTABILITY)+
+  labs(x = "Cloze Probability")
+
+# patch work package
+remove_y <- theme(
+  axis.title.y = element_blank(),
+  axis.ticks.y = element_blank(),
+  axis.text.y = element_blank()
+)
+p1_acoustic_adjust <- p1_acoustic 
+p1_visual_adjust <- p1_visual + remove_y 
+p1_predict_adjust <- p1_predict + remove_y
+p.combine <- p1_acoustic_adjust+p1_visual_adjust+p1_predict_adjust +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+p.combine
+p.combine <- patchwork::patchworkGrob(p.combine)
+ggsave("figure/220218_Figure 3.tiff", p.combine, dpi = 300, width = 180, height = 108, units = "mm")
+ggsave("figure/220218_Figure 3.png", p.combine, dpi = 300, width = 180, height = 108, units = "mm")
+```
+

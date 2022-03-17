@@ -1,0 +1,436 @@
+---
+title: "gorillatime"
+author: "Katrina Li"
+date: "03/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(patchwork)
+```
+
+```{r read data}
+adultgorilla <- read.csv("questionnaire/adult_gorillatime.csv")
+childgorilla <- read.csv("questionnaire/child_gorillatime.csv")
+gorilla <- rbind(adultgorilla, childgorilla)
+gorilla$file <- basename(gorilla$filename)
+gorilla$path <- dirname(gorilla$filename)
+gorilla$path <- str_extract(gorilla$path, "\\w+\\s*randomizer$")
+#gorilla$Response <- as.factor(gorilla$Response)
+#levels(gorilla$Response)
+```
+
+```{r identify error messages tokens}
+# 1. No source for the media file 8H_aM_vM.mp4 could be found! Most likely this is because the file has not been uploaded to your stimuli list or its name has been typed incorrectly in the spreadsheet	
+nosource <- gorilla %>%
+  filter(grepl('No source',Response)) 
+
+nosource%>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+# 2. ID MISMATCH! Result ID: 1629231782397 does not match Recording ID of 0
+idmismatch <- gorilla %>%
+  filter(grepl('ID MISMATCH',Response)) 
+
+idmismatch%>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+# 3. loading delay - not about specific tokens
+delay <- gorilla %>%
+  filter(grepl('delay',Response))
+
+delay.table <- delay %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+write.table(delay.table,"interspeech/delay.txt",sep = "\t", row.names = FALSE)
+
+# 4. media err decode - c 15 rows
+#MEDIA_ERR_DECODE: An error of some description occured while decoding the media resource, after the resource was established to be usable	
+media.err.decode <- gorilla %>%
+  filter(grepl('MEDIA_ERR_DECODE',Response))
+
+# 5. media ERR_SRC_NOT_SUPPORTED a151 2 rows
+#MEDIA_ERR_SRC_NOT_SUPPORTED: The media resource indicated by the src attribute was either missing or not supported by the browser	
+media.err.src <- gorilla %>%
+  filter(grepl('MEDIA_ERR_SRC',Response))
+
+# 6. Unexpectedly long close out at end of task! - not about specific tokens
+unexpected <- gorilla %>%
+  filter(grepl('Unexpectedly',Response))
+
+unexpected.table <- unexpected %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+write.table(unexpected.table,"interspeech/unexpected.txt",sep = "\t", row.names = FALSE)
+
+# 7. "RECORDING ERROR" #only c35
+recordingerror <- gorilla %>%
+  filter(grepl('RECORDING ERROR',Response))
+
+recordingerror %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+```
+
+```{r exclude error message tokens}
+excludeset <- rbind(nosource,idmismatch,media.err.decode,media.err.src,recordingerror)
+gorilla.clean <- gorilla %>% 
+  anti_join(excludeset, by = c("Participant.Public.ID","videoname")) %>%
+  #filter(!grepl('No source',Response)) %>%
+  #filter(!grepl('ID MISMATCH',Response)) %>%
+  filter(!grepl('delay',Response)) %>%
+  #filter(!grepl('MEDIA_ERR_DECODE',Response)) %>%
+  #filter(!grepl('MEDIA_ERR_SRC',Response)) %>%
+  filter(!grepl('Unexpectedly',Response)) %>%
+  #filter(!grepl('RECORDING ERROR',Response)) %>%
+  filter(Response != "") %>%
+  mutate(Response = as.factor(Response))
+levels(gorilla.clean$Response) 
+
+gorilla.clean <- gorilla.clean %>%
+  mutate(
+    Responsetype = case_when(
+      Response == "STARTED RECORDING" ~1,
+      Response == "VIDEO STARTED"  ~2,
+      Response == "VIDEO PLAYING EVENT FIRED"   ~3,
+      Response == "VIDEO TIMEUPDATE EVENT FIRED"  ~4,
+      Response == "ADJUSTED START TIME based on TIMEUPDATE EVENT"  ~5,
+      Response == "VIDEO ENDED EVENT FIRED"  ~6,
+      Response == "Next"  ~7,
+      Response == "STOPPED RECORDING"  ~8,
+    )
+  )
+```
+
+```{r identify repetiting okens}
+# How many tokens will result in non-unique combination
+gorilla.wide <- gorilla.clean %>%
+  pivot_wider(
+    id_cols = c("Participant.Public.ID","Task.Version","Spreadsheet","videoname","display","path","file"), 
+    names_from = "Responsetype",
+    names_prefix = "T",
+    values_from = "Reaction.Time",
+        values_fn = length)
+
+T1.rep.token <- gorilla.wide %>%
+  filter(T1 > 1) 
+T1.rep <- gorilla.wide %>%
+  filter(T1 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T2.rep.token <- gorilla.wide %>%
+  filter(T2 > 1) 
+T2.rep <- gorilla.wide %>%
+  filter(T2 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T3.rep.token <- gorilla.wide %>%
+  filter(T3 > 1)
+T3.rep <- gorilla.wide %>%
+  filter(T3 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T4.rep.token <- gorilla.wide %>%
+  filter(T4 > 1)
+T4.rep <- gorilla.wide %>%
+  filter(T4 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T5.rep.token <- gorilla.wide %>%
+  filter(T5 > 1)
+T5.rep <- gorilla.wide %>%
+  filter(T5 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T6.rep.token <- gorilla.wide %>%
+  filter(T6 > 1)
+T6.rep <- gorilla.wide %>%
+  filter(T6 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T7.rep.token <- gorilla.wide %>%
+  filter(T7 > 1)
+T7.rep <- gorilla.wide %>%
+  filter(T7 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+T8.rep.token <- gorilla.wide %>%
+  filter(T8 > 1)
+T8.rep <- gorilla.wide %>%
+  filter(T8 > 1) %>%
+  group_by(Participant.Public.ID) %>%
+  summarise(n = n())
+
+write.table(T1.rep,"interspeech/20220308T1rep.txt",sep = "\t", row.names = FALSE)
+write.table(T2.rep,"interspeech/20220308T2rep.txt",sep = "\t", row.names = FALSE)
+write.table(T3.rep,"interspeech/20220308T3rep.txt",sep = "\t", row.names = FALSE)
+write.table(T4.rep,"interspeech/20220308T4rep.txt",sep = "\t", row.names = FALSE)
+write.table(T5.rep,"interspeech/20220308T5rep.txt",sep = "\t", row.names = FALSE)
+write.table(T6.rep,"interspeech/20220308T6rep.txt",sep = "\t", row.names = FALSE)
+write.table(T7.rep,"interspeech/20220308T7rep.txt",sep = "\t", row.names = FALSE)
+write.table(T8.rep,"interspeech/20220308T8rep.txt",sep = "\t", row.names = FALSE)
+
+```
+
+
+
+```{r excluding rows with multiple video plays}
+# How many tokens will result in non-unique combination
+# gorilla.norep <- gorilla.clean %>%
+#   anti_join(T1.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T2.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T3.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T4.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T5.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T6.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T7.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+#   anti_join(T8.rep.token, by = c("Participant.Public.ID","videoname"))
+# 
+# gorilla.norep.wide <- gorilla.norep %>%
+#   pivot_wider(
+#     id_cols = c("Participant.Public.ID","Task.Version","Spreadsheet","videoname","display","path","file"),
+#     names_from = "Responsetype",
+#     names_prefix = "T",
+#     values_from = "Reaction.Time") %>%
+#     mutate(
+#     parid = Participant.Public.ID,
+#     T1 = as.numeric(T1),
+#     T1 = replace_na(T1,0),
+#     T2 = as.numeric(T2),
+#     T3 = as.numeric(T3),
+#     T4 = as.numeric(T4),
+#     T5 = as.numeric(T5),
+#     T6 = as.numeric(T6),
+#     T7 = as.numeric(T7),
+#     T8 = as.numeric(T8),
+#   )
+```
+
+```{r excluding rows with multiple video plays}
+# How many tokens will result in non-unique combination
+gorilla.norep <- gorilla.clean %>%
+  anti_join(T1.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T2.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T3.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T4.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  #anti_join(T5.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T6.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T7.rep.token, by = c("Participant.Public.ID","videoname")) %>%
+  anti_join(T8.rep.token, by = c("Participant.Public.ID","videoname"))
+
+gorilla.norep.wide <- gorilla.norep %>%
+  pivot_wider(
+    id_cols = c("Participant.Public.ID","Task.Version","Spreadsheet","videoname","display","path","file"), 
+    names_from = "Responsetype",
+    names_prefix = "T",
+    values_from = "Reaction.Time",
+    values_fn = last) %>%
+    mutate(
+    parid = Participant.Public.ID,
+    T1 = as.numeric(T1),
+    T1 = replace_na(T1,0),
+    T2 = as.numeric(T2),
+    T3 = as.numeric(T3),
+    T4 = as.numeric(T4),
+    T5 = as.numeric(T5),
+    T6 = as.numeric(T6),
+    T7 = as.numeric(T7),
+    T8 = as.numeric(T8),
+  )
+```
+
+```{r merge with RT assist_final data}
+#Let's only focus on when the relevant participants
+data<-read.delim("interspeech/220308RTassist_final.txt", sep="\t", header=T) 
+
+data.join <- data %>%
+  inner_join(gorilla.norep.wide, by = c("parid","videoname"))
+
+#786 rows not matched - those with double playing (error messages recordings will not be included anyway)
+data %>%
+  anti_join(gorilla.norep.wide, by = c("parid","videoname"))
+```
+```{r read the start of the measurefiles & stimuli files}
+# Read into measure file start and merge
+startpath <- "interspeech/soundstart_measure"
+start <- list.files(startpath,pattern = "start.txt",full.names = T)
+startfiles <-tibble(File = start) %>%
+  extract(File, "parid","([0-9]{6}_[ac][0-9]*measure_start)",remove = FALSE) %>%
+  mutate(Data = lapply(File, read.delim, sep = "\t")) %>%
+  unnest(Data)%>%
+  select(-File)%>%
+  mutate(label = str_replace_all(label,"\\.","")) %>% # Replace extra '.' symbol at the end
+  mutate(label = str_replace_all(label,"\\_$","")) %>%# Replace extra '_' symbol at the end
+  mutate(label = str_replace_all(label,",$","")) %>%
+  mutate(parid = substr(parid, 1, nchar(parid)-13)) %>%
+  rename(start_time_measure = start_time)
+
+##merge 
+data.join.start.m <- data.join %>%
+  inner_join(startfiles, by = c("parid" = "parid","original_label"="label"))
+
+#### a120 137L lost data point because 
+data.join %>%
+  anti_join(startfiles, by = c("parid" = "parid","original_label"="label"))
+
+  
+# Read the start of stimuli files and merge with stimulim to derive X3
+stimuli.start1 <- read.delim("interspeech/soundstart_stimuli/aM_annotation2_start.txt",sep = "\t")
+stimuli.start2 <- read.delim("interspeech/soundstart_stimuli/aNM_annotation2_start.txt",sep = "\t")
+stimuli.start <- rbind(stimuli.start1, stimuli.start2)
+stimuli.start <- stimuli.start %>%
+  rename(start_time_stimuli = start_time)
+
+stimulim <- read.csv("datafile_first_batch/stimulim.csv",header = T)
+stimulim.length <- stimulim %>%
+  select(sentence_label,time_p2) %>%
+  inner_join(stimuli.start, by = c("sentence_label" = "label")) %>%
+  mutate(X3 = (time_p2 - start_time_stimuli)*1000)
+
+```
+
+```{r }
+data.final <- data.join.start.m %>%
+  mutate(sentence_label = paste0(number, "_",audio)) %>%
+  left_join(stimulim.length, by = c("sentence_label")) %>%
+  mutate(
+    duration2 = beep_response - (rstart-b),
+    X1 = (rstart + duration2 - start_time_measure)*1000,
+    X2 = T5-T1,
+    RT.alter = X1-X2-X3,
+    diff.alter = RT.alter - RT)
+
+data.final %>%
+  ggplot(aes(x=diff.alter)) +
+  geom_histogram(binwidth = 10)
+# mosty very small, but seems to have peculiar values
+```
+
+# Evaluation data
+## Measurement 1
+```{r}
+nrow(data.final[data.final$diff.alter <50 & data.final$diff.alter > -50,])#4123
+nrow(data.final[data.final$diff.alter <50 & data.final$diff.alter > -50,])/nrow(data.final) #84.71% #77.77%
+
+nrow(data.final[data.final$diff.alter <10 & data.final$diff.alter > -10,])#1106 #1138
+nrow(data.final[data.final$diff.alter <10 & data.final$diff.alter > -10,])/nrow(data.final) #22.72% #20.20%
+```
+
+Measurement 2: regression fits
+```{r}
+data.final2 <- subset(data.final,abs(diff.alter)<2000)
+lm.alter <- lm(RT ~ RT.alter, data = data.final2)
+summary(lm.alter)
+data.final2$predicted.alter <- predict(lm.alter)
+data.final2$residual.alter <- residuals(lm.alter)
+```
+
+```{r scatter plot}
+scatterplot <-function(data,xaxis){
+  ggplot(data, aes(x = {{xaxis}}, y = RT)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1,colour = "red") + 
+    ylim(-1350,3650) +
+    xlim(-1350,3650) +
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=11), # for legend size
+      legend.title = element_text(size=12)) +
+    ylab("Manual (ms)")
+}
+remove_y <- theme(
+  axis.title.y = element_blank(),
+  axis.ticks.y = element_blank(),
+  axis.text.y = element_blank()
+)
+
+scatter.chron <- data.final2 %>%
+  scatterplot(RT.chron) +
+  xlab("Chronset (ms)")
+
+scatter.inten <- data.final2 %>%
+  scatterplot(RT.inten) +
+  remove_y +
+  xlab("Intensity-based (ms)") 
+
+scatter.alter <- data.final2 %>%
+  scatterplot(RT.alter) +
+  remove_y+
+  xlab("Video metrics (ms)")
+
+```
+
+```{r}
+scatter.combine <- scatter.chron+scatter.inten +scatter.alter +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+scatter.combine
+scatter <- patchwork::patchworkGrob(scatter.combine)
+ggsave("interspeech/220315scatterplot.png", scatter, dpi = 300, width = 200, height = 108, units = "mm")
+```
+
+```{r ecdf of residual}
+myecdf <- function(data){
+  ggplot(data, aes(diff,colour = method)) +
+    stat_ecdf(geom="line",size = 1) +
+    xlim(-1000,1000) +
+    theme_classic() + 
+    theme(axis.text.x = element_text(size = 9), # for x label text
+      axis.text.y = element_text(size = 9), 
+      axis.title.x = element_text(size = 13), # for x axis title
+      axis.title.y = element_text(size = 13),
+      legend.text = element_text(size=11), # for legend size
+      legend.title = element_text(size=12)) +
+    labs(y="CDF", colour = "Method") +
+    scale_color_manual(values=c("#000000", "#E69F00", "#56B4E9"))
+}
+
+RT.plotdata <- data.final2 %>%
+  select(parid, correctans,original_label,diff.inten,diff.chron,diff.alter) %>%
+  pivot_longer(cols = c(diff.inten,diff.chron, diff.alter), names_to = "method", values_to = "diff") %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("diff.inten","diff.chron","diff.alter"),labels = c("Intensity-based","Chronset","Additional metrics"))
+  )
+
+absfigure <- RT.plotdata %>%
+  myecdf() +
+  xlab("Absolute difference [ms]")
+
+
+RT.plotdata2 <- data.final2 %>%
+  select(parid, correctans,original_label,residual.inten,residual.chron,residual.alter) %>%
+  pivot_longer(cols = c(residual.inten,residual.chron, residual.alter), names_to = "method", values_to = "diff") %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("residual.inten","residual.chron","residual.alter"),labels = c("Intensity-based","Chronset","Video playing metrics"))
+  )
+
+residfigure <- RT.plotdata2 %>%
+  myecdf() +
+  xlab("Regression Residuals [ms]") +
+  remove_y
+```
+
+```{r combine figure}
+ecdf.combine <- absfigure+residfigure +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+ecdf.combine
+ecdf <- patchwork::patchworkGrob(ecdf.combine)
+ggsave("interspeech/220310ecdf.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
+```
+
+

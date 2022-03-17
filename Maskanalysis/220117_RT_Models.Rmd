@@ -313,13 +313,13 @@ The model was then optimized with the step function (checked against manual redu
 ```{r, full start model}
 lmm.all <- lmerTest::lmer(RT ~ 
                             AUDIO:VIDEO +
-                            AUDIO:AGE_c +
-                            VIDEO:AGE_c +
+                            AUDIO:GROUP +
+                            VIDEO:GROUP +
                             AUDIO:PREDICT +
                             VIDEO:PREDICT +
-                            AGE_c:PREDICT +
+                            GROUP:PREDICT +
                             
-                            AGE_c +
+                            GROUP +
                             PREDICT +
                             VIDEO +
                             AUDIO +
@@ -698,7 +698,8 @@ lmm.improve.optimized <- lmerTest::lmer(RT ~
                            REML=T, na.action=na.omit)
 
 ```
-```{r}
+
+```{r tab model}
 tab_model(lmm.all.optimized,lmm.adults.optimized,lmm.children.optimized)
 
 tab_model(lmm.all.optimized,lmm.adults.optimized,lmm.children.optimized, pred.labels = c("Intercept","Age","Predictability","Visual Mask", "Acoustic Mask","Trial Order","Acoustic * Visual", "Acoustic * Predictability", "Age * Predictability"),
