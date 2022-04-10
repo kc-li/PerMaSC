@@ -1,0 +1,220 @@
+---
+title: "220322 plotting code"
+author: "Katrina Li"
+date: "22/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(patchwork)
+```
+
+
+```{r read data}
+videometrics <- read.delim("interspeech/220322datafinal.txt", sep = "\t", header = T)
+autometrics <- read.delim("interspeech/220322RTassist_final.txt", sep="\t", header=T)
+```
+
+# Evaluation data
+## Measurement 1: within 50ms & within 10ms
+
+```{r autometrics}
+nrow(autometrics[autometrics$diff.inten <50 & autometrics$diff.inten > -50,])#4668
+nrow(autometrics[autometrics$diff.inten <50 & autometrics$diff.inten > -50,])/nrow(autometrics) #82.57%
+
+nrow(autometrics[autometrics$diff.inten <10 & autometrics$diff.inten > -10,])#2616
+nrow(autometrics[autometrics$diff.inten <10 & autometrics$diff.inten > -10,])/nrow(autometrics) #46.27%
+
+## Chronset
+nrow(autometrics[autometrics$diff.chron <50 & autometrics$diff.chron > -50,])#4287
+nrow(autometrics[autometrics$diff.chron <50 & autometrics$diff.chron > -50,])/nrow(autometrics) #75.84%
+
+nrow(autometrics[autometrics$diff.chron <10 & autometrics$diff.chron > -10,])#1603
+nrow(autometrics[autometrics$diff.chron <10 & autometrics$diff.chron > -10,])/nrow(autometrics) #28.37%
+  
+```
+
+```{r with fricatives}
+nrow(autometrics[autometrics$diff.inten <50 & autometrics$diff.inten > -50 & autometrics$onsettype == "fricative",])/nrow(autometrics) #24.23%
+nrow(autometrics[autometrics$diff.chron <50 & autometrics$diff.chron > -50 & autometrics$onsettype == "fricative",])/nrow(autometrics) #19.68%
+
+nrow(autometrics[autometrics$diff.inten <10 & autometrics$diff.inten > -10 & autometrics$onsettype == "fricative",])/nrow(autometrics) #12.68%
+nrow(autometrics[autometrics$diff.chron <10 & autometrics$diff.chron > -10 & autometrics$onsettype == "fricative",])/nrow(autometrics) #11.91%
+
+#Non-fricative
+nrow(autometrics[autometrics$diff.inten <50 & autometrics$diff.inten > -50 & autometrics$onsettype != "fricative",])/nrow(autometrics) #58.35%
+nrow(autometrics[autometrics$diff.chron <50 & autometrics$diff.chron > -50 & autometrics$onsettype != "fricative",])/nrow(autometrics) #56.16%
+
+nrow(autometrics[autometrics$diff.inten <10 & autometrics$diff.inten > -10 & autometrics$onsettype != "fricative",])/nrow(autometrics) #33.59%
+nrow(autometrics[autometrics$diff.chron <10 & autometrics$diff.chron > -10 & autometrics$onsettype != "fricative",])/nrow(autometrics) #16.45%
+
+autometrics %>%
+  mutate(range50_inten = if_else(abs(diff.inten)<50,1,0),
+         range50_chron = if_else(abs(diff.chron)<50,1,0),
+         range10_inten = if_else(abs(diff.inten)<10,1,0),
+         range10_chron = if_else(abs(diff.chron)<10,1,0),
+         ) %>%
+  group_by(onsettype) %>%
+  summarise(ave50_inten = mean(range50_inten),ave50_chron = mean(range50_chron),ave10_inten = mean(range10_inten),ave10_chron = mean(range10_chron))
+```
+
+```{r video metrics}
+nrow(videometrics[videometrics$diff.alter <50 & videometrics$diff.alter > -50,])#4123
+nrow(videometrics[videometrics$diff.alter <50 & videometrics$diff.alter > -50,])/nrow(videometrics) #84.71% #77.77%
+
+nrow(videometrics[videometrics$diff.alter <10 & videometrics$diff.alter > -10,])#1106 #1138
+nrow(videometrics[videometrics$diff.alter <10 & videometrics$diff.alter > -10,])/nrow(videometrics) #22.72% #20.20%
+```
+
+
+
+
+Measurement 2: regression fits
+```{r autometrics}
+lm.chron <- lm(RT ~ RT.chron, data = autometrics)
+summary(lm.chron)
+autometrics$predicted.chron <- predict(lm.chron)
+autometrics$residual.chron <- residuals(lm.chron)
+
+lm.inten <- lm(RT ~ RT.inten, data = autometrics)
+summary(lm.inten)
+autometrics$predicted.inten <- predict(lm.inten)
+autometrics$residual.inten <- residuals(lm.inten)
+```
+
+```{r autometrics fricative}
+lm.chron.fric <- lm(RT ~ RT.chron, data = subset(autometrics, onsettype == "fricative"))
+summary(lm.chron.fric)
+
+lm.inten.fric <- lm(RT ~ RT.inten, data = subset(autometrics, onsettype == "fricative"))
+summary(lm.inten.fric)
+
+lm.chron.nonfric <- lm(RT ~ RT.chron, data = subset(autometrics, onsettype != "fricative"))
+summary(lm.chron.nonfric)
+
+lm.inten.nonfric <- lm(RT ~ RT.inten, data = subset(autometrics, onsettype != "fricative"))
+summary(lm.inten.nonfric)
+```
+
+
+```{r video metrics}
+videometrics2 <- subset(videometrics,abs(diff.alter)<2000)
+lm.alter <- lm(RT ~ RT.alter, data = videometrics2)
+summary(lm.alter)
+videometrics2$predicted.alter <- predict(lm.alter)
+videometrics2$residual.alter <- residuals(lm.alter)
+```
+
+# Plotting
+```{r scatter plot}
+scatterplot <-function(data,xaxis){
+  ggplot(data, aes(x = {{xaxis}}, y = RT)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1,colour = "red") + 
+    geom_smooth(method = "lm", formula = y~x) +
+    ylim(-1350,3650) +
+    xlim(-1350,3650) +
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 12), # for x label text
+      axis.text.y = element_text(size = 12), 
+      axis.title.x = element_text(size = 15), # for x axis title
+      axis.title.y = element_text(size = 15),
+      legend.text = element_text(size=14), # for legend size
+      legend.title = element_text(size=14)) +
+    ylab("Manual (ms)")
+}
+remove_y <- theme(
+  axis.title.y = element_blank(),
+  axis.ticks.y = element_blank(),
+  axis.text.y = element_blank()
+)
+
+scatter.chron <- autometrics %>%
+  scatterplot(RT.chron) +
+  xlab("Chronset (ms)\n(A)")
+
+scatter.inten <- autometrics %>%
+  scatterplot(RT.inten) +
+  remove_y +
+  xlab("Intensity-based (ms)\n(B)") 
+
+scatter.alter <- videometrics2 %>%
+  scatterplot(RT.alter) +
+  remove_y+
+  xlab("Video metrics (ms)\n(C)")
+
+```
+
+```{r}
+scatter.combine <- scatter.chron+scatter.inten +scatter.alter +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+scatter.combine
+scatter <- patchwork::patchworkGrob(scatter.combine)
+ggsave("interspeech/220323scatterplot.png", scatter, dpi = 300, width = 200, height = 108, units = "mm")
+```
+
+```{r ecdf of residual}
+myecdf <- function(data){
+  ggplot(data, aes(diff,colour = method,linetype = method)) +
+    stat_ecdf(geom="line",size = 1.5) +
+    xlim(-1000,1000) +
+    theme_classic() + 
+    theme(axis.text.x = element_text(size =12), # for x label text
+      axis.text.y = element_text(size = 12), 
+      axis.title.x = element_text(size = 15), # for x axis title
+      axis.title.y = element_text(size = 15),
+      legend.text = element_text(size=14), # for legend size
+      legend.title = element_text(size=14)) +
+    labs(y="CDF",colour = "Method",linetype = "Method") +
+    scale_color_manual(values=c("#000000", "#E69F00", "#56B4E9"))+
+    scale_linetype_manual(values = c("solid","dashed","dotted"))
+}
+
+auto.plotdata <- autometrics %>%
+  select(parid, correctans,original_label,diff.chron,diff.inten) %>%
+  pivot_longer(cols = c(diff.chron,diff.inten), names_to = "method", values_to = "diff")
+
+video.plotdata <- videometrics2 %>%
+  select(parid, correctans,original_label,diff.inten,diff.chron,diff.alter) %>%
+  pivot_longer(cols = c(diff.inten,diff.chron, diff.alter), names_to = "method", values_to = "diff") %>%
+  filter(method == "diff.alter") %>%
+  bind_rows(auto.plotdata) %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("diff.inten","diff.chron","diff.alter"),labels = c("Intensity-based","Chronset","Video metrics"))
+  )
+
+absfigure <- video.plotdata %>%
+  myecdf() +
+  xlab("Absolute difference (ms)\n(A)")
+
+
+auto.plotdata2 <- autometrics %>%
+  select(parid, correctans,original_label,residual.chron,residual.inten) %>%
+  pivot_longer(cols = c(residual.chron,residual.inten), names_to = "method", values_to = "diff")
+
+video.plotdata2 <- videometrics2 %>%
+  select(parid, correctans,original_label,residual.inten,residual.chron,residual.alter) %>%
+  pivot_longer(cols = c(residual.inten,residual.chron, residual.alter), names_to = "method", values_to = "diff") %>%
+  filter(method == "residual.alter") %>%
+  bind_rows(auto.plotdata2) %>%
+  mutate(
+    diff = as.numeric(diff),
+    method = factor(method,levels = c("residual.inten","residual.chron","residual.alter"),labels = c("Intensity-based","Chronset","Video metrics"))
+  )
+
+residfigure <- RT.plotdata2 %>%
+  myecdf() +
+  xlab("Regression Residuals (ms)\n(B)") +
+  remove_y
+```
+
+```{r combine figure}
+ecdf.combine <- absfigure+residfigure +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
+ecdf.combine
+ecdf <- patchwork::patchworkGrob(ecdf.combine)
+ggsave("interspeech/220322ecdf_2.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
+```

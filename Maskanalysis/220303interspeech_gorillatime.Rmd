@@ -254,7 +254,7 @@ gorilla.norep.wide <- gorilla.norep %>%
 
 ```{r merge with RT assist_final data}
 #Let's only focus on when the relevant participants
-data<-read.delim("interspeech/220308RTassist_final.txt", sep="\t", header=T) 
+data<-read.delim("interspeech/220322RTassist_final.txt", sep="\t", header=T) 
 
 data.join <- data %>%
   inner_join(gorilla.norep.wide, by = c("parid","videoname"))
@@ -319,118 +319,10 @@ data.final %>%
 # mosty very small, but seems to have peculiar values
 ```
 
-# Evaluation data
-## Measurement 1
-```{r}
-nrow(data.final[data.final$diff.alter <50 & data.final$diff.alter > -50,])#4123
-nrow(data.final[data.final$diff.alter <50 & data.final$diff.alter > -50,])/nrow(data.final) #84.71% #77.77%
-
-nrow(data.final[data.final$diff.alter <10 & data.final$diff.alter > -10,])#1106 #1138
-nrow(data.final[data.final$diff.alter <10 & data.final$diff.alter > -10,])/nrow(data.final) #22.72% #20.20%
+```{r write data}
+write.table(data.final,"interspeech/220322datafinal.txt", sep= "\t", row.names = FALSE)
 ```
 
-Measurement 2: regression fits
-```{r}
-data.final2 <- subset(data.final,abs(diff.alter)<2000)
-lm.alter <- lm(RT ~ RT.alter, data = data.final2)
-summary(lm.alter)
-data.final2$predicted.alter <- predict(lm.alter)
-data.final2$residual.alter <- residuals(lm.alter)
-```
 
-```{r scatter plot}
-scatterplot <-function(data,xaxis){
-  ggplot(data, aes(x = {{xaxis}}, y = RT)) +
-    geom_point() +
-    geom_abline(intercept = 0, slope = 1,colour = "red") + 
-    ylim(-1350,3650) +
-    xlim(-1350,3650) +
-    theme_classic() +
-    theme(axis.text.x = element_text(size = 9), # for x label text
-      axis.text.y = element_text(size = 9), 
-      axis.title.x = element_text(size = 13), # for x axis title
-      axis.title.y = element_text(size = 13),
-      legend.text = element_text(size=11), # for legend size
-      legend.title = element_text(size=12)) +
-    ylab("Manual (ms)")
-}
-remove_y <- theme(
-  axis.title.y = element_blank(),
-  axis.ticks.y = element_blank(),
-  axis.text.y = element_blank()
-)
-
-scatter.chron <- data.final2 %>%
-  scatterplot(RT.chron) +
-  xlab("Chronset (ms)")
-
-scatter.inten <- data.final2 %>%
-  scatterplot(RT.inten) +
-  remove_y +
-  xlab("Intensity-based (ms)") 
-
-scatter.alter <- data.final2 %>%
-  scatterplot(RT.alter) +
-  remove_y+
-  xlab("Video metrics (ms)")
-
-```
-
-```{r}
-scatter.combine <- scatter.chron+scatter.inten +scatter.alter +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
-scatter.combine
-scatter <- patchwork::patchworkGrob(scatter.combine)
-ggsave("interspeech/220315scatterplot.png", scatter, dpi = 300, width = 200, height = 108, units = "mm")
-```
-
-```{r ecdf of residual}
-myecdf <- function(data){
-  ggplot(data, aes(diff,colour = method)) +
-    stat_ecdf(geom="line",size = 1) +
-    xlim(-1000,1000) +
-    theme_classic() + 
-    theme(axis.text.x = element_text(size = 9), # for x label text
-      axis.text.y = element_text(size = 9), 
-      axis.title.x = element_text(size = 13), # for x axis title
-      axis.title.y = element_text(size = 13),
-      legend.text = element_text(size=11), # for legend size
-      legend.title = element_text(size=12)) +
-    labs(y="CDF", colour = "Method") +
-    scale_color_manual(values=c("#000000", "#E69F00", "#56B4E9"))
-}
-
-RT.plotdata <- data.final2 %>%
-  select(parid, correctans,original_label,diff.inten,diff.chron,diff.alter) %>%
-  pivot_longer(cols = c(diff.inten,diff.chron, diff.alter), names_to = "method", values_to = "diff") %>%
-  mutate(
-    diff = as.numeric(diff),
-    method = factor(method,levels = c("diff.inten","diff.chron","diff.alter"),labels = c("Intensity-based","Chronset","Additional metrics"))
-  )
-
-absfigure <- RT.plotdata %>%
-  myecdf() +
-  xlab("Absolute difference [ms]")
-
-
-RT.plotdata2 <- data.final2 %>%
-  select(parid, correctans,original_label,residual.inten,residual.chron,residual.alter) %>%
-  pivot_longer(cols = c(residual.inten,residual.chron, residual.alter), names_to = "method", values_to = "diff") %>%
-  mutate(
-    diff = as.numeric(diff),
-    method = factor(method,levels = c("residual.inten","residual.chron","residual.alter"),labels = c("Intensity-based","Chronset","Video playing metrics"))
-  )
-
-residfigure <- RT.plotdata2 %>%
-  myecdf() +
-  xlab("Regression Residuals [ms]") +
-  remove_y
-```
-
-```{r combine figure}
-ecdf.combine <- absfigure+residfigure +plot_layout(guides = 'collect')&theme(legend.position = 'bottom')
-ecdf.combine
-ecdf <- patchwork::patchworkGrob(ecdf.combine)
-ggsave("interspeech/220310ecdf.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
-```
 
 

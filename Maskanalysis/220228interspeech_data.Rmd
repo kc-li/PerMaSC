@@ -189,20 +189,7 @@ RTassist.final <- RTassist.final %>%
     parid == "210719_a41" ~ (time.chron - start_time - 0.8 + duration1 - length2)*1000,
     parid == "210725_a83" ~ (time.chron - start_time - 0.7 + duration1 - length2)*1000,
     TRUE ~ (time.chron - start_time - 0.5 + duration1 - length2)*1000),
-    onset = str_sub(correctans,1,1),
-    onset = as.factor(onset),
-    onset.type = case_shen(
-      onset == "b" ~ "plosive",
-      
-    )
   )
-```
-
-```{r characterize onset type}
-levels(RTassist.final$onset)
-RTassist.final %>%
-  filter(onset=="c") %>%
-  select(correctans)
 ```
 
 
@@ -236,7 +223,7 @@ nrow(RTassist.final[RTassist.final$diff.inten <50 & RTassist.final$diff.inten > 
 nrow(RTassist.final[RTassist.final$diff.inten <50 & RTassist.final$diff.inten > -50,])/nrow(RTassist.final) #82.57%
 
 nrow(RTassist.final[RTassist.final$diff.inten <10 & RTassist.final$diff.inten > -10,])#2616
-nrow(RTassist.final[RTassist.final$diff.inten <10 & RTassist.final$diff.inten > -10,])/nrow(RTassist.final) #64.27%
+nrow(RTassist.final[RTassist.final$diff.inten <10 & RTassist.final$diff.inten > -10,])/nrow(RTassist.final) #46.27%
 
 ## Chronset
 nrow(RTassist.final[RTassist.final$diff.chron <50 & RTassist.final$diff.chron > -50,])#4287
@@ -346,8 +333,37 @@ ecdf <- patchwork::patchworkGrob(ecdf.combine)
 ggsave("interspeech/220307ecdf.png", ecdf, dpi = 300, width = 180, height = 108, units = "mm")
 ```
 
-```{r writedata}
-write.table(RTassist.final,"interspeech/220308RTassist_final.txt", sep = "\t", row.names = FALSE)
+
+# Working on stimuli onset type
+```{r }
+word <- unique(RTassist.final$correctans)
+paste0("'",word,"'",sep = ",",collapse = "")
 ```
+```{r read stimuli onsetand merge}
+onset <- read.csv("interspeech/stimuli_onset/stimulionset.csv")
+
+duplicated(onset$correctans)
+
+RTassist.final <- RTassist.final %>%
+  left_join(onset, by = "correctans") %>%
+  mutate(
+    onsettype = as.factor(onsettype)
+  )
+
+
+#check merge failure
+RTassist.final %>%
+  anti_join(onset, by = "correctans")
+
+
+levels(RTassist.final$onsettype)
+```
+
+
+
+```{r writedata}
+write.table(RTassist.final,"interspeech/220322RTassist_final.txt", sep = "\t", row.names = FALSE)
+```
+
 
 
